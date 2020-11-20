@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ProductFullGiftMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ProductFullGift">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="full" jdbcType="FLOAT" property="full" />
+    <result column="gift" jdbcType="INTEGER" property="gift" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="descript" jdbcType="VARCHAR" property="descript" />
+    <result column="begin_time" jdbcType="TIMESTAMP" property="beginTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, `full`, gift, product_id, descript, begin_time, end_time, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from product_full_gift
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByProductId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from product_full_gift
+    where product_id = #{productId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from product_full_gift
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ProductFullGift" useGeneratedKeys="true">
+    insert into product_full_gift (`full`, gift, product_id, 
+      descript, begin_time, end_time, 
+      create_time, update_time)
+    values (#{full,jdbcType=FLOAT}, #{gift,jdbcType=INTEGER}, #{productId,jdbcType=BIGINT}, 
+      #{descript,jdbcType=VARCHAR}, #{beginTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ProductFullGift">
+    update product_full_gift
+    <set>
+      <if test="full != null">
+        `full` = #{full,jdbcType=FLOAT},
+      </if>
+      <if test="gift != null">
+        gift = #{gift,jdbcType=INTEGER},
+      </if>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="descript != null">
+        descript = #{descript,jdbcType=VARCHAR},
+      </if>
+      <if test="beginTime != null">
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.PetsUfoCatcherMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsUfoCatcher">
+        <id column="id" property="id"/>
+        <result column="product_code" property="productCode"/>
+        <result column="prize_weigth" property="prizeWeigth"/>
+        <result column="is_must" property="isMust"/>
+        <result column="unit" property="unit"/>
+        <result column="catcher_id" property="catcherId"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="product_name" property="productName"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="using_pro" property="usingPro"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="product_id" property="productId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, prize_name, prize_weigth, is_must, catcher_id, modified_time
+  </sql>
+    <select id="selectByCatcherId" resultMap="BaseResultMap">
+        SELECT
+            t1.product_code,
+            t1.prize_weigth,
+            t1.is_must,
+            t1.unit,
+            t2.id AS product_id,
+            t2.product_name,
+            t2.pic_url,
+            t3.id AS category_id,
+            t3.using_pro
+        FROM
+            pets_ufo_catcher t1
+            LEFT JOIN pets_product_info t2 ON t1.product_code = t2.product_code
+            LEFT JOIN pets_product_category t3 ON t2.category_id = t3.id
+        WHERE
+            t1.catcher_id = #{catcherId}
+    </select>
+
+
+    <select id="previewPrize" resultType="java.util.Map">
+        SELECT
+            t1.product_code AS productCode,
+            t1.unit,
+            t2.id AS productId,
+            t2.product_name AS productName,
+            t2.pic_url AS picUrl,
+            t2.attribute,
+            t3.id AS categoryId,
+            t3.using_pro usingPro
+
+        FROM
+            pets_ufo_catcher t1
+            LEFT JOIN pets_product_info t2 ON t1.product_code = t2.product_code
+            LEFT JOIN pets_product_category t3 ON t2.category_id = t3.id
+        WHERE
+            t1.catcher_id = #{catcherId}
+    </select>
+
+    <select id="getCatcherPrice" resultType="java.util.Map">
+        SELECT
+            catcher_id catcherId,
+            draw_num drawNum,
+            draw_price drawPrice,
+            price_type priceType
+        FROM
+            pets_ufo_catcher_price
+        <where>
+            catcher_id = #{catcherId}
+            <if test="drawNum != null">
+                AND draw_num = #{drawNum}
+            </if>
+        </where>
+
+    </select>
+
+
+</mapper>

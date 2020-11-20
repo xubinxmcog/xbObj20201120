@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ProductBackpackMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ProductBackpack">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_num" property="productNum"/>
+        <result column="time_limit" property="timeLimit"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="game_label_id" property="gameLabelId"/>
+        <result column="product_status" property="productStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="use_time" property="useTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+      id, user_id, product_id, product_code, product_num,time_limit, category_id, game_label_id, product_status, create_time, modified_time, use_time
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_backpack
+        <where>
+            <if test="id != null and id !=0">
+                id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="productCode != null">
+                and product_code = #{productCode}
+            </if>
+            and product_num >0
+        </where>
+    </select>
+
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ProductBackpack"
+            useGeneratedKeys="true">
+    insert into product_backpack (user_id, product_id, product_code, product_num, category_id, game_label_id, product_status, time_limit,
+      create_time,modified_time,use_time)
+    values (#{userId}, #{productId}, #{productCode}, #{productNum}, #{categoryId}, #{gameLabelId}, #{productStatus}, #{timeLimit},
+      NOW(), NOW(), #{useTime})
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ProductBackpack">
+        update product_backpack
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="productCode != null">
+                product_code = #{productCode},
+            </if>
+            <if test="productNum != null">
+                product_num = #{productNum},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="gameLabelId != null">
+                game_label_id = #{gameLabelId},
+            </if>
+            <if test="productStatus != null">
+                product_status = #{productStatus},
+            </if>
+            <if test="timeLimit != null">
+                time_limit = #{timeLimit},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="useTime != null">
+                use_time = #{useTime},
+            </if>
+            modified_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateProductStatus">
+        update product_backpack
+        set
+        product_status = 1,
+        modified_time = NOW()
+        <where>
+            user_id = #{userId}
+            and category_id = #{categoryId}
+            <if test="id != null">
+                and <![CDATA[ id <> #{id}  ]]>
+            </if>
+            <if test="gameLabelId != null">
+                and game_label_id = #{gameLabelId}
+            </if>
+
+        </where>
+    </update>
+
+    <update id="updateUserTimeLimit">
+        update product_backpack
+        set
+          time_limit = 0,
+          product_status = 1,
+          modified_time = NOW()
+        where
+        <![CDATA[
+          user_id = #{userId}
+          AND time_limit <> 0
+          AND time_limit <> -1
+          AND (UNIX_TIMESTAMP(STR_TO_DATE(create_time, '%Y-%m-%d %H:%i:%s' )) + time_limit ) < UNIX_TIMESTAMP( STR_TO_DATE( NOW(), '%Y-%m-%d %H:%i:%s' ))
+
+
+        ]]>
+    </update>
+
+    <!--更新用户头像框和聊天框-->
+    <update id="updateUserFrame">
+        update tb_user
+        <set>
+            <if test="iconFrame != null">
+                icon_frame = #{iconFrame},
+            </if>
+            <if test="chatFrame != null">
+                chat_frame = #{chatFrame},
+            </if>
+            <if test="chatFrameAttribute != null and chatFrameAttribute != 'null'">
+                chat_frame_attribute = #{chatFrameAttribute},
+            </if>
+            <if test="chatFrameAttribute == 'null'">
+                chat_frame_attribute = null,
+            </if>
+            <if test="ifTime != null">
+                if_time = #{ifTime},
+            </if>
+            <if test="cfTime != null">
+                cf_time = #{cfTime},
+            </if>
+        </set>
+        where user_id = #{userId}
+
+    </update>
+
+    <resultMap id="CategoryBackpackDTOResultMap" type="com.enuos.live.dto.CategoryBackpackDTO">
+        <id column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="category_code" property="categoryCode"/>
+        <collection property="list" ofType="com.enuos.live.dto.BackpackDTO">
+            <result column="id" property="id"/>
+            <result column="user_id" property="userId"/>
+            <result column="product_id" property="productId"/>
+            <result column="product_num" property="productNum"/>
+            <result column="time_limit" property="timeLimit"/>
+            <result column="product_status" property="productStatus"/>
+            <result column="create_time" property="createTime"/>
+            <result column="use_time" property="useTime"/>
+            <result column="product_name" property="productName"/>
+            <result column="pic_url" property="picUrl"/>
+            <result column="descript" property="descript"/>
+            <result column="attribute4" property="attribute4"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="getUserOrnaments" resultMap="CategoryBackpackDTOResultMap">
+        SELECT
+            t1.category_id,
+            t1.id,
+            t1.user_id,
+            t1.product_id,
+            t1.product_num,
+            t1.time_limit,
+            t1.product_status,
+            t1.create_time,
+            t1.use_time,
+
+            t2.category_name,
+            t2.category_code,
+
+            t3.product_name,
+            t3.pic_url,
+            t3.descript,
+            t3.attribute4
+        FROM
+            product_backpack t1
+            LEFT JOIN product_category t2 ON t2.id = t1.category_id
+            LEFT JOIN product_info t3 ON t3.id = t1.product_id
+        WHERE
+        <![CDATA[
+            t1.user_id = #{userId}
+            AND t1.time_limit <> 0
+            AND t1.product_num > 0
+            ]]>
+        ORDER BY
+            t1.category_id DESC
+    </select>
+
+    <resultMap id="findBackpackDTOMap" type="com.enuos.live.dto.BackpackDTO">
+        <result column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_num" property="productNum"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="time_limit" property="timeLimit"/>
+        <result column="descript" property="descript"/>
+        <result column="product_status" property="productStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <select id="getGameOrnament" resultType="java.util.Map">
+        SELECT
+            back.product_id productId,
+            produ.game_label_id labelCode,
+            produ.pic_url adornUrl
+        FROM
+            product_backpack back
+            INNER JOIN product_info produ ON produ.product_code = back.product_code
+        WHERE
+            back.user_id = #{userId}
+            AND back.category_id = #{categoryId}
+            AND back.product_status = 2
+            AND <![CDATA[ back.time_limit<>0 ]]>
+            AND back.product_num >0
+    </select>
+
+    <select id="getProductBackpackDetail" resultType="com.enuos.live.dto.ProductBackpackDetail">
+        SELECT
+            t1.id id,
+            t1.user_id userId,
+            t1.product_id productId,
+            t1.product_num productNum,
+            t1.category_id categoryId,
+            t1.product_code productCode,
+            t1.product_status productStatus,
+            t1.create_time createTime,
+            t1.time_limit timeLimit,
+            t1.use_time useTime,
+
+            t2.product_name productName,
+            t2.pic_url picUrl,
+            t2.game_label_id gameLabelId,
+            t2.descript,
+            t2.attribute4 attribute4,
+
+            t3.category_name categoryName,
+            t3.category_code categoryCode
+
+        FROM
+            product_backpack t1
+            LEFT JOIN product_info t2 ON t2.id = t1.product_id
+            LEFT JOIN product_category t3 ON t3.id = t1.category_id
+        WHERE
+            t1.id = #{id}
+            AND t1.user_id = #{userId}
+            AND t1.product_num > 0
+    </select>
+
+    <select id="getProductUrl" resultType="java.util.Map">
+        SELECT
+          pic_url picUrl,
+          attribute4
+        FROM
+          product_info
+        where product_code = #{productCode}
+    </select>
+
+</mapper>

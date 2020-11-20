@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.AchievementMapper">
+
+    <!--成就及奖励结果-->
+    <resultMap id="achievement" type="com.enuos.live.pojo.Achievement">
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="line" property="line" jdbcType="INTEGER"/>
+        <result column="iconUrl" property="iconUrl" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="isWear" property="isWear" jdbcType="INTEGER"/>
+        <collection property="rewardList" ofType="com.enuos.live.pojo.AchievementReward">
+            <result column="rewardCode" property="rewardCode" jdbcType="VARCHAR"/>
+            <result column="number" property="number" jdbcType="VARCHAR"/>
+            <result column="url" property="url" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!--获取成就类型-->
+    <select id="getType" resultType="java.lang.Integer">
+        select
+        distinct
+        type
+        from tb_task
+        where category = 5
+        <!--游戏未上线时剔除游戏成就-->
+        and type in (31, 32, 33, 35)
+        order by type
+    </select>
+
+    <!--获取成就列表-->
+    <select id="getAchievementList" resultMap="achievement">
+        select
+        t1.title,
+        t1.description,
+        t1.type,
+        t1.icon_url iconUrl,
+
+        concat(t1.code, '_', t2.suffix) code,
+        t2.suffix line,
+
+        if(t3.is_wear is null, 0, t3.is_wear) isWear,
+
+        t4.reward_code rewardCode,
+        t4.number,
+
+        t5.url
+
+        from tb_task t1
+        left join tb_task_reward t2 on t2.task_code = t1.code and t2.reward_code like 'B%'
+        left join tb_user_badge t3 on t3.badge_code = t2.reward_code and t3.user_id = #{userId}
+        left join tb_task_reward t4 on t4.task_code = t1.code and t4.reward_code not like 'B%'
+        left join tb_reward t5 on t5.code = t4.reward_code
+        where t1.category = 5
+        and t1.type in
+        <foreach collection="typeList" item="type" open="(" separator="," close=")">
+            #{type}
+        </foreach>
+        order by t1.type, t1.sort
+    </select>
+
+</mapper>

@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RoomMapper">
+
+    <!--结果-->
+    <resultMap id="roomDetail" type="com.enuos.live.pojo.RoomDetailVO">
+        <result column="roomId" property="roomId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="coverUrl" property="coverUrl" jdbcType="VARCHAR"/>
+        <result column="backgroundUrl" property="backgroundUrl" jdbcType="VARCHAR"/>
+        <result column="backgroundName" property="backgroundName" jdbcType="VARCHAR"/>
+        <result column="backgroundId" property="backgroundId" jdbcType="INTEGER"/>
+        <result column="musicUrl" property="musicUrl" jdbcType="VARCHAR"/>
+        <result column="themeId" property="themeId" jdbcType="INTEGER"/>
+        <result column="themeName" property="themeName" jdbcType="VARCHAR"/>
+        <result column="topic" property="topic" jdbcType="VARCHAR"/>
+        <result column="notice" property="notice" jdbcType="VARCHAR"/>
+        <result column="isFollow" property="isFollow" jdbcType="INTEGER"/>
+        <result column="cRole" property="role" jdbcType="INTEGER"/>
+        <result column="isOnSeat" property="isOnSeat" jdbcType="INTEGER"/>
+        <result column="screen" property="isBanScreen" jdbcType="INTEGER"/>
+        <result column="onNum" property="onNum" jdbcType="INTEGER"/>
+        <result column="startTime" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="micMode" property="micMode" jdbcType="INTEGER"/>
+        <collection property="seatList" ofType="com.enuos.live.pojo.SeatVO">
+            <result column="seatId" property="seatId" jdbcType="INTEGER"/>
+            <result column="userId" property="userId" jdbcType="BIGINT"/>
+            <result column="nickName" property="nickName" jdbcType="VARCHAR"/>
+            <result column="thumbIconUrl" property="thumbIconUrl" jdbcType="VARCHAR"/>
+            <result column="iconFrame" property="iconFrame" jdbcType="VARCHAR"/>
+            <result column="sex" property="sex" jdbcType="INTEGER"/>
+            <result column="isLock" property="isLock" jdbcType="INTEGER"/>
+            <result column="oIsBanMic" property="isBanMic" jdbcType="INTEGER"/>
+            <result column="oRole" property="role" jdbcType="INTEGER"/>
+            <result column="cIsBanMic" property="isBanMic" jdbcType="INTEGER"/>
+        </collection>
+        <collection property="radioVO" ofType="com.enuos.live.pojo.VoiceRoomRadioVO">
+            <result column="albumId" property="albumId" jdbcType="INTEGER"/>
+            <result column="albumTitle" property="albumTitle" jdbcType="VARCHAR"/>
+            <result column="coverUrlSmall" property="coverUrlSmall" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!--获取房间-->
+    <select id="getBaseByUserId" parameterType="com.enuos.live.pojo.RoomPO" resultType="java.util.Map">
+        select
+        t1.room_id roomId,
+        t1.`name`,
+        t1.background_id backgroundId,
+        t1.cover_url coverUrl,
+        t1.theme_id themeId,
+        t1.topic,
+        t1.notice,
+        t1.seat_type seatType,
+        t1.is_push isPush,
+        if(t1.password = '', 0, 1) isLock,
+        t1.password,
+        t1.status,
+        t1.mic_mode micMode,
+        t1.screen isBanScreen,
+        t1.update_time updateTime,
+
+        if(t2.pic_url is null, t1.background_url, t2.pic_url)  backgroundUrl,
+        if(t2.name is null, "", t2.name)  backgroundName
+
+        from tb_voice_room t1
+        left join tb_voice_room_background t2 on t2.id = t1.background_id
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--修改-->
+    <update id="update" parameterType="com.enuos.live.pojo.RoomPO">
+        update tb_voice_room
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="coverUrl != null">
+                cover_url = #{coverUrl},
+            </if>
+            <if test="backgroundUrl != null">
+                background_url = #{backgroundUrl},
+            </if>
+            <if test="backgroundId != null">
+                background_id = #{backgroundId},
+            </if>
+            <if test="musicUrl != null">
+                music_url = #{musicUrl},
+            </if>
+            <if test="themeId != null">
+                theme_id = #{themeId},
+            </if>
+            <if test="topic != null">
+                topic = #{topic},
+            </if>
+            <if test="notice != null">
+                notice = #{notice},
+            </if>
+            <if test="seatType != null">
+                seat_type = #{seatType},
+            </if>
+            <if test="isBroadcast != null">
+                is_broadcast = #{isBroadcast},
+            </if>
+            <if test="isPush != null">
+                is_push = #{isPush},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="micMode != null">
+                mic_mode = #{micMode},
+            </if>
+            <if test="isBanScreen != null">
+                screen = #{isBanScreen},
+            </if>
+        </set>
+        <where>
+            and room_id = #{roomId}
+        </where>
+    </update>
+
+    <!--开播/下播-->
+    <update id="updateBroadcast">
+        update tb_voice_room
+        <set>
+            is_broadcast = #{isBroadcast},
+        </set>
+        <where>
+            and room_id = #{roomId}
+        </where>
+    </update>
+
+    <!--房间信息-->
+    <select id="ownerRoomInfo" resultMap="roomDetail">
+        select
+        t1.room_id roomId,
+        t1.name,
+        t1.cover_url coverUrl,
+        t1.background_id backgroundId,
+        t1.music_url musicUrl,
+        t1.theme_id themeId,
+        t1.topic,
+        t1.notice,
+        t1.seat_type seatType,
+        t1.status,
+        t1.start_time startTime,
+        t1.mic_mode micMode,
+
+        if(t3.relation is null, 0, 1) cIsBanMic,
+        if(t4.role is null, 0, t4.role) cRole,
+
+        t2.seat_id seatId,
+        t2.user_id userId,
+        t7.nick_name nickName,
+        t7.thumb_icon_url thumbIconUrl,
+        t7.sex,
+        t2.is_lock isLock,
+
+        t5.`name` themeName,
+
+        if(t6.pic_url is null, t1.background_url, t6.pic_url) backgroundUrl,
+        if(t6.name is null, "", t6.name) backgroundName
+
+        from tb_voice_room t1
+        left join tb_voice_room_seat t2 on t2.room_id = t1.room_id
+        left join tb_voice_room_relation t3 on t3.from_id = t1.room_id and t3.to_id = #{userId} and t3.relation = 0
+        left join tb_voice_room_role t4 on t4.room_id = t1.room_id and t4.user_id = t1.user_id
+        left join tb_label t5 on t5.id = t1.theme_id
+        left join tb_voice_room_background t6 on t6.id = t1.background_id
+        left join tb_user t7 on t2.user_id = t7.user_id
+        <where>
+            and t1.room_id = #{roomId}
+        </where>
+        order by t2.seat_id
+    </select>
+
+    <!--创建房间-->
+    <insert id="save" parameterType="com.enuos.live.pojo.RoomPO" useGeneratedKeys="true">
+        insert into tb_voice_room
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            room_id,
+            user_id,
+            name,
+            cover_url,
+            seat_type,
+            theme_id,
+            is_push,
+            mic_mode,
+            screen,
+            <if test="notice != null">
+                notice,
+            </if>
+            <if test="backgroundUrl != null">
+                background_url,
+            </if>
+            <if test="backgroundId != null">
+                background_id,
+            </if>
+            <if test="password != null and password != ''">
+                password,
+            </if>
+            <if test="isBroadcast != null">
+                is_broadcast
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{roomId},
+            #{userId},
+            #{name},
+            #{coverUrl},
+            #{seatType},
+            #{themeId},
+            #{isPush},
+            #{micMode},
+            #{isBanScreen},
+            <if test="notice != null">
+                #{notice},
+            </if>
+            <if test="backgroundUrl != null">
+                #{backgroundUrl},
+            </if>
+            <if test="backgroundId != null">
+                #{backgroundId},
+            </if>
+            <if test="password != null and password != ''">
+                #{password},
+            </if>
+            <if test="isBroadcast != null">
+                #{isBroadcast}
+            </if>
+        </trim>
+    </insert>
+
+    <!--是否存在roomId-->
+    <select id="isExists" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select 1
+        from tb_voice_room
+        <where>
+            and room_id = #{roomId}
+            limit 1
+        </where>
+    </select>
+
+    <!--列表-->
+    <select id="getList" parameterType="com.enuos.live.pojo.RoomPO" resultType="com.enuos.live.pojo.RoomVO">
+        select
+        t1.room_id roomId,
+        t1.name,
+        if (t1.password = '', 0, 1) isLock,
+        t1.cover_url coverUrl,
+        t1.user_id userId,
+
+        t2.nick_name nickname,
+        t2.thumb_icon_url thumbIconUrl,
+
+        t4.remark,
+
+        t1.theme_id themeId,
+        t6.`name` themeName
+
+        from tb_voice_room t1
+        inner join tb_user t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        inner join tb_user_account t3 on t3.user_id = t1.user_id and t3.is_del = 0 and t3.status = 0
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        <if test="parentId != null and parentId == -1">
+            inner join tb_voice_room_relation t5 on t5.to_id = t1.room_id and t5.relation = 0 and t5.from_id = #{userId}
+        </if>
+        left join tb_label t6 on t1.theme_id = t6.id
+        left join tb_voice_room_heat t7 on t7.room_id = t1.room_id
+        <where>
+            t1.is_broadcast = 1
+            and t1.status <![CDATA[<]]> 2
+            <if test="parentId != null and parentId != -1">
+                and t6.parent_id = #{parentId}
+            </if>
+            and t6.category = 2
+
+        </where>
+        order by t7.heat desc
+    </select>
+
+    <!--是否开播-->
+    <select id="isBroadcast" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1) from tb_voice_room where room_id = #{roomId} and is_broadcast = 1
+    </select>
+
+    <!--获取密码-->
+    <select id="getPassword" parameterType="java.lang.Long" resultType="java.lang.String">
+        select password from tb_voice_room where room_id = #{roomId}
+    </select>
+
+    <!--房间信息-->
+    <select id="getInfo" parameterType="com.enuos.live.pojo.RoomPO" resultMap="roomDetail">
+        select
+        t1.room_id roomId,
+        t1.name,
+        t1.cover_url coverUrl,
+        t1.background_id backgroundId,
+        t1.music_url musicUrl,
+        t1.theme_id themeId,
+        t1.topic,
+        t1.notice,
+        t1.start_time startTime,
+        t1.mic_mode micMode,
+        t1.screen,
+
+        if(t2.id is null, 0, 1) isFollow,
+
+        if(t4.role is null, 0, t4.role) cRole,
+
+        if(t5.id is null, 0, 1) isOnSeat,
+
+        t6.seat_id seatId,
+        t6.user_id userId,
+        t11.nick_name nickName,
+        t11.thumb_icon_url thumbIconUrl,
+        t11.sex,
+        t6.is_lock isLock,
+        t6.mic cIsBanMic,
+
+        if(t7.relation is null, 0, 1) oIsBanMic,
+
+        if(t8.role is null, 0, t8.role) oRole,
+
+        t9.`name` themeName,
+
+        t10.album_id albumId,
+        t10.album_title albumTitle,
+        t10.cover_url_small coverUrlSmall,
+
+        if(t11.if_time <![CDATA[ > ]]> now(), t11.icon_frame, '') iconFrame,
+
+        if(t12.pic_url is null, t1.background_url, t12.pic_url) backgroundUrl,
+        if(t12.name is null, "", t12.name) backgroundName
+
+        from tb_voice_room t1
+        left join tb_voice_room_relation t2 on t2.to_id = t1.room_id and t2.relation = 0 and t2.from_id = #{userId}
+        left join tb_voice_room_role t4 on t4.room_id = t1.room_id and t4.user_id = #{userId}
+        left join tb_voice_room_seat t5 on t5.room_id = t1.room_id and t5.user_id = #{userId}
+        left join tb_voice_room_seat t6 on t6.room_id = t1.room_id
+        left join tb_voice_room_relation t7 on t7.from_id = t1.room_id and t7.to_id = t6.user_id
+        left join tb_voice_room_role t8 on t8.room_id = t1.room_id and t8.user_id = t6.user_id
+        left join tb_label t9 on t9.id = t1.theme_id
+        left join tb_voice_room_radio t10 on t10.room_id = t1.room_id
+        left join tb_user t11 on t11.user_id = t6.user_id
+        left join tb_voice_room_background t12 on t12.id = t1.background_id
+        <where>
+            and t1.room_id = #{roomId}
+            and t1.is_broadcast = 1
+            and t1.status <![CDATA[<]]> 2
+        </where>
+        order by t6.seat_id
+    </select>
+
+    <!--是否房主-->
+    <select id="isOwner" resultType="java.lang.Integer">
+        select count(1) from tb_voice_room
+        <where>
+            and room_id = #{roomId}
+            and user_id = #{userId}
+        </where>
+    </select>
+
+    <!--是否房主或管理员权限-->
+    <select id="isChmod" resultType="java.lang.Integer">
+        select 1 from tb_voice_room_role
+        <where>
+            and room_id = #{roomId}
+            and user_id = #{userId}
+            and (role = 1 or role = 2)
+            limit 1
+        </where>
+    </select>
+
+    <!--获取排麦模式-->
+    <select id="getMicMode" resultType="java.lang.Integer">
+        select mic_mode from tb_voice_room
+        <where>
+            and room_id = #{roomId}
+        </where>
+    </select>
+
+    <!--获取房间空位置-->
+    <select id="getRoomEmptySeat" resultType="java.lang.Integer">
+        select id from tb_voice_room_seat where room_id = #{roomId} and user_id = 0 and is_lock = 0 limit 1
+    </select>
+    <!--获取房间空位置-忽略锁-->
+    <select id="getRoomEmptySeatUnlock" resultType="java.lang.Integer">
+        select id from tb_voice_room_seat where room_id = #{roomId} and user_id = 0 limit 1
+    </select>
+
+    <!--获取房间基本信息-->
+    <select id="getBaseInfo" resultType="java.util.Map">
+        select
+            t1.room_id roomId,
+            t1.`name`,
+            t1.user_id userId,
+            t1.is_broadcast `status`,
+            if(t1.`password` ='',0,1) isLock,
+            if(t2.seat_id is null,0,1) isOnSeat,
+            t2.seat_id seatId,
+            t1.theme_id themeId,
+			t3.`name` themeName
+
+        from tb_voice_room t1
+          LEFT JOIN tb_voice_room_seat t2 ON t2.user_id = #{userId} and t2.room_id = #{roomId}
+          LEFT JOIN tb_label t3 on t3.id = t1.theme_id
+        where
+            t1.room_id = #{roomId}
+    </select>
+
+    <!--获取房间内所有关注用户-->
+    <select id="getRelationUsers" resultType="java.util.Map">
+        select
+            t1.from_id userId,
+            t3.nick_name nickName,
+            t3.thumb_icon_url thumbIconUrl,
+            t3.sex
+        from
+            tb_voice_room_relation t1
+            INNER JOIN tb_voice_room_user t2 ON t2.user_id = t1.from_id
+            LEFT JOIN tb_user t3 ON t3.user_id = t1.from_id
+        where to_id = #{roomId}
+    </select>
+
+    <!--获取房间房主关注关注量-->
+    <select id="getRoomRelationNum" resultType="java.util.Map">
+        SELECT
+            count(1) num,
+            t2.user_id userId
+        FROM
+            tb_voice_room_relation t1
+            INNER JOIN tb_voice_room t2 ON t1.to_id = t2.room_id
+        WHERE
+            t1.to_id = #{roomId}
+            AND t1.relation = 0
+    </select>
+
+    <!--获取语音房主题-->
+    <select id="getRoomTheme" resultType="java.util.Map">
+        SELECT
+        id themeId,
+        `name` themeName
+        FROM
+        tb_label
+        WHERE
+        category = 2
+        <![CDATA[
+        AND parent_id <> 0
+        AND NAME <> '电台'
+
+
+        ]]>
+    </select>
+
+    <insert id="saveVoiceRoomBroadcastTime">
+        insert into tb_voice_room_broadcast_time (room_id, start_time)
+        values (#{roomId}, NOW())
+    </insert>
+
+    <update id="upVoiceRoomBroadcastTime">
+        update tb_voice_room_broadcast_time
+        set
+          end_time = NOW()
+        where
+          room_id = #{roomId}
+          and end_time is null
+    </update>
+
+    <!--获取用户语音房进场特效-->
+    <select id="enterEffects" resultType="java.lang.String">
+        SELECT
+            t2.attribute4 attribute
+        FROM
+            product_backpack t1
+            LEFT JOIN product_info t2 ON t1.product_code = t2.product_code
+        WHERE
+            t1.user_id = #{userId}
+            and t1.category_id = 17
+            and t1.product_status = 2
+            and use_time > NOW()
+        ORDER BY t1.modified_time DESC
+        LIMIT 1
+    </select>
+
+    <!--语音房用户活跃度-->
+    <insert id="saveVoiceRoomUserActivity" parameterType="java.util.Map">
+        INSERT INTO tb_voice_room_user_activity (user_id, room_id, activity_num, activity_type)
+            SELECT #{userId}, #{roomId},1, #{activityType} FROM DUAL
+            WHERE NOT EXISTS (
+                    SELECT
+                      user_id, room_id, activity_type FROM tb_voice_room_user_activity
+                    WHERE
+                      user_id = #{userId}
+                      AND room_id = #{roomId}
+                      AND activity_type = #{activityType}
+                      AND DATE_FORMAT(activity_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')
+                    );
+    </insert>
+
+    <update id="updateVoiceRoomUserActivity" parameterType="java.util.Map">
+        UPDATE tb_voice_room_user_activity
+          SET activity_num = activity_num + 1
+          WHERE
+            user_id = #{userId}
+            AND room_id = #{roomId}
+            AND activity_type = #{activityType}
+            AND DATE_FORMAT(activity_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')
+    </update>
+
+</mapper>

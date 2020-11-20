@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.WritMapper">
+    
+    <!--兑换列表结果-->
+    <resultMap id="writExchange" type="com.enuos.live.pojo.WritExchange">
+        <result column="userId" property="userId" jdbcType="BIGINT"/>
+        <result column="ticket" property="ticket" jdbcType="INTEGER"/>
+        <collection property="exchangeList" ofType="com.enuos.live.pojo.Reward">
+            <result column="templateCode" property="templateCode" jdbcType="VARCHAR"/>
+            <result column="rewardCode" property="rewardCode" jdbcType="VARCHAR"/>
+            <result column="description" property="description" jdbcType="VARCHAR"/>
+            <result column="category" property="category" jdbcType="INTEGER"/>
+            <result column="life" property="life" jdbcType="BIGINT"/>
+            <result column="number" property="number" jdbcType="INTEGER"/>
+            <result column="expendTicket" property="expendTicket" jdbcType="INTEGER"/>
+            <result column="rewardName" property="rewardName" jdbcType="VARCHAR"/>
+            <result column="url" property="url" jdbcType="VARCHAR"/>
+            <result column="categoryId" property="categoryId" jdbcType="INTEGER"/>
+        </collection>
+    </resultMap>
+    
+    <!--获取任务编码-->
+    <select id="getTaskCode" resultType="java.lang.String">
+        select task_code from task where template_code = #{templateCode} and #{dateTime} between start_time and end_time limit 1
+    </select>
+    
+    <!--获取基础等级奖励-->
+    <select id="getLevelRewardOfList" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.number,
+        t1.life,
+        t2.product_name rewardName,
+        t2.one_category_id categoryId
+        from task_reward t1
+        left join product_info t2 on t2.product_code = t1.reward_code
+        where t1.task_code = #{taskCode}
+        and t1.template_code = #{templateCode}
+        and t1.category = #{category}
+        and t1.suffix = #{suffix}
+    </select>
+    
+    <!--获取基础等级奖励-->
+    <select id="getLevelRewardOfMap" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.number,
+        t1.life,
+        t2.product_name rewardName,
+        t2.one_category_id categoryId
+        from task_reward t1
+        left join product_info t2 on t2.product_code = t1.reward_code
+        where t1.task_code = #{taskCode}
+        and t1.template_code = #{templateCode}
+        and t1.category = #{category}
+        and t1.suffix = #{suffix}
+    </select>
+    
+    <!--获取奖励[等级]-->
+    <select id="getRewardByLevel" resultType="com.enuos.live.pojo.Reward">
+        select
+        concat_ws('.', t1.task_code, t1.template_code, t1.category) code,
+        t1.category,
+        t1.reward_code rewardCode,
+        t1.life,
+        t1.number,
+        t1.suffix level,
+        t2.product_name rewardName,
+        t2.descript description,
+        t2.pic_url url,
+        t2.one_category_id categoryId
+        from task_reward t1
+        inner join product_info t2 on t2.product_code = t1.reward_code
+        where t1.task_code = #{taskCode}
+        and t1.template_code = #{templateCode}
+        <choose>
+            <when test="levelList != null and levelList.size() > 0">
+                and t1.suffix in
+                <foreach collection="levelList" item="level" open="(" separator="," close=")">
+                    #{level}
+                </foreach>
+                order by t1.category, t1.suffix
+            </when>
+            <otherwise>
+                order by t1.suffix desc limit 2
+            </otherwise>
+        </choose>
+    </select>
+    
+    <!--获取奖励[奖品编码]-->
+    <select id="getReward" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.life,
+        t1.number,
+        t1.category,
+        
+        t2.product_name rewardName,
+        t2.pic_url url,
+        t2.one_category_id categoryId,
+        
+        t3.expend expendTicket
+        from task_reward t1
+        inner join product_info t2 on t2.product_code = t1.reward_code
+        inner join task t3 on t3.task_code = t1.task_code and t3.template_code = t1.template_code
+        where t1.task_code = #{taskCode}
+        and t1.template_code = #{templateCode}
+    </select>
+    
+    <!--获取奖励-->
+    <select id="getRewardSimple" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.suffix,
+        t1.number,
+        t1.life,
+        t2.product_name rewardName,
+        t2.one_category_id categoryId,
+        t2.pic_url url
+        from task_reward t1
+        inner join product_info t2 on t2.product_code = t1.reward_code
+        where t1.task_code = #{taskCode}
+        and t1.template_code = #{templateCode}
+    </select>
+    
+    <!--用户令状信息-->
+    <select id="getWritUser" resultType="com.enuos.live.pojo.WritUser">
+        select
+        t1.task_code,
+        t1.user_id,
+        t1.step,
+        t1.level,
+        t1.integral,
+        t1.ticket,
+        t2.rule_url
+        from task_user t1
+        left join task t2 on t2.task_code = t1.task_code and t2.template_code = #{templateCode}
+        where t1.task_code = #{taskCode}
+        and t1.user_id = #{userId}
+    </select>
+    
+    <!--修改用户令状信息-->
+    <update id="updateWritUser" parameterType="com.enuos.live.pojo.WritUser">
+        update task_user
+        <set>
+            <if test="step != null">
+                step = #{step},
+            </if>
+            <if test="level != null">
+                level = #{level},
+            </if>
+            <if test="integral != null">
+                integral = #{integral},
+            </if>
+            <if test="ticket != null">
+                ticket = #{ticket},
+            </if>
+        </set>
+        where task_code = #{taskCode} and user_id = #{userId}
+    </update>
+    
+    <!--初始化用户令状信息-->
+    <insert id="initWritUser" useGeneratedKeys="true">
+        insert into task_user (task_code, user_id, step, level, integral, ticket) values (#{taskCode}, #{userId}, 0, 1, 0, 0)
+    </insert>
+    
+    <!--保存记录-->
+    <insert id="saveRecord" parameterType="com.enuos.live.pojo.WritRecord" useGeneratedKeys="true">
+        insert into task_record
+        <trim prefix="(" suffixOverrides=",">
+            user_id,
+            task_code,
+            template_code,
+            <if test="category != null">
+                category,
+            </if>
+            <if test="suffix != null">
+                suffix
+            </if>
+        </trim>
+        <trim prefix=") values (" suffixOverrides="," suffix=")">
+            #{userId},
+            #{taskCode},
+            #{templateCode},
+            <if test="category != null">
+                #{category},
+            </if>
+            <if test="suffix != null">
+                #{suffix}
+            </if>
+        </trim>
+    </insert>
+    
+    <!--是否存在记录-->
+    <select id="isExistsRecord" parameterType="com.enuos.live.pojo.WritRecord" resultType="java.lang.Integer">
+        select 1 from task_record where user_id = #{userId} and task_code = #{taskCode} and template_code = #{templateCode} and category = #{category} and suffix = #{suffix} limit 1
+    </select>
+    
+    <!--获取记录-->
+    <select id="getRecord" resultType="java.lang.String">
+        select concat_ws('.', task_code, template_code, category, suffix) from task_record where task_code = #{taskCode} and template_code = #{templateCode} and user_id = #{userId}
+    </select>
+    
+    <!--获取等级-->
+    <select id="getLevelOfPage" resultType="java.lang.Integer">
+        select distinct suffix from task_reward where task_code = #{taskCode} and template_code = #{templateCode} and category = 1 order by suffix
+    </select>
+    
+    <!--任务列表-->
+    <select id="getTask" resultType="com.enuos.live.pojo.Task">
+        select
+        t1.task_code,
+        t1.template_code,
+        t1.name,
+        t1.icon_url iconUrl,
+        t1.background_url backgroundUrl,
+        t1.to_finish_path toFinishPath,
+        t1.join_count dayCount,
+        t1.join_line weekCount,
+        
+        t2.number integral
+        
+        from task t1
+        left join task_reward t2 on t2.task_code = t1.task_code and t2.template_code = t1.template_code
+        where t1.task_code = #{taskCode} and t1.group_id = #{groupId}
+        order by t1.sort
+    </select>
+    
+    <!--领奖记录-->
+    <select id="getRecordTemplateCodeList" resultType="java.lang.String">
+        select
+        t2.template_code
+        from task t1
+        inner join task_record t2 on t2.task_code = t1.task_code and t2.template_code = t1.template_code
+        where t1.task_code = #{taskCode} and t1.group_id = #{groupId}
+        and t2.user_id = #{userId}
+        and t2.create_time <![CDATA[>=]]> #{date}
+    </select>
+    
+    <!--令状任务-->
+    <select id="getWritTask" resultType="com.enuos.live.pojo.WritTask">
+        select
+        t1.user_id userId,
+        t1.step
+        from task_user t1
+        where t1.task_code = #{taskCode} and t1.user_id = #{userId}
+    </select>
+    
+    <!--兑换-->
+    <select id="getWritExchange" resultMap="writExchange">
+        select
+        t1.user_id userId,
+        t1.ticket,
+        
+        t2.expend expendTicket,
+        
+        t3.template_code templateCode,
+        t3.reward_code rewardCode,
+        t3.category,
+        t3.life,
+        t3.number,
+        
+        t4.product_name rewardName,
+        t4.pic_url url,
+        t4.one_category_id categoryId,
+        t4.descript description
+        
+        from task_user t1
+        inner join task t2 on t2.task_code = t1.task_code
+        inner join task_reward t3 on t3.task_code = t2.task_code and t3.template_code = t2.template_code
+        inner join product_info t4 on t4.product_code = t3.reward_code
+        where t2.task_code = #{taskCode}
+        and t2.group_id = #{groupId}
+        and t1.user_id = #{userId}
+        order by t2.sort
+    </select>
+    
+    <!--获取礼盒内奖品-->
+    <select id="getRewardOfBoxByBoxCodeList" parameterType="java.util.List" resultType="com.enuos.live.pojo.Reward">
+        select
+        t1.box_code boxCode,
+        t1.reward_code rewardCode,
+        t1.life,
+        
+        t2.product_name rewardName,
+        t2.pic_url url
+        from reward_box t1
+        inner join product_info t2 on t2.product_code = t1.reward_code
+        where t1.box_code in
+        <foreach collection="list" item="boxCode" open="(" separator="," close=")">
+            #{boxCode}
+        </foreach>
+        order by t1.weight
+    </select>
+    
+    <!--获取礼盒内奖品-->
+    <select id="getRewardOfBoxByBoxCode" parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.life,
+        t1.number,
+        t1.weight,
+        
+        t2.product_name rewardName,
+        t2.pic_url url,
+        t2.one_category_id categoryId
+        
+        from reward_box t1
+        inner join product_info t2 on t2.product_code = t1.reward_code
+        where t1.box_code = #{boxCode}
+        order by t1.weight
+    </select>
+    
+    <!--排行榜-->
+    <select id="getRankList" resultType="com.enuos.live.pojo.WritUser">
+        select
+        t1.user_id,
+        t1.integral,
+        t1.level,
+        
+        t2.nick_name,
+        t2.icon_url,
+        t2.thumb_icon_url
+        from task_user t1
+        inner join tb_user t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        where t1.task_code = #{taskCode}
+        order by t1.integral desc
+        limit #{limit}
+    </select>
+    
+    <!--获取任务次数-->
+    <select id="getTaskInfo" resultType="com.enuos.live.pojo.Task">
+        select background_url backgroundUrl, join_count dayCount, join_line weekCount from task where task_code = #{taskCode} and template_code = #{templateCode}
+    </select>
+    
+    <!--获取记录次数-->
+    <select id="getRecordCount" resultType="java.lang.Integer">
+        select count(1) from task_record where user_id = #{userId} and task_code = #{taskCode} and template_code = #{templateCode} and create_time <![CDATA[ >= ]]> #{date}
+    </select>
+    
+    <!--获取日常奖励积分-->
+    <select id="getIntegralOfDayTask" resultType="java.lang.Integer">
+        select
+        number
+        from task_reward
+        where task_code = #{taskCode} and template_code = #{templateCode}
+    </select>
+</mapper>

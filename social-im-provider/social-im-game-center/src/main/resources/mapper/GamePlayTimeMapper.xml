@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GamePlayTimeMapper">
+
+  <!--是否存在-->
+  <select id="findTimeIsExist" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    SELECT count(user_id)
+    FROM game_play_time
+    WHERE user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <!--查询时间-->
+  <select id="queryTimeByUserId" parameterType="java.lang.Long" resultType="java.lang.Long">
+    SELECT total_time
+    FROM game_play_time
+    WHERE user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <!--新增时间-->
+  <insert id="insert" parameterType="com.enuos.live.pojo.GamePlayTime" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO game_play_time
+           (user_id,
+            total_time)
+    VALUES (#{userId,jdbcType=BIGINT},
+            #{totalTime,jdbcType=BIGINT})
+  </insert>
+
+  <!--更新时间-->
+  <update id="update" parameterType="com.enuos.live.pojo.GamePlayTime">
+    UPDATE game_play_time
+       SET total_time = total_time + #{totalTime,jdbcType=BIGINT}
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </update>
+</mapper>

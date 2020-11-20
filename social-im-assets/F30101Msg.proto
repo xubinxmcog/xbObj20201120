@@ -1,0 +1,161 @@
+// 七乐地主
+package Platform.ModelF30101;
+option java_package = "com.enuos.live.proto.f30101msg";
+option java_outer_classname = "F30101";
+
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称「例如：Lake😀」
+  required int64 userID = 2; //玩家ID「例如：1234567890」
+  required string url = 3; //玩家头像「例如：http://pic1.zhimg.com/50/v2-fbe356c74816b9b3cfcf80ff1758fbd4_hd.jpg」
+  required int32 sex = 4; //玩家性别 1「男」 2「女」
+  required int32 deviPosition = 5; //玩家座位「例如：1」
+  required int32 state = 6;//玩家状态 0「未准备」 1「已准备」 2「游戏中」 
+  repeated int32 handCard=7;//玩家手牌信息
+}
+
+//进入游戏 0 
+message F30101S2C {
+  required int32 result = 1;//准备结果 0「成功」 1「失败」
+  repeated PlayerInfo seatPlayer = 2; //玩家信息
+  optional int32 startTime = 3; //开始时间「默认：15(s)」
+}
+
+//玩家准备 1 
+message F301011C2S {
+  required int32 isReady = 1;//准备状态 0「准备」 1「取消」
+}
+
+message F301011S2C {
+  required int32 result = 1;//准备结果 0「成功」 1「失败」
+  required int32 isReady = 2;//准备状态 0「准备」 1「取消」
+  optional int64 userID = 3; //玩家ID「例如：1234567890」
+}
+
+//开始游戏发牌
+message F301012S2C{
+  repeated int32 handCards=1;//玩家手牌
+  required int64 nextUsrdId=2;//操作玩家ID
+  required int32 times=3;//玩家操作时间
+  required int32 bets=4;//当前局的倍数
+}
+//叫地主
+message F301013C2S{
+  required int32 action=1;//1.叫地主 2.不叫 3.抢地主 4.不抢 
+}
+//叫地主返回
+message F301013S2C{
+  required int32 result=1;//叫地主结果码
+  required int64 actionUserId=2;//操作玩家ID
+  required int32 action=3;//1.叫地主 2.不叫 3.抢地主 4.不抢 
+  required int64 nextUserID=4;//下次操作玩家ID
+  required int32 bets=5;//当前局的倍数
+  required int32 times=6;//玩家操作时间
+
+}
+
+//选出地主 更新手牌 
+message F301014S2C{
+  required int64 landlordUserId=1;//地主UserId
+  repeated int32 handCards=2;//地主玩家手牌  
+  repeated int32 tableCards=3;//地主三张牌 
+  required int32 times=5;//玩家操作时间
+  repeated AddBetInfo addbetinfo=6;//
+}
+//选出地主之后 展示超级加倍卡数量
+message AddBetInfo{
+  required int64 userID=1;//玩家UserID
+  required int32 addNumbers=2;//超级加倍卡数量
+}
+//加倍
+message F301015C2S{
+  required int32 action=1;//1.超级加倍 2.加倍 3.不加倍
+}
+//加倍返回
+message F301015S2C{
+  required int32 result=1;//加倍结果码
+  required int64 actionUserId=2;//操作玩家ID
+  required int32 action=3;//1.超级加倍 2.加倍 3.不加倍
+  required int32 bets=4;//当前局的倍数
+  optional int64 nextUserId=5;//下次玩家操作ID
+  optional int32 times=6;//玩家操作时间
+}
+//玩家出牌
+message F301016C2S{
+  repeated int32 playCardIds=1;//玩家出牌  
+}
+//玩家出牌返回
+message F301016S2C{
+  required int64 actionUserID=1;//出牌玩家Id
+  repeated int32 playCardIds=2;//玩家出牌  
+  repeated int32 handCards=3;//玩家手牌
+  required int32 cardType=4;//牌组类型  1.炸弹 2.火箭 3.顺子
+  required int64 nextUserID=5;//下次玩家操作Id
+  required int32 times=6;//玩家操作时间
+  repeated HintCardList hintCardLists=7;//操作玩家提示牌组
+}
+//提示牌组
+message HintCardList{
+  repeated int32 hintCardId=1;//提示牌ID
+}
+//不出
+message F301017S2C{
+  required int32 result=1;//玩家点击不出结果码
+  required int64 actionUserID=2;//操作玩家ID
+  required int64 nextUserID=3;//下次玩家操作ID
+  repeated HintCardList hintCardLists=4;//操作玩家提示牌组
+  required int32 times=5;//玩家操作时间
+}
+//结算
+message F301018S2C{
+  repeated SettlePlayerInfo settlePlayer=1;//结算玩家ID
+}
+//结算信息
+message SettlePlayerInfo{
+  required string nick=1;//玩家昵称
+  required int64 userID=2;//玩家ID「例如：1234567890」
+  required int32 dScore=3;//底分
+  required int32 bets=4;//倍数
+  required int32 coin=5;//玩家金币
+  required int32 expNum=6;//玩家经验
+  required int32 identity=7;//玩家身份 1.地主 2.农民
+  required int32 wins=8;//结算 1.赢 2.输
+  required int32 sex=9;//玩家性别
+  required int32 initBet=10;//初始倍数
+  required int32 boomBet=11;//炸弹倍数
+  required int32 springBet=12;//春天倍数
+}
+
+//玩家退出  8
+
+//癞子
+message F301019S2C{
+  
+  required int32 cardId=1;//癞子牌ID
+  repeated int32 handCards=2;//玩家手牌
+}
+//癞子出牌返回提示
+message F3010110S2C{
+  required int32 result=1;//出牌结果码
+  repeated ScabbyCardHint scabbyCardHints=2;//
+}
+//每一组信息 和每一组的ID
+message ScabbyCardHint{
+  repeated ScabbyInfos cardId=1;//牌信息
+  required int32 choiceCardsId=2;//选择牌组ID
+}
+//每张牌的信息
+message ScabbyInfos{
+  required int32 cardId=1;//牌ID
+  required bool isScabby=2;//是否是癞子
+}
+//超级加倍 11
+message F3010111S2C{
+  required int32 result=1;//使用结果码
+  required int64 actionUserId=2;//操作玩家ID
+  required int32 bets=3;//当前局的倍数
+  optional int64 nextUserId=4;//下次玩家操作ID
+  optional int32 times=5;//玩家操作时间
+}
+
+//购买超级加倍 12

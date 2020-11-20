@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsDressUpMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsDressUp">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="pets_id" jdbcType="BIGINT" property="petsId" />
+    <result column="backpack_id" jdbcType="BIGINT" property="backpackId" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, pets_id, backpack_id, modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from pets_dress_up
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from pets_dress_up
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsDressUp" useGeneratedKeys="true">
+    insert into pets_dress_up (user_id, pets_id, backpack_id)
+    values (#{userId,jdbcType=BIGINT}, #{petsId,jdbcType=BIGINT}, #{backpackId,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsDressUp">
+    update pets_dress_up
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="petsId != null">
+        pets_id = #{petsId,jdbcType=BIGINT},
+      </if>
+      <if test="backpackId != null">
+        backpack_id = #{backpackId,jdbcType=BIGINT},
+      </if>
+      <if test="modifiedTime != null">
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getIsDressUp" resultType="java.lang.Long">
+        select
+          id
+        from
+          pets_dress_up
+        where
+          user_id = #{userId}
+          and pets_id = #{petsId}
+          and backpack_id = #{backpackId}
+    </select>
+
+    <resultMap id="PetsDressUpMap" type="com.enuos.live.dto.PetsDressUpDTO">
+        <result column="user_id" property="userId"/>
+        <result column="pets_id" property="petsId"/>
+        <result column="backpack_id" property="backpackId"/>
+        <result column="time_limit" property="timeLimit"/>
+        <result column="use_time" property="useTime"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_status" property="productStatus"/>
+        <result column="product_name" property="productName"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="attribute" property="attribute"/>
+        <collection property="effectQuality" ofType="com.enuos.live.pojo.PetsDressUpQualityConfig">
+            <id column="id" property="id"/>
+            <result column="quality_id" property="qualityId"/>
+            <result column="quality_name" property="qualityName"/>
+            <result column="effect_gold" property="effectGold"/>
+            <result column="effect_beFull" property="effectBeFull"/>
+            <result column="effect_mood" property="effectMood"/>
+            <result column="effect_food" property="effectFood"/>
+            <result column="effect_toys" property="effectToys"/>
+
+        </collection>
+    </resultMap>
+    
+  <select id="getDressUp" resultMap="PetsDressUpMap">
+    SELECT
+        t1.user_id,
+        t1.pets_id ,
+        t1.backpack_id,
+        t2.time_limit,
+        t2.use_time,
+        t2.product_code,
+        t2.product_status,
+        t3.product_name,
+        t3.pic_url,
+        t3.attribute,
+
+        t4.id,
+        t4.quality_id,
+        t4.quality_name,
+        t4.effect_gold,
+        t4.effect_beFull,
+        t4.effect_mood,
+        t4.effect_food,
+        t4.effect_toys
+    FROM
+        pets_dress_up t1
+        LEFT JOIN pets_product_backpack t2 ON t1.backpack_id = t2.id
+        LEFT JOIN pets_product_info t3 ON t2.product_code = t3.product_code
+        LEFT JOIN pets_dress_up_quality_config t4 ON t4.product_code =t2.product_code
+    WHERE
+        t1.user_id = #{userId}
+        AND t1.pets_id = #{petsId}
+        AND t2.product_status = 2
+        AND t2.use_time > NOW()
+  </select>
+
+</mapper>

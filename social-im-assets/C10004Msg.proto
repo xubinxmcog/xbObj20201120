@@ -1,0 +1,26 @@
+// 好友请求 消息号 10004
+package Platform.ModelC10004;
+option java_package = "com.enuos.live.proto.c10004msg";
+option java_outer_classname = "C10004";
+
+//会员等级公告
+message C100040s2c {
+    required int64 userId = 1; //用户id
+    required string nickName = 2; //昵称
+    required string thumbIconURL = 3; //头像
+    required int64 vip = 4; //vip等级
+}
+
+//送礼公告
+message C100041s2c {
+    required int64 roomId = 1; //房间号
+    required int64 fromUserId = 2; //送礼人ID
+    required string fromIconURL = 3; //送礼人头像
+    required string fromNickName = 4; //送礼人昵称
+    required int64 toUserId = 5; //收礼人ID
+    required string toIconURL = 6; //收礼人头像
+    required string toNickName = 7; //收礼人昵称
+    required string giftURL = 8; //礼物图片
+    required string giftName = 9; //礼物名称
+    required int64 giftNum = 10; //数量
+}

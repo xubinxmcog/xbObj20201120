@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.Thesaurus30071Mapper">
+
+  <insert id="insertNewProblem" parameterType="com.enuos.live.pojo.Thesaurus30071"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO thesaurus30071
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="title != null and title != ''">
+        title,
+      </if>
+      <if test="answer != null and answer != ''">
+        answer,
+      </if>
+      <if test="wrongA != null and wrongA != ''">
+        wrong_a,
+      </if>
+      <if test="wrongB != null and wrongB != ''">
+        wrong_b,
+      </if>
+      <if test="wrongC != null and wrongC != ''">
+        wrong_c,
+      </if>
+      <if test="labelId != null">
+        label_id,
+      </if>
+      <if test="submitUser != null">
+        submit_user,
+      </if>
+    </trim>
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+      <if test="title != null and title != ''">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="answer != null and answer != ''">
+        #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="wrongA != null and wrongA != ''">
+        #{wrongA,jdbcType=VARCHAR},
+      </if>
+      <if test="wrongB != null and wrongB != ''">
+        #{wrongB,jdbcType=VARCHAR},
+      </if>
+      <if test="wrongC != null and wrongC != ''">
+        #{wrongC,jdbcType=VARCHAR},
+      </if>
+      <if test="labelId != null">
+        #{labelId,jdbcType=INTEGER},
+      </if>
+      <if test="submitUser != null">
+        #{submitUser,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="getMustStandProblem" resultType="java.util.Map">
+    SELECT tab2.label_title AS label,
+           tab1.title       AS title,
+           tab1.answer      AS answer,
+           tab1.wrong_a     AS wrongA,
+           tab1.wrong_b     AS wrongB,
+           tab1.wrong_c     AS wrongC
+      FROM thesaurus30071 tab1
+      LEFT JOIN thesaurus30071_label tab2
+        ON tab1.label_id = tab2.label_id
+     WHERE tab1.id >= ((SELECT MAX(id) FROM thesaurus30071) - (SELECT MIN(id) FROM thesaurus30071)) * RAND() + (SELECT MIN(id) FROM thesaurus30071)
+       AND tab1.title_status = 1
+       AND tab1.audit_status = 1 LIMIT 10
+  </select>
+
+  <select id="findProblemIsExist"  resultType="java.lang.Integer">
+    SELECT 1
+      FROM thesaurus30071
+     WHERE title LIKE CONCAT('%', #{newProblem,jdbcType=VARCHAR}, '%') LIMIT 1
+  </select>
+
+  <select id="getTodaySubmitQuantity" resultType="java.lang.Integer" parameterType="java.util.Map">
+    SELECT count(submit_user)
+      FROM thesaurus30071
+     WHERE submit_user = #{userId,jdbcType=BIGINT}
+       AND create_time BETWEEN #{startTime,jdbcType=VARCHAR} AND #{finishTime,jdbcType=VARCHAR}
+  </select>
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<contextName>logback</contextName>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<!-- 开启后可以通过jmx动态控制日志级别(springboot Admin的功能) -->
+	<!--<jmxConfigurator/> -->
+	<property name="CONSOLE_PATTERN"
+		value="-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p} ) %clr(${PID:- }){magenta} [%X{mdc}]  %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+	<property name="FILE_PATTERN"
+		value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
+	<property name="LOG_PATH" value="/java/project/logs/job"/>
+	<property name="LOG_NAME" value="socialImJob"/>
+
+	<!--0. 日志格式和颜色渲染 -->
+	<!-- 彩色日志依赖的渲染类 -->
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+	<conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+	<conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+	<!-- 彩色日志格式 -->
+	<property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+	<!-- 出错日志 appender -->
+	<appender name="ERROR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 按天回滚 daily -->
+			<fileNamePattern>${LOG_PATH}/${LOG_NAME}-error-%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 日志最大的历史 10天 -->
+			<maxHistory>15</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${FILE_PATTERN}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印错误日志 -->
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<!-- 访问日志 appender -->
+	<appender name="WARN"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 按天回滚 daily -->
+			<fileNamePattern>${LOG_PATH}/${LOG_NAME}-warn-%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- 日志最大的历史 10天 -->
+			<maxHistory>15</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${FILE_PATTERN}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打警告日志 -->
+			<level>WARN</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<!-- info日志 appender -->
+	<appender name="INFO"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 按天回滚 daily -->
+			<fileNamePattern>${LOG_PATH}/${LOG_NAME}-info-%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 日志最大的历史 10天 -->
+			<maxHistory>15</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${FILE_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${CONSOLE_PATTERN}</pattern>
+			<charset>utf8</charset>
+		</encoder>
+	</appender>
+
+	<!--<logger name="org.springframework" level="error"/> -->
+	<logger name="jdbc.connection" level="OFF"/>
+	<!--<logger name="org.apache" level="error"/> -->
+	<!--<logger name="com.alibaba" level="error"/> -->
+	<!--<logger name="org.apache.kafka.clients.producer.ProducerConfig" level="warn"/> -->
+
+	<root level="INFO">
+		<springProfile name="dev,test">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="ERROR" />
+			<appender-ref ref="WARN" />
+			<appender-ref ref="INFO" />
+		</springProfile>
+		<springProfile name="pro">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="ERROR" />
+			<appender-ref ref="WARN" />
+			<appender-ref ref="INFO" />
+		</springProfile>
+	</root>
+
+</configuration>

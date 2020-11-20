@@ -1,0 +1,100 @@
+//扫雷
+package Platform.ModelF30031;
+option java_package = "com.enuos.live.proto.f30031msg";
+option java_outer_classname = "F30031";
+
+// 进入游戏 0
+message F30031S2C {
+  required int32 result = 1; //结果码 0 成功 1 房间已失效 2 获取数据失败，请重新匹配
+  repeated PlayerInfo player = 2; //玩家信息
+}
+
+// 玩家列表
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别
+  required int32 red = 5; //1【红方】 2【蓝方】
+  optional string iconFrame = 6; // 头像框
+}
+
+// 开始游戏 1
+message F300311S2C {
+  required int32 gameRound = 1; //房间回合
+  required int32 lastTimes = 2; //操作时间
+}
+
+// 选择位置 2
+message F300312C2S {
+  required ChoicePosition choicePosition = 1; //选择坐标
+  required int32 isMine = 2; //是否地雷 1【不是炸弹💣】 2【是炸弹💣】
+}
+message F300312S2C {
+  required int32 result = 1; //结果码 0 成功 1 你已选择,请等下一回合 
+  optional ChoicePosition choicePosition = 2; //选择坐标
+  optional int64 actionUser = 3; //操作玩家 
+  optional int32 isMine = 4; //是否地雷 1【不是炸弹💣】 2【是炸弹💣】
+}
+
+// 选择坐标
+message ChoicePosition {
+  required int32 choicePositionX = 1; //选择坐标X
+  required int32 choicePositionY = 2; //选择坐标Y
+}
+
+// 回合结束 3 
+message F300313S2C {
+  repeated PlayerChoiceInfo playerChoiceInfo = 1; //玩家位置信息
+  required int32 lastTimes = 2; //操作时间
+  required int32 lastRound = 3; //当前回合
+  required int32 lastMine = 4; //剩余雷
+}
+
+// 位置信息 
+message PlayerChoiceInfo {
+  required int64 userID = 1; //玩家ID
+  required int32 positionResult = 2; //位置结果状态 0【数字】 1【炸弹💣】
+  optional int32 isBlast = 3; //是否爆炸 0 是 1 否
+  required int32 score = 4; //玩家得分
+  required int32 allScore = 5; //玩家总得分
+  repeated PositionInfo positionInfo = 6; //点击之后翻开多个位置
+}
+
+// 数据位置
+message PositionInfo {
+  required int32 positionX = 1; //X轴
+  required int32 positionY = 2; //Y轴
+  required int32 value = 3; //位置值
+}
+
+// 游戏结算 4
+message F300314S2C {
+  required int64 userID = 1; //胜利玩家ID
+  required int32 addExp = 2; //增加经验
+  required int32 addGold = 3; //增加金币
+  optional int32 isDouble=4;//默认是0  0.不加倍  1.加倍
+}
+
+// 玩家认输 5 --> 返回结算
+message F300315S2C {
+  required int32 result = 1; // 结果 0 【成功】 1【失败】
+}
+
+// 断线重连 6
+message F300316S2C {
+  repeated PlayerInfo breakLineInfo = 1; //短线玩家消息
+  repeated MPositionInfo mPositionInfo = 2; // 已翻开的数据
+  required int32 actionTime = 3; //操作时间
+}
+
+// 历史数据
+message MPositionInfo {
+  required int32 positionX = 1; //X轴
+  required int32 positionY = 2; //Y轴
+  required int32 isMine = 3; //是否地雷 1【不是炸弹💣】 2【是炸弹💣】
+  optional int32 isCorrect = 4; //是否标记成功
+  required int32 value = 5; //位置值
+}
+
+// 7  结算之后点击确定 给服务器发消息 服务器给App端发消息关闭游戏

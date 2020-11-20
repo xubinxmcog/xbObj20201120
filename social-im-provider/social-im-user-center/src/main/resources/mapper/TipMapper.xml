@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.TipMapper">
+
+    <!--是否签到-->
+    <select id="isSign" resultType="java.lang.Integer">
+        select 1
+        from tb_task_sign
+        where user_id = #{userId}
+        and date_format(sign_time,'%Y-%m-%d') = #{signTime}
+    </select>
+
+    <!--获取签到阈值-->
+    <select id="getSuffix" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select
+        distinct
+        suffix
+        from tb_task_reward
+        where task_code = #{code}
+    </select>
+
+    <!--累计签到次数-->
+    <select id="getSignCount" resultType="java.lang.Integer">
+        select sign_count from tb_task_sign where user_id = #{userId} and code = #{code}
+    </select>
+
+    <!--是否已经领奖-->
+    <select id="isGotReward" resultType="java.lang.Integer">
+        select count(1) from tb_task_reward_record
+        where user_id = #{userId}
+        <if test="codeList != null and codeList.size() > 0">
+            and code in
+            <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+    </select>
+
+    <!--获取每日活跃-->
+    <select id="getActiveOfDay" resultType="java.lang.Integer">
+        select active from tb_task_active where user_id = #{userId} and date_format(create_time, '%Y-%m-%d') = #{createTime}
+    </select>
+
+    <!--获取周活跃-->
+    <select id="getActiveOfWeek" resultType="java.lang.Integer">
+        select
+        sum(active)
+        from tb_task_active
+        where user_id = #{userId}
+        and create_time between #{begin} and #{end}
+    </select>
+
+    <!--获取进度-->
+    <select id="getTaskFollow" resultType="java.util.Map">
+        select
+        t1.code,
+        t1.progress
+        from tb_task_follow t1
+        where t1.user_id = #{userId}
+        <if test="codeList != null and codeList.size() > 0">
+            and t1.code in
+            <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+        and not exists (select 1 from tb_task_reward_record where code = t1.code and user_id = t1.user_id)
+    </select>
+
+    <!--获取记录-->
+    <select id="getTaskRecord" resultType="java.lang.String">
+        select code from tb_task_reward_record
+        where user_id = #{userId}
+        <if test="codeList != null and codeList.size() > 0">
+            and code in
+            <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+    </select>
+
+    <!--获取code-->
+    <select id="getTaskCode" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select
+        concat(t1.code, '_', t2.suffix) code
+        from tb_task t1
+        left join tb_task_reward t2 on t2.task_code = t1.code
+        where t1.category = #{category}
+    </select>
+
+    <!--获取当前用户等级-->
+    <select id="getLevel" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select level from tb_user_account_attach where user_id = #{userId}
+    </select>
+</mapper>

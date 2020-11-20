@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RecommendMapper">
+
+    <!--好友结果集-->
+    <resultMap id="friends" type="com.enuos.live.pojo.UserFriends">
+        <result column="friendId1" property="friendId" jdbcType="BIGINT"/>
+        <collection property="friendList" ofType="com.enuos.live.pojo.UserFriends">
+            <result column="friendId2" property="friendId" jdbcType="BIGINT"/>
+            <collection property="friendList" ofType="com.enuos.live.pojo.UserFriends">
+                <result column="friendId3" property="friendId" jdbcType="BIGINT"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!--获取用户二度好友-->
+    <select id="getUser" parameterType="java.lang.Long" resultMap="friends">
+        select
+        t1.user_id userId,
+        t1.friend_id friendId1,
+        t2.friend_id friendId2,
+        t3.friend_id friendId3
+        from tb_user_friend t1
+        left join tb_user_friend t2 on t2.user_id = t1.friend_id
+        left join tb_user_friend t3 on t3.user_id = t2.friend_id
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--查看是否在推荐好友的黑名单中-->
+    <select id="getBlackList" resultType="java.lang.Long">
+        select
+        t1.user_id userId
+        from tb_user_blacklist t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        <where>
+            and t1.is_del = 0
+            and t1.to_user_id = #{userId}
+            and t1.user_id in
+            <foreach collection="recommendList" item="map" open="(" separator="," close=")">
+                #{map.userId}
+            </foreach>
+            or t2.status = 2
+        </where>
+    </select>
+
+    <!--获取用户信息-->
+    <select id="getUserList" parameterType="java.util.Map" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.icon_url iconUrl,
+        t1.nick_name nickName,
+        t2.score
+        from tb_user t1
+        right join (
+            <foreach collection="list" item="map" open="(" separator="union all" close=")">
+                select #{map.userId} userId, #{map.score} score
+            </foreach>
+        ) t2 on t2.userId = t1.user_id
+        <where>
+            and t1.is_del = 0
+        </where>
+        order by t2.score desc
+    </select>
+
+    <!--推荐用户[level]-->
+    <select id="getUserByLevel" parameterType="com.enuos.live.pojo.Recommend" resultType="com.enuos.live.pojo.Recommend">
+        select
+        t1.user_id userId,
+        t1.nick_name nickName,
+        t1.thumb_icon_url thumbIconUrl,
+        t1.sex,
+
+        t3.level
+
+        from tb_user t1
+        inner join tb_user_account t2 on t2.user_id = t1.user_id and t2.is_del = 0 and t2.status = 0
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        <where>
+            and t1.is_del = 0
+            and t1.user_id <![CDATA[<>]]> #{userId}
+            and not exists (
+                select 1 from tb_user_friend where friend_id = t1.user_id and user_id = #{userId}
+            )
+            and not exists (
+                select 1 from tb_user_blacklist where user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id)
+            )
+            and not exists (
+                select 1 from user_settings where user_id = t1.user_id and friend_recommend = 1
+            )
+        </where>
+        order by t3.level desc
+    </select>
+
+</mapper>

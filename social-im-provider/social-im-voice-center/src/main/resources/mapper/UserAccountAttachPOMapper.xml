@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.UserAccountAttachPOMapper">
+    <resultMap type="com.enuos.live.pojo.UserAccountAttachPO" id="UserAccountAttachResult">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="experience" column="experience"/>
+        <result property="level" column="level"/>
+        <result property="gold" column="gold"/>
+        <result property="diamond" column="diamond"/>
+        <result property="isMember" column="is_member"/>
+        <result property="iconFrame" column="icon_frame"/>
+        <result property="skin" column="skin"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <sql id="commonSelect">
+        id,
+        user_id,
+        experience,
+        `level`,
+        gold,
+        diamond,
+        isMember,
+        iconFrame,
+        skin,
+        create_time,
+        update_time
+    </sql>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.enuos.live.pojo.UserAccountAttachPO">
+        insert into tb_user_account_attach(
+            user_id,
+            experience,
+            `level`,
+            gold,
+            diamond,
+            create_time,
+            update_time
+        ) values (
+              #{userId},
+              #{experience},
+              #{level},
+              #{gold},
+              #{diamond},
+              NOW(),
+              NOW()
+        )
+    </insert>
+
+    <update id="update">
+        update tb_user_account_attach
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="experience != null and experience != 0">experience = #{experience},</if>
+            <if test="level != null and level != 0">`level` = #{level},</if>
+            <if test="gold != null">gold = #{gold},</if>
+            <if test="diamond != null">diamond = #{diamond},</if>
+            <if test="iconFrame != null">icon_frame = #{iconFrame},</if>
+            <if test="skin != null">skin = #{skin},</if>
+            update_time = NOW()
+        </trim>
+        <where>
+            <if test="id != null">
+                id =#{id}
+            </if>
+            <if test="userId != null">
+                and user_id =#{userId}
+            </if>
+        </where>
+    </update>
+    <update id="upSurplusAmount">
+        update red_packets_send
+        set
+        rp_surplus= rp_surplus-1,
+        surplus_amount= surplus_amount-#{rp}
+        where  id = #{rpId}
+        and surplus_amount>0
+    </update>
+
+    <update id="upUserAccountAttachAmount">
+        update tb_user_account_attach
+        set
+        gold = gold + #{gold}
+        where  user_id =#{userId}
+    </update>
+
+    <select id="getAttach" resultMap="UserAccountAttachResult" parameterType="java.util.Map">
+        select
+        <include refid="commonSelect"/>
+        from tb_user_account_attach
+        <where>
+            <if test="id != null and id != 0">
+                id = #{id}
+            </if>
+            <if test="userId != null and userId != 0">
+                user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getBalance" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        id, gold, diamond
+        from tb_user_account_attach
+        <where>
+            <if test="id != null and id != 0">
+                id = #{id}
+            </if>
+            <if test="userId != null and userId != 0">
+                user_id = #{userId}
+            </if>
+        </where>
+    </select>
+    <select id="getUserMsg" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        id,user_id AS userId,thumb_icon_url AS thumbIconUrl, nick_name AS nickName
+        from tb_user
+        <where>
+            <if test="id != null and id != 0">
+                id = #{id}
+            </if>
+            <if test="userId != null and userId != 0">
+                user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByPrimaryKeyGoldRatio" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select
+        ratio
+        from diamond_gold
+        where <![CDATA[ #{gold} >= begin_gold and #{gold} < end_gold]]>
+    </select>
+
+</mapper>

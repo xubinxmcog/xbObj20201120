@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.CauseMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.Cause">
+    <id column="id" property="id" />
+    <result column="cause" property="cause" />
+    <result column="type" property="type" />
+    <result column="update_time" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, cause, `type`, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_cause
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="getCauseList" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_cause
+    where
+    `type` = #{type}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_cause
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.Cause" useGeneratedKeys="true">
+    insert into tb_cause (cause, update_time)
+    values (#{cause,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.Cause">
+    update tb_cause
+    <set>
+      <if test="cause != null">
+        cause = #{cause,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

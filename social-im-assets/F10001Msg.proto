@@ -1,0 +1,39 @@
+package Platform.ModelF10001;
+option java_package = "com.enuos.live.proto.f10001msg";
+option java_outer_classname = "F10001";
+
+//表情 0
+message F10001C2S {
+  required string message = 1; // 消息内容
+}
+message F10001S2C {
+  required string message = 1; // 消息内容
+  required int64 userID = 2; //玩家ID
+}
+
+//MIC 1
+message F100011C2S {
+  required int32 isOpenVoice=1;//0 打开 1 关闭
+}
+
+//文字 2
+message F100012C2S {
+  required string message = 1; // 消息内容  
+}
+message F100012S2C {
+  required int32 type = 1; //消息类型 0「法官」 1「玩家」
+  optional string icon = 2; //玩家头像
+  optional string nick = 3; //玩家昵称
+  required string message = 4; // 消息内容 
+  required int64 userID=5; //玩家UserID
+}
+
+//游戏邀请 3
+message F100013C2S {
+  required int64 gameCode = 1; //游戏编号 「例如：30051」
+}
+
+//扬声器状态 4
+message F100014C2S {
+  required int32 isOpenLoudspeaker = 1; // 1-打开扬声器 0-关闭扬声器
+}

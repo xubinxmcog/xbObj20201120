@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ReportAttachMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ReportAttach">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="report_id" jdbcType="INTEGER" property="reportId"/>
+        <result column="report_file" jdbcType="VARCHAR" property="reportFile"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, report_id, report_file
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_report_user_attach
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from tb_report_user_attach
+        where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ReportAttach"
+            useGeneratedKeys="true">
+        insert into tb_report_user_attach (report_id, report_file)
+        values (#{reportId}, #{reportFile})
+  </insert>
+
+    <insert id="insertReportAttach" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ReportAttach"
+            useGeneratedKeys="true">
+        insert into ${tableName} (report_id, report_file)
+        values (#{reportId}, #{reportFile})
+  </insert>
+
+    <insert id="addReportAttachs">
+        insert into ${tableName} (report_id, report_file)
+        values
+        <foreach collection="list" item="reportAttach" index="index" separator=",">
+            (#{reportAttach.reportId},#{reportAttach.reportFile})
+        </foreach>
+
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ReportAttach">
+        update tb_report_user_attach
+        <set>
+            <if test="reportId != null">
+                report_id = #{reportId,jdbcType=INTEGER},
+            </if>
+            <if test="reportFile != null">
+                report_file = #{reportFile,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+
+    <select id="getTipOffFile" resultType="com.enuos.live.pojo.ReportAttach">
+        select
+        *
+        from ${tableName}
+        where report_id = #{reportId}
+    </select>
+
+</mapper>

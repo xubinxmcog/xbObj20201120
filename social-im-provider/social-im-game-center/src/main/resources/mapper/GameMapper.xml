@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.GameMapper">
+
+  <select id="getHomeGameList" resultType="java.util.Map">
+    SELECT t1.*
+    FROM ( SELECT tab1.game_code         AS gameCode,
+                  tab1.game_name         AS gameName,
+                  tab1.game_cover        AS gameCover,
+                  COUNT(tab2.game_code)  AS gameNum
+             FROM game tab1
+             LEFT JOIN game_player tab2
+               ON tab1.game_code = tab2.game_code
+           <where>
+             <if test="gameDevice != null">
+               AND tab1.game_device = #{gameDevice,jdbcType=INTEGER} OR game_device = 3
+             </if>
+             <if test="userGrade != null">
+               AND tab1.game_grade <![CDATA[ <= ]]> #{userGrade,jdbcType=INTEGER}
+             </if>
+             <if test="gameLimit != null">
+               AND tab1.game_limit = #{gameLimit,jdbcType=INTEGER}
+             </if>
+             <if test="version != null and version != ''">
+               AND REPLACE(tab1.soft_version,'.','') <![CDATA[ <= ]]> REPLACE(#{version,jdbcType=VARCHAR},'.','')
+             </if>
+             <if test="gameHome != null">
+               AND tab1.home_sort > 0
+             </if>
+             <if test="gameActive != null">
+               AND tab1.game_active = #{gameActive,jdbcType=INTEGER}
+             </if>
+           </where>
+             GROUP BY tab1.game_code
+           <choose>
+             <when test="gameHome != null">
+               ORDER BY tab1.home_sort LIMIT 6
+             </when>
+             <otherwise>
+               ORDER BY tab1.game_sort
+             </otherwise>
+           </choose>
+        ) t1
+    <choose>
+      <when test="gameLabel != null">
+        LEFT JOIN game_label_link t2
+        ON t1.gameCode = t2.game_code
+        WHERE t2.label_code = #{gameLabel,jdbcType=INTEGER}
+      </when>
+    </choose>
+  </select>
+
+  <select id="getGameInfo" resultType="java.util.Map" parameterType="java.lang.Long">
+    SELECT game_code      AS gameCode,
+           game_name      AS gameName,
+           game_cover     AS gameCover,
+           game_rules_one AS gameRulesOne,
+           game_rules_two AS gameRulesTwo,
+           game_mode      AS gameMode,
+           assets_ios     AS ios,
+           assets_android AS android,
+           assets_version AS assetsVersion
+      FROM game
+     WHERE game_code = #{gameId,jdbcType=BIGINT}
+  </select>
+
+  <select id="getGameList" resultType="java.util.Map" parameterType="java.lang.Integer">
+    SELECT game_code  AS gameCode,
+           game_name  AS gameName,
+           game_cover AS gameCover
+      FROM game
+     WHERE game_active = 1
+       AND game_flag = 0
+  </select>
+
+</mapper>

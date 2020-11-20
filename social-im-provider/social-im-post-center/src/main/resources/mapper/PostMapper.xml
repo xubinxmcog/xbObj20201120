@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.enuos.live.mapper.PostMapper">
+
+    <!--动态列表[广场]-->
+    <resultMap id="postResource" type="com.enuos.live.pojo.PostDetail">
+        <id column="postId" property="id" jdbcType="INTEGER"/>
+        <collection property="resourceList" ofType="com.enuos.live.pojo.Resource">
+            <id column="resourceId" property="id" jdbcType="INTEGER"/>
+            <result column="resourceType" property="resourceType" jdbcType="INTEGER"/>
+            <result column="duration" property="duration" jdbcType="INTEGER"/>
+            <result column="width" property="width" jdbcType="INTEGER"/>
+            <result column="height" property="height" jdbcType="INTEGER"/>
+            <result column="coverUrl" property="coverUrl" jdbcType="VARCHAR"/>
+            <result column="url" property="url" jdbcType="VARCHAR"/>
+            <result column="thumbUrl" property="thumbUrl" jdbcType="VARCHAR"/>
+            <result column="title" property="title" jdbcType="VARCHAR"/>
+            <result column="description" property="description" jdbcType="VARCHAR"/>
+            <result column="link" property="link" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!--转发源-->
+    <resultMap id="rootPost" type="com.enuos.live.pojo.RootPost">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="content" property="content" jdbcType="VARCHAR"/>
+        <id column="userId" property="userId" jdbcType="BIGINT"/>
+        <id column="nickName" property="nickName" jdbcType="VARCHAR"/>
+        <id column="atMap" property="atMap" jdbcType="VARCHAR"/>
+        <collection property="resourceList" ofType="com.enuos.live.pojo.Resource">
+            <id column="resourceId" property="id" jdbcType="INTEGER"/>
+            <result column="resourceType" property="resourceType" jdbcType="INTEGER"/>
+            <result column="duration" property="duration" jdbcType="INTEGER"/>
+            <result column="width" property="width" jdbcType="INTEGER"/>
+            <result column="height" property="height" jdbcType="INTEGER"/>
+            <result column="coverUrl" property="coverUrl" jdbcType="VARCHAR"/>
+            <result column="url" property="url" jdbcType="VARCHAR"/>
+            <result column="thumbUrl" property="thumbUrl" jdbcType="VARCHAR"/>
+            <result column="title" property="title" jdbcType="VARCHAR"/>
+            <result column="description" property="description" jdbcType="VARCHAR"/>
+            <result column="link" property="link" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!--动态-->
+    <resultMap id="post" type="com.enuos.live.pojo.PostDetail">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="userId" property="userId" jdbcType="BIGINT"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="forwardIds" property="forwardIds" jdbcType="VARCHAR"/>
+        <result column="praiseNum" property="praiseNum" jdbcType="INTEGER"/>
+        <result column="forwardNum" property="forwardNum" jdbcType="INTEGER"/>
+        <result column="commentNum" property="commentNum" jdbcType="INTEGER"/>
+        <result column="forwardMap" property="forwardMap" jdbcType="VARCHAR"/>
+        <result column="atMap" property="atMap" jdbcType="VARCHAR"/>
+        <result column="nickName" property="nickName" jdbcType="VARCHAR"/>
+        <result column="thumbIconUrl" property="thumbIconUrl" jdbcType="VARCHAR"/>
+        <result column="iconFrame" property="iconFrame" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="isFriend" property="isFriend" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="isPraise" property="isPraise" jdbcType="INTEGER"/>
+        <result column="topicId" property="topicId" jdbcType="INTEGER"/>
+        <result column="topicName" property="topicName" jdbcType="VARCHAR"/>
+        <collection property="resourceList" ofType="com.enuos.live.pojo.Resource">
+            <id column="resourceId" property="id" jdbcType="INTEGER"/>
+            <result column="resourceType" property="resourceType" jdbcType="INTEGER"/>
+            <result column="duration" property="duration" jdbcType="INTEGER"/>
+            <result column="width" property="width" jdbcType="INTEGER"/>
+            <result column="height" property="height" jdbcType="INTEGER"/>
+            <result column="coverUrl" property="coverUrl" jdbcType="VARCHAR"/>
+            <result column="url" property="url" jdbcType="VARCHAR"/>
+            <result column="thumbUrl" property="thumbUrl" jdbcType="VARCHAR"/>
+            <result column="title" property="title" jdbcType="VARCHAR"/>
+            <result column="description" property="description" jdbcType="VARCHAR"/>
+            <result column="link" property="link" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!--数量-->
+    <resultMap id="postNum" type="com.enuos.live.pojo.PostNum">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="praise_num" property="praiseNum" jdbcType="INTEGER"/>
+        <id column="comment_num" property="commentNum" jdbcType="INTEGER"/>
+        <id column="reply_num" property="replyNum" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--保存用户动态信息-->
+    <insert id="savePost" parameterType="com.enuos.live.pojo.Post" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into tb_post(
+        <if test="topicId != null">
+            topic_id,
+        </if>
+        <if test="content != null and content != ''">
+            content,
+        </if>
+        <if test="showStatus != null">
+            show_status,
+        </if>
+        <if test="forwardIds != null and forwardIds != ''">
+            forward_ids,
+        </if>
+        <if test="forwardMap != null and forwardMap != ''">
+            forward_map,
+        </if>
+        <if test="atMap != null and atMap != ''">
+            at_map,
+        </if>
+        user_id
+        ) values (
+        <if test="topicId != null">
+            #{topicId},
+        </if>
+        <if test="content != null and content != ''">
+            #{content},
+        </if>
+        <if test="showStatus != null">
+            #{showStatus},
+        </if>
+        <if test="forwardIds != null and forwardIds != ''">
+            #{forwardIds},
+        </if>
+        <if test="forwardMap != null and forwardMap != ''">
+            #{forwardMap},
+        </if>
+        <if test="atMap != null and atMap != ''">
+            #{atMap},
+        </if>
+        #{userId}
+        )
+    </insert>
+
+    <!--获取数值-->
+    <select id="getNum" resultMap="postNum">
+        select id, ${column} from ${table} where id = #{id}
+    </select>
+
+    <!--设置数量-->
+    <update id="setNum">
+        update ${table}
+        <set>
+            <if test="postNum.praiseNum != null">
+                praise_num = #{postNum.praiseNum},
+            </if>
+            <if test="postNum.commentNum != null">
+                comment_num = #{postNum.commentNum},
+            </if>
+            <if test="postNum.replyNum != null">
+                reply_num = #{postNum.replyNum}
+            </if>
+        </set>
+        <where>
+            and id = #{postNum.id}
+        </where>
+    </update>
+
+    <!--动态是否存在-->
+    <select id="postIsExists" parameterType="com.enuos.live.pojo.Praise" resultType="java.lang.Integer">
+        select 1 from tb_post where id = #{postId}
+    </select>
+
+    <!--是否点赞-->
+    <select id="postIsPraise" parameterType="com.enuos.live.pojo.Praise" resultType="java.lang.Integer">
+        select 1 from tb_post_praise
+        <where>
+            and post_id = #{postId}
+            and user_id = #{userId}
+        </where>
+    </select>
+
+    <!--是否点赞-->
+    <select id="commentIsPraise" parameterType="com.enuos.live.pojo.Praise" resultType="java.lang.Integer">
+        select 1 from tb_comment_praise
+        <where>
+            and post_id = #{postId}
+            and user_id = #{userId}
+            and comment_id = #{commentId}
+            <if test="type == 1">
+                and reply_id = 0
+            </if>
+            <if test="type == 2">
+                and reply_id = #{replyId}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--批量保存动态资源如图片，音频，视频，链接-->
+    <insert id="batchSaveResource" parameterType="com.enuos.live.pojo.Post" useGeneratedKeys="true">
+        insert into tb_post_resource(
+        post_id,
+        resource_type,
+        duration,
+        width,
+        height,
+        cover_url,
+        thumb_url,
+        file_id,
+        title,
+        description,
+        link,
+        url
+        ) values
+        <foreach collection="resourceList" item="resource" separator=",">
+            (
+            #{id},
+            #{resource.resourceType},
+            <choose>
+                <when test="resource.duration != null">
+                    #{resource.duration},
+                </when>
+                <otherwise>
+                    0,
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.width != null">
+                    #{resource.width},
+                </when>
+                <otherwise>
+                    0,
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.height != null">
+                    #{resource.height},
+                </when>
+                <otherwise>
+                    0,
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.coverUrl != null">
+                    #{resource.coverUrl},
+                </when>
+                <otherwise>
+                    '',
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.thumbUrl != null">
+                    #{resource.thumbUrl},
+                </when>
+                <otherwise>
+                    '',
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.fileId != null">
+                    #{resource.fileId},
+                </when>
+                <otherwise>
+                    0,
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.title != null">
+                    #{resource.title},
+                </when>
+                <otherwise>
+                    '',
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.description != null">
+                    #{resource.description},
+                </when>
+                <otherwise>
+                    '',
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="resource.link != null">
+                    #{resource.link},
+                </when>
+                <otherwise>
+                    '',
+                </otherwise>
+            </choose>
+            #{resource.url}
+            )
+        </foreach>
+    </insert>
+
+    <!--查询是否为自己的动态-->
+    <select id="isSelfPost" parameterType="com.enuos.live.pojo.Post" resultType="java.lang.Integer">
+        select id from tb_post
+        <where>
+            and id = #{id}
+            and user_id = #{userId}
+        </where>
+    </select>
+
+    <!--查询是否为自己的评论或回复-->
+    <select id="isSelfCommentAndReply" parameterType="com.enuos.live.pojo.Comment" resultType="java.lang.Integer">
+        select id from tb_comment
+        where id = #{id} and user_id = #{userId}
+    </select>
+
+    <!--删除动态-->
+    <delete id="deletePost">
+        <foreach collection="tables" item="table" separator=";">
+            delete from ${table}
+            <where>
+                <choose>
+                    <when test="table == 'tb_post'">
+                        and id = #{id}
+                    </when>
+                    <otherwise>
+                        and post_id = #{id}
+                    </otherwise>
+                </choose>
+            </where>
+        </foreach>
+    </delete>
+    
+    <!--删除评论或回复-->
+    <delete id="deleteCommentAndReply" parameterType="java.lang.Integer">
+        delete from tb_comment where id = #{id} or comment_id = #{id}
+    </delete>
+    
+    <!--评论数-1-->
+    <update id="updateCommentNum" parameterType="java.lang.Integer">
+        update tb_post set comment_num = comment_num - 1 where id = (select post_id from tb_comment where id = #{id})
+    </update>
+    
+    <!--回复数-1-->
+    <update id="updateReplyNum" parameterType="java.lang.Integer">
+        update tb_comment set reply_num = reply_num - 1 where id = (select t.comment_id from (select comment_id from tb_comment where id = #{id}) t)
+    </update>
+    
+    <!--删除评论或回复的点赞记录-->
+    <delete id="deleteCommentAndReplyPraise" parameterType="java.lang.Integer">
+        delete from tb_comment_praise where comment_id = #{id} or reply_id = #{id}
+    </delete>
+
+    <!--动态列表[我的动态]-->
+    <select id="getMyPost" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.PostDetail">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.forward_ids forwardIds,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.level,
+
+        if(t4.id is null, 0, 1) isPraise,
+
+        t1.topic_id topicId,
+        t5.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_post_praise t4 on t4.post_id = t1.id and t4.user_id = #{userId}
+        left join tb_label t5 on t5.id = t1.topic_id
+        <where>
+            and t1.user_id = #{userId}
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--动态列表[用户动态]-->
+    <select id="getUserPost" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.PostDetail">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.forward_ids forwardIds,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.remark,
+
+        t4.level,
+
+        if(t5.id is null, 0, 1) isPraise,
+
+        t1.topic_id topicId,
+        t6.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_friend t3 on t3.friend_id = t1.user_id and t3.user_id = #{userId}
+        left join tb_user_account_attach t4 on t4.user_id = t1.user_id
+        left join tb_post_praise t5 on t5.post_id = t1.id and t5.user_id = #{userId}
+        left join tb_label t6 on t6.id = t1.topic_id
+        <where>
+            and t1.user_id = #{toUserId}
+            and if(t3.id is null or t3.is_del = 1, t1.show_status = 0, t1.show_status <![CDATA[<>]]> 2)
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+            
+            and not exists (
+                select 1 from tb_post_shield where user_id = #{userId} and post_id = t1.id and comment_id = 0 and reply_id = 0
+            )
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--动态列表[朋友圈]-->
+    <select id="getCircle" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.PostDetail">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.forward_ids forwardIds,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.level,
+        t4.remark,
+
+        if(t5.id is null, 0, 1) isPraise,
+
+        t1.topic_id topicId,
+        t6.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId} and t4.is_del = 0
+        left join tb_post_praise t5 on t5.post_id = t1.id and t5.user_id = #{userId}
+        left join tb_label t6 on t6.id = t1.topic_id
+        <where>
+            and t2.is_del = 0
+            and if(t1.user_id <![CDATA[<>]]> #{userId}, t4.id is not null and t1.show_status <![CDATA[<>]]> 2, true)
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+            
+            and not exists (
+                select 1 from tb_post_shield where user_id = #{userId} and post_id = t1.id and comment_id = 0 and reply_id = 0
+            )
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--动态列表[关注][是好友showStatus(0,1);不是好友是好友showStatus(0)]-->
+    <select id="getFollow" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.PostDetail">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_ids forwardIds,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.level,
+
+        t4.remark,
+
+        if(t5.id is null, 0, 1) isPraise,
+
+        t1.topic_id topicId,
+        t6.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        left join tb_post_praise t5 on t5.post_id = t1.id and t5.user_id = #{userId}
+        left join tb_label t6 on t6.id = t1.topic_id
+        <where>
+            and t2.is_del = 0
+            and t1.user_id <![CDATA[<>]]> #{userId}
+            and if(t4.id is null, t1.show_status = 0, t1.show_status <![CDATA[<>]]> 2)
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+            
+            and not exists (
+                select 1 from tb_post_shield where user_id = #{userId} and post_id = t1.id and comment_id = 0 and reply_id = 0
+            )
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--动态列表[广场][非好友]-->
+    <select id="getSquares" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.PostDetail">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_ids forwardIds,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.level,
+
+        if(t5.id is null, 0, 1) isPraise,
+
+        t1.topic_id topicId,
+        t6.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        left join tb_post_praise t5 on t5.post_id = t1.id and t5.user_id = #{userId}
+        left join tb_label t6 on t6.id = t1.topic_id
+        <where>
+            and t2.is_del = 0
+            and (t4.id is null or t4.is_del = 1)
+            and t1.user_id <![CDATA[ <> ]]> #{userId}
+            and t1.show_status = 0
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+            
+            and not exists (
+                select 1 from tb_post_shield where user_id = #{userId} and post_id = t1.id and comment_id = 0 and reply_id = 0
+            )
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--动态列表[话题标签动态]-->
+    <select id="getMomentsByTopic" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.PostDetail">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_ids forwardIds,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.level,
+
+        if(t4.is_del = 0, 1, 0) isFriend,
+        t4.remark,
+
+        if(t5.id is null, 0, 1) isPraise,
+
+        t1.topic_id topicId,
+        t6.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        left join tb_post_praise t5 on t5.post_id = t1.id and t5.user_id = #{userId}
+        left join tb_label t6 on t6.id = t1.topic_id
+        <where>
+            <choose>
+                <when test="topicId != null">
+                    and t1.topic_id = #{topicId}
+                </when>
+                <otherwise>
+                    and t1.topic_id <![CDATA[ <> ]]]> 0
+                </otherwise>
+            </choose>
+            and t2.is_del = 0
+            and if(t4.is_del = 0, t1.show_status <![CDATA[<>]]> 2, t1.show_status = 0)
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+            
+            and not exists (
+            select 1 from tb_post_shield where user_id = #{userId} and post_id = t1.id and comment_id = 0 and reply_id = 0
+            )
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--获取动态-->
+    <select id="getPost" parameterType="com.enuos.live.pojo.Post" resultMap="post">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.forward_ids forwardIds,
+        t1.praise_num praiseNum,
+        t1.comment_num commentNum,
+        t1.forward_map forwardMap,
+        t1.at_map atMap,
+        (select count(1) from tb_post where find_in_set(t1.id, forward_ids)) forwardNum,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        if(t2.if_time <![CDATA[ > ]]> now(), t2.icon_frame, '') iconFrame,
+        t2.sex,
+
+        t3.level,
+
+        if(t4.id is null, 0, 1) isFriend,
+        t4.remark,
+
+        if(t5.id is null, 0, 1) isPraise,
+
+        t6.id resourceId,
+        t6.resource_type resourceType,
+        t6.url,
+        t6.duration,
+        t6.width,
+        t6.height,
+        t6.cover_url coverUrl,
+        t6.thumb_url thumbUrl,
+        t6.title,
+        t6.description,
+        t6.link,
+
+        t7.id topicId,
+        t7.name topicName
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        left join tb_post_praise t5 on t5.post_id = t1.id and t5.user_id = #{userId}
+        left join tb_post_resource t6 on t6.post_id = t1.id
+        left join tb_label t7 on t7.id = t1.topic_id
+        <where>
+            and t1.id = #{id}
+        </where>
+    </select>
+
+    <!--转发源动态信息-->
+    <select id="getRootByIds" parameterType="java.util.List" resultMap="rootPost">
+        select
+        t1.id,
+        t1.content,
+        t1.user_id userId,
+        t1.at_map atMap,
+
+        t2.nick_name nickName,
+
+        t3.id resourceId,
+        t3.resource_type resourceType,
+        t3.url,
+        t3.duration,
+        t3.width,
+        t3.height,
+        t3.cover_url coverUrl,
+        t3.thumb_url thumbUrl,
+        t3.title,
+        t3.description,
+        t3.link
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_post_resource t3 on t3.post_id = t1.id
+        <where>
+            <if test="list != null and list.size > 0">
+                and t1.id in
+                <foreach collection="list" item="postId" open="(" close=")" separator=",">
+                    #{postId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!--转发源动态信息-->
+    <select id="getRootById" parameterType="java.lang.Integer" resultMap="rootPost">
+        select
+        t1.id,
+        t1.content,
+        t1.user_id userId,
+        t1.at_map atMap,
+
+        t2.nick_name nickName,
+
+        t3.id resourceId,
+        t3.resource_type resourceType,
+        t3.url,
+        t3.duration,
+        t3.width,
+        t3.height,
+        t3.cover_url coverUrl,
+        t3.thumb_url thumbUrl,
+        t3.title,
+        t3.description,
+        t3.link
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_post_resource t3 on t3.post_id = t1.id
+        <where>
+            and t1.id = #{id}
+        </where>
+    </select>
+
+    <!--动态资源-->
+    <select id="getResource" parameterType="java.util.List" resultMap="postResource">
+        select
+        post_id postId,
+        id resourceId,
+        resource_type resourceType,
+        url,
+        duration,
+        width,
+        height,
+        cover_url coverUrl,
+        thumb_url thumbUrl,
+        title,
+        description,
+        link
+        from tb_post_resource
+        where post_id in
+        <foreach collection="list" item="postId" open="(" close=")" separator=",">
+            #{postId}
+        </foreach>
+    </select>
+
+    <!--评论-->
+    <select id="getComment" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.Comment">
+        select
+        t1.id,
+        t1.post_id postId,
+        t1.user_id userId,
+        t1.praise_num praiseNum,
+        t1.reply_num replyNum,
+        t1.content,
+        t1.create_time createTime,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        t2.sex,
+
+        if(t3.id is null, 0 , 1) isFriend,
+        t3.remark,
+
+        if(t4.id is null, 0 , 1) isPraise
+
+        from tb_comment t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_friend t3 on t3.friend_id = t1.user_id and t3.user_id = #{userId}
+        left join tb_comment_praise t4 on t4.comment_id = t1.id and t4.post_id = t1.post_id and t4.reply_id = 0 and t4.user_id = #{userId}
+        <where>
+            <!--and t2.is_del = 0-->
+            and t1.post_id = #{id}
+            and t1.comment_id = 0
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+            
+            and not exists(
+                select 1 from tb_post_shield
+                where
+                post_id = t1.post_id and comment_id = t1.id and reply_id = 0 and user_id = #{userId}
+            )
+        </where>
+        order by t1.praise_num desc
+    </select>
+
+    <!--获取动态的评论-->
+    <select id="getCommentByPostIdList" resultType="com.enuos.live.pojo.PostComment">
+        select
+        t1.id,
+        t1.post_id postId,
+        t1.content,
+        t1.praise_num praiseNum,
+        t1.create_time createTime,
+        t1.user_id userId,
+        t2.nick_name nickName,
+        t3.remark
+        from tb_comment t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_friend t3 on t3.friend_id = t1.user_id and t3.user_id = #{userId}
+        where t1.comment_id = 0
+        and t1.post_id in
+        <foreach collection="postIdList" item="postId" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+        
+        and not exists (
+            select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+        )
+        
+        and not exists (
+            select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+        )
+        
+        and not exists (
+            select 1 from tb_post_shield
+            where
+            post_id = t1.post_id and comment_id = t1.id and reply_id = 0 and user_id = #{userId}
+        )
+        
+        order by t1.create_time
+    </select>
+
+    <!--评论的第一个回复-->
+    <select id="getFirstReply" resultType="com.enuos.live.pojo.Comment">
+        select
+        t1.comment_id id,
+        t1.content replyContent,
+
+        t2.nick_name replyNickName,
+
+        if(t3.id is null, 0, 1) isFriend,
+        t3.remark replyRemark
+
+        from tb_comment t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_friend t3 on t3.friend_id = t1.user_id and t3.user_id = #{userId}
+        <where>
+            and t2.is_del = 0
+            and t1.reply_flag = 1
+            and t1.comment_id in
+            <foreach collection="commentIdList" item="commentId" open="(" close=")" separator=",">
+                #{commentId}
+            </foreach>
+        </where>
+    </select>
+
+    <!--转发-->
+    <select id="getForward" parameterType="com.enuos.live.pojo.Post" resultType="com.enuos.live.pojo.Forward">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.create_time createTime,
+
+        t2.sex,
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+
+        t3.level,
+
+        if(t4.id is null, 0, 1) isFriend,
+        t4.remark
+
+        from tb_post t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        <where>
+            and find_in_set(#{id}, t1.forward_ids)
+        </where>
+    </select>
+
+    <!--回复-->
+    <select id="getReply" parameterType="com.enuos.live.pojo.Comment" resultType="com.enuos.live.pojo.Reply">
+        select
+        t1.id,
+        t1.user_id userId,
+        t1.content,
+        t1.create_time createTime,
+        t1.praise_num praiseNum,
+
+        t2.sex,
+        t2.thumb_icon_url thumbIconUrl,
+        t2.nick_name nickName,
+
+        if(t3.id is null, 0, 1) isPraise,
+        
+        t4.remark
+
+        from tb_comment t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        left join tb_comment_praise t3 on t3.reply_id = t1.id and t3.user_id = #{userId}
+        left join tb_user_friend t4 on t4.friend_id = t1.user_id and t4.user_id = #{userId}
+        <where>
+            and t2.is_del = 0
+            and t1.comment_id = #{id}
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 0 and (user_id = t1.user_id and to_user_id = #{userId} or (user_id = #{userId} and to_user_id = t1.user_id))
+            )
+            
+            and not exists (
+                select 1 from tb_user_blacklist where rating = 1 and user_id = #{userId} and to_user_id = t1.user_id
+            )
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <!--保存评论-->
+    <insert id="saveCommentOrReply" parameterType="com.enuos.live.pojo.Comment" useGeneratedKeys="true">
+        insert into tb_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="commentId != null">
+                comment_id,
+            </if>
+            <if test="replyFlag != null">
+                reply_flag,
+            </if>
+            post_id,
+            content,
+            user_id
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="commentId != null">
+                #{commentId},
+            </if>
+            <if test="replyFlag != null">
+                #{replyFlag},
+            </if>
+            #{postId},
+            #{content},
+            #{userId}
+        </trim>
+    </insert>
+
+    <!--评论是否有回复-->
+    <select id="isFirstReply" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(1) from tb_comment where comment_id = #{commentId}
+    </select>
+
+    <!--动态点赞-->
+    <insert id="savePostPraise" parameterType="com.enuos.live.pojo.Praise" useGeneratedKeys="true">
+        insert into tb_post_praise
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            post_id, user_id
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{postId}, #{userId}
+        </trim>
+    </insert>
+
+    <!--评论&回复点赞-->
+    <insert id="saveCommentPraise" parameterType="com.enuos.live.pojo.Praise" useGeneratedKeys="true">
+        insert into tb_comment_praise
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            post_id,
+            comment_id,
+            <if test="replyId != null">
+                reply_id,
+            </if>
+            user_id
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{postId},
+            #{commentId},
+            <if test="replyId != null">
+                #{replyId},
+            </if>
+            #{userId}
+        </trim>
+    </insert>
+
+    <!--取消动态赞-->
+    <delete id="deletePostPraise" parameterType="com.enuos.live.pojo.Praise">
+        delete from tb_post_praise
+        <where>
+            and post_id = #{postId}
+            and user_id = #{userId}
+        </where>
+    </delete>
+
+    <!--取消评论&回复赞-->
+    <delete id="deleteCommentPraise" parameterType="com.enuos.live.pojo.Praise">
+        delete from tb_comment_praise
+        <where>
+            and post_id = #{postId}
+            and comment_id = #{commentId}
+            and user_id = #{userId}
+            <if test="type == 1">
+                and reply_id = 0
+            </if>
+            <if test="type == 2">
+                and reply_id = #{replyId}
+            </if>
+        </where>
+    </delete>
+
+    <!--获取动态或者评论或者回复的userId-->
+    <select id="getUserIdById" resultType="java.lang.Integer">
+        select user_id from ${table} where id = #{id}
+    </select>
+
+    <!--屏蔽动态-->
+    <insert id="saveShieldPost" parameterType="com.enuos.live.pojo.Shield" useGeneratedKeys="true">
+        insert into tb_post_shield(
+        user_id, post_id
+        ) values (
+        #{userId}, #{postId}
+        )
+    </insert>
+
+    <!--获取点赞人和被点赞人是否好友关系-->
+    <select id="isFriend" parameterType="com.enuos.live.pojo.Praise" resultType="java.lang.Integer">
+        select
+        1
+        from tb_post t1
+        inner join tb_user_friend t2 on t2.friend_id = t1.user_id and t2.user_id = #{userId} and t2.is_del = 0
+        where t1.id = #{postId}
+    </select>
+</mapper>

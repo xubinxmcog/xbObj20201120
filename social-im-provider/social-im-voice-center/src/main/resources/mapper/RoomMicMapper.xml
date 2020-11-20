@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RoomMicMapper">
+
+    <!--麦序列表-->
+    <select id="getList" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.MicVO">
+        select
+        user_id userId,
+        thumb_icon_url thumbIconUrl
+        from tb_voice_room_mic
+        <where>
+            and room_id = #{roomId}
+        </where>
+        order by id
+    </select>
+
+    <!--保存-->
+    <insert id="save" parameterType="com.enuos.live.pojo.MicPO" useGeneratedKeys="true">
+        insert into tb_voice_room_mic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            room_id, user_id, thumb_icon_url
+        </trim>
+        <trim prefix="select">
+            #{roomId}, #{userId}, #{thumbIconUrl}
+            <where>
+                and not exists (select 1 from tb_voice_room_mic where room_id = #{roomId} and user_id = #{userId})
+            </where>
+        </trim>
+    </insert>
+
+    <!--删除-->
+    <delete id="delete">
+        delete from tb_voice_room_mic
+        <where>
+            and room_id = #{roomId}
+            and user_id = #{userId}
+        </where>
+    </delete>
+</mapper>

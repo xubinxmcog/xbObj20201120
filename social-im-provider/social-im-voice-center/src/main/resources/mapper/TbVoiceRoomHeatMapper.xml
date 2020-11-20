@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.TbVoiceRoomHeatMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.TbVoiceRoomHeat">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="room_id" jdbcType="BIGINT" property="roomId" />
+    <result column="heat" jdbcType="BIGINT" property="heat" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, room_id, heat, modified_time
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_voice_room_heat
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.TbVoiceRoomHeat" useGeneratedKeys="true">
+    insert into tb_voice_room_heat (room_id, heat, modified_time
+      )
+    values (#{roomId,jdbcType=BIGINT}, #{heat,jdbcType=BIGINT}, #{modifiedTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <insert id="insertBatchRoomHeat" parameterType="java.util.List">
+    insert into tb_voice_room_heat (room_id, heat) values
+      <foreach collection="list" item="record" index="index" separator=",">
+        (#{record.roomId}, #{record.heat})
+      </foreach>
+    ON DUPLICATE KEY UPDATE heat = if(values(heat) <![CDATA[<>]]> heat,values(heat),heat);
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.TbVoiceRoomHeat">
+    update tb_voice_room_heat
+    <set>
+      <if test="roomId != null">
+        room_id = #{roomId,jdbcType=BIGINT},
+      </if>
+      <if test="heat != null">
+        heat = #{heat,jdbcType=BIGINT},
+      </if>
+      <if test="modifiedTime != null">
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--查询开播的房间roomId-->
+  <select id="getRoomIds" resultType="java.lang.String">
+    SELECT
+      t1.room_id
+    FROM
+      tb_voice_room t1
+    LEFT JOIN tb_voice_room_heat t2 ON t2.room_id = t1.room_id
+    WHERE
+      t1.is_broadcast = 1
+      AND (
+      t2.modified_time <![CDATA[ <= ]]> date_add(NOW(),interval -10 day_minute)
+      OR t2.room_id IS NULL) limit 1000
+  </select>
+
+  <select id="getRoomHeat" resultType="com.enuos.live.dto.RoomHeatDTO">
+    SELECT
+      tb1.room_id roomId,
+      IFNULL( SUM( tb2.charm_value ), 0 ) totalCharmValue,
+      IFNULL(( SELECT SUM( charm_value ) FROM user_charm WHERE room_id = tb1.room_id AND DATE_FORMAT( modified_time, '%u' ) = DATE_FORMAT( NOW(), '%u' )), 0) weekCharmValue,
+      IFNULL(( SELECT SUM( charm_value ) FROM user_charm WHERE room_id = tb1.room_id AND modified_time >= date_add( NOW(), INTERVAL - 10 DAY_MINUTE )), 0) unitCharmValue,
+      (SELECT COUNT(user_id ) FROM tb_voice_room_user WHERE room_id = tb1.room_id) roomUserNum,
+      (SELECT COUNT( u2.user_id ) vipUserNum FROM tb_voice_room_user u1 LEFT JOIN tb_user_account_attach u2 ON u2.user_id = u1.user_id AND u2.vip > 0 AND u2.expiration_time > NOW() WHERE u1.room_id = tb1.room_id) vipUserNum,
+      (SELECT COUNT(from_id) FROM tb_voice_room_relation WHERE to_id = tb1.room_id) concernNum,
+      (SELECT COUNT(from_id) FROM tb_voice_room_relation WHERE to_id = tb1.room_id AND DATE_FORMAT(create_time, '%u') = DATE_FORMAT(NOW(), '%u')) weekConcernNum,
+      IFNULL((SELECT SUM(activity_num) FROM tb_voice_room_user_activity WHERE room_id = tb1.room_id AND activity_time >= date_add( NOW(), INTERVAL - 10 DAY_MINUTE ) AND activity_type = 1 ),0) activityNum,
+      (SELECT IFNULL(SUM((UNIX_TIMESTAMP( IFNULL(end_time, start_time)) - UNIX_TIMESTAMP(start_time))) / 60,0) `weekBroadcastTime` FROM tb_voice_room_broadcast_time WHERE room_id = tb1.room_id) totalBroadcastTime,
+      IFNULL((SELECT SUM((UNIX_TIMESTAMP(IFNULL(end_time,start_time)) - UNIX_TIMESTAMP(start_time))) / 60 FROM tb_voice_room_broadcast_time WHERE room_id = tb1.room_id AND DATE_FORMAT(start_time, '%u' ) = DATE_FORMAT(NOW(), '%u')),0) weekBroadcastTime,
+      IFNULL((SELECT SUM( ( UNIX_TIMESTAMP( NOW()) - UNIX_TIMESTAMP( vr2.start_time ) ) ) / 60 FROM tb_voice_room vr1 LEFT JOIN tb_voice_room_broadcast_time vr2 ON vr2.room_id = vr1.room_id
+        WHERE vr1.is_broadcast = 1 AND vr2.start_time = ( SELECT r3.start_time FROM tb_voice_room r1 LEFT JOIN tb_voice_room_broadcast_time r3 ON r3.room_id = r1.room_id
+                                                          WHERE
+                                                                r1.is_broadcast = 1
+                                                            ORDER BY start_time DESC LIMIT 1
+                                                         ) AND vr2.room_id = tb1.room_id ),0) concernBroadcastTime,
+      IFNULL((SELECT head_value FROM tb_voice_room_recommend WHERE room_id = tb1.room_id),0) headValue
+
+    FROM
+        tb_voice_room tb1
+        LEFT JOIN user_charm tb2 ON tb1.room_id = tb2.room_id
+    WHERE
+        tb1.is_broadcast = 1
+    GROUP BY roomId
+  </select>
+
+</mapper>

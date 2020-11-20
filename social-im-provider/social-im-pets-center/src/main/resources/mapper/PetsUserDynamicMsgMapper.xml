@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsUserDynamicMsgMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsUserDynamicMsg">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="gf_user_id" jdbcType="BIGINT" property="gfUserId" />
+    <result column="nick_name" jdbcType="VARCHAR" property="gfNickName" />
+    <result column="message" jdbcType="VARCHAR" property="message" />
+    <result column="msg_type" jdbcType="VARCHAR" property="msgType" />
+    <result column="is_read" jdbcType="TINYINT" property="isRead" />
+    <result column="indate_time" jdbcType="TIMESTAMP" property="indateTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, gf_user_id, message, msg_type, is_read, indate_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from pets_user_dynamic_msg
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from pets_user_dynamic_msg
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsUserDynamicMsg" useGeneratedKeys="true">
+    insert into pets_user_dynamic_msg (user_id, gf_user_id, message, msg_type, is_read)
+    values (#{userId,jdbcType=BIGINT}, #{gfUserId,jdbcType=BIGINT}, #{message,jdbcType=VARCHAR}, 
+      #{msgType,jdbcType=VARCHAR}, #{isRead,jdbcType=TINYINT})
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsUserDynamicMsg">
+    update pets_user_dynamic_msg
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="gfUserId != null">
+        gf_user_id = #{gfUserId,jdbcType=BIGINT},
+      </if>
+      <if test="message != null">
+        message = #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="msgType != null">
+        msg_type = #{msgType,jdbcType=VARCHAR},
+      </if>
+      <if test="isRead != null">
+        is_read = #{isRead,jdbcType=TINYINT},
+      </if>
+      <if test="indateTime != null">
+        indate_time = #{indateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!--获取动态-->
+  <select id="get" resultMap="BaseResultMap">
+    SELECT
+        t1.*,
+        t2.nick_name
+    FROM
+        social_game.`pets_user_dynamic_msg` t1
+        LEFT JOIN social_db.`tb_user` t2 ON t1.gf_user_id = t2.user_id
+        WHERE
+          t1.user_id = #{userId}
+          AND is_read = #{isRead}
+  </select>
+
+  <update id="upIsReadStatus" >
+    update pets_user_dynamic_msg
+    set
+    is_read = 1
+    where id in
+    <foreach collection="list" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+
+  </update>
+
+  <select id="getFriendList" parameterType="long" resultType="java.util.Map">
+    SELECT
+        t1.user_id userId,
+        t1.friend_id friendId,
+        t1.remark,
+        t2.sex,
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        (select count(1) from pets_nest_unlock where user_id = t1.friend_id and pets_id is NOT NULL) petsNum
+    FROM
+        social_db.`tb_user_friend` t1
+        LEFT JOIN social_db.`tb_user` t2 ON t1.friend_id = t2.user_id
+        LEFT JOIN pets_nest_unlock t3 ON t1.friend_id = t3.user_id
+    WHERE
+        t1.user_id = #{userId}
+        GROUP BY t1.friend_id
+        ORDER BY petsNum DESC
+
+  </select>
+
+</mapper>

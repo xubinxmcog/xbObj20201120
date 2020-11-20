@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GameSetAssetsMapper">
+
+ <select id="getGameSetAssetsList" resultType="java.util.Map">
+    SELECT assets_label AS assetsLabel,
+           assets_url   AS assetsUrl
+      FROM game_set_assets
+     WHERE product_id = #{productId,jdbcType=BIGINT}
+       AND game_code = #{gameId,jdbcType=BIGINT}
+ </select>
+
+</mapper>

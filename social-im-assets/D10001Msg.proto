@@ -1,0 +1,32 @@
+// 数据缓存
+package Platform.ModelD10001;
+option java_package = "com.enuos.live.proto.d10001msg";
+option java_outer_classname = "D10001";
+
+// 邀请信息
+message InviteRecord {
+  repeated int64 recordId = 1; // 记录ID
+}
+
+// 群聊信息
+message GroupMember {
+  required string groupName = 1; // 群名称
+  required string groupIcon = 2; // 群头像
+  repeated int64 memberId = 3; // 成员ID
+}
+
+// 登录群聊
+message LoginGroup {
+  required int64 groupId = 1; // 群聊ID
+  required ESUserInfo userInfo = 2; // 玩家装饰
+}
+
+// 装饰信息
+message ESUserInfo {
+  required int64 userId = 1; // 用户ID 
+  required string alias = 2; // 用户别称 
+  required string iconURL = 3; // 用户头像 
+  required string iconFrame = 4; // 头像框 
+  required string chatFrame = 5; // 聊天框 
+  optional string chatFrameAttribute = 6; //聊天框属性
+}

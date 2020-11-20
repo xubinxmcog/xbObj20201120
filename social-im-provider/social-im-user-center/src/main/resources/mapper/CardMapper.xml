@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.CardMapper">
+
+    <!--用户是否绑定或该证件号已使用-->
+    <select id="isExists" parameterType="com.enuos.live.pojo.Card" resultType="java.lang.Integer">
+        select 1
+        from tb_user_card
+        <where>
+            and card_type = #{cardType}
+            and (user_id = #{userId} or id_card = #{idCard})
+        </where>
+        limit 1
+    </select>
+
+    <!--获取绑定次数-->
+    <select id="getBandCount" parameterType="com.enuos.live.pojo.Card" resultType="java.lang.Integer">
+        select count(1) num from tb_user_card where card_type = #{cardType} and id_card = #{idCard}
+    </select>
+
+    <!--保存-->
+    <insert id="save" parameterType="com.enuos.live.pojo.Card" useGeneratedKeys="true">
+        insert into tb_user_card
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            name,
+            sex,
+            card_type,
+            id_card,
+            <if test="phone != null and phone != ''">
+                phone,
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{name},
+            #{sex},
+            #{cardType},
+            #{idCard},
+            <if test="phone != null and phone != ''">
+                #{phone},
+            </if>
+        </trim>
+    </insert>
+
+    <!--[OPEN]是否认证-->
+    <select id="isAuthentication" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select 1
+        from tb_user_card
+        where user_id = #{userId}
+        limit 1
+    </select>
+
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.GroupMapper">
+  <!--获得对外公开的群信息-->
+  <select id="getOpenGroupInfo" resultType="java.util.Map" parameterType="java.util.Map">
+    SELECT t1.*,
+           t2.not_disturb    AS notDisturb,
+           t2.flag_top       AS flagTop,
+           t2.flag_authority AS flagAuthority
+      FROM ( SELECT tab1.group_id        AS groupId,
+                    tab1.group_icon      AS groupIcon,
+                    tab1.group_name      AS groupName,
+                    tab1.group_notice    AS groupNotice,
+                    tab1.group_intro     AS groupIntro,
+                    tab1.group_grade     AS groupGrade,
+                    COUNT(tab2.group_id) AS groupNum
+               FROM `group` tab1
+               LEFT JOIN group_member tab2
+                 ON tab1.group_id = tab2.group_id
+              WHERE tab1.group_id = #{groupId,jdbcType=BIGINT}
+              GROUP BY tab1.group_id
+           ) t1
+      LEFT JOIN group_member t2
+        ON t1.groupId = t2.group_id
+       AND t2.user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <!--新增群聊-->
+  <insert id="newGroupChat" parameterType="com.enuos.live.pojo.Group" useGeneratedKeys="true"
+    keyProperty="id">
+      INSERT INTO `group` (
+        group_id,
+        group_admin,
+        group_name,
+        group_grade
+      ) VALUES (
+        #{groupId,jdbcType=BIGINT},
+        #{groupAdmin,jdbcType=BIGINT},
+        #{groupName,jdbcType=VARCHAR},
+        #{groupGrade,jdbcType=INTEGER}
+      )
+  </insert>
+
+  <!--获得群信息-->
+  <select id="getGroupInfo" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Group">
+    SELECT t1.group_id        AS groupId,
+           t1.group_icon      AS groupIcon,
+           t1.group_admin     AS groupAdmin,
+           t1.group_name      AS groupName,
+           t1.group_notice    AS groupNotice,
+           t1.group_intro     AS groupIntro,
+           t1.group_grade     AS groupGrade,
+           COUNT(t2.group_id) AS groupNum,
+           t1.group_status    AS groupStatus,
+           t1.group_warn      AS groupWarn,
+           t1.group_auto      AS groupAuto
+     FROM `group` t1
+     LEFT JOIN group_member t2
+       ON t1.group_id = t2.group_id
+    WHERE t1.group_id = #{groupId,jdbcType=BIGINT}
+    GROUP BY t1.group_id
+  </select>
+
+  <!--更新群信息-->
+  <update id="updateGroupInfo" parameterType="com.enuos.live.pojo.Group">
+    UPDATE `group`
+    <set>
+      <if test="groupIcon != null and groupIcon != ''">
+        group_icon = #{groupIcon,jdbcType=VARCHAR},
+      </if>
+      <if test="groupAdmin != null">
+        group_admin = #{groupAdmin,jdbcType=BIGINT},
+      </if>
+      <if test="groupName != null and groupName != ''">
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupNotice != null">
+        group_notice = #{groupNotice,jdbcType=VARCHAR},
+      </if>
+      <if test="groupIntro != null">
+        group_intro = #{groupIntro,jdbcType=VARCHAR},
+      </if>
+      <if test="groupGrade != null">
+        group_grade = #{groupGrade,jdbcType=INTEGER},
+      </if>
+      <if test="groupAuto != null">
+        group_auto = #{groupAuto,jdbcType=INTEGER},
+      </if>
+    </set>
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </update>
+
+  <!--获得用户所在的群聊列表-->
+  <select id="getGroupListByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+    SELECT tab1.group_id   AS groupId,
+           tab1.group_name AS groupName,
+           tab1.group_icon AS groupIcon
+      FROM `group` tab1
+      LEFT JOIN group_member tab2
+        ON tab1.group_id = tab2.group_id
+     WHERE tab2.user_id = #{userId,jdbcType=BIGINT}
+    </select>
+
+  <!--搜索群-->
+  <select id="searchGroupByName" resultType="java.util.Map" parameterType="java.util.Map">
+    SELECT tab1.group_id   AS groupId,
+           tab1.group_name AS groupName,
+           tab1.group_icon AS groupIcon
+      FROM `group` tab1
+      LEFT JOIN group_member tab2
+        ON tab1.group_id = tab2.group_id
+     WHERE tab1.group_name LIKE CONCAT('%', #{groupName,jdbcType=VARCHAR}, '%')
+       AND tab2.user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteGroupAdmin" parameterType="java.lang.Long">
+    DELETE FROM `group`
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="getUserCreateGroupIdList" parameterType="java.lang.Long" resultType="java.lang.Long">
+    SELECT group_id
+      FROM `group`
+     WHERE group_admin = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <update id="lowerGroupGraded" parameterType="java.lang.Long">
+    UPDATE `group`
+       SET group_grade = 0
+     WHERE group_admin = #{userId,jdbcType=BIGINT}
+  </update>
+</mapper>

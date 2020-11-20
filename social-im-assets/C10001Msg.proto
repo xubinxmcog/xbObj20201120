@@ -1,0 +1,36 @@
+// 消息提醒 消息号 10001
+package Platform.ModelC10001;
+option java_package = "com.enuos.live.proto.c10001msg";
+option java_outer_classname = "C10001";
+
+// 添加提醒 0
+message C100010s2c {
+    required string nickName = 1; // 用户昵称 
+    required int64 userId = 2; // 添加人ID
+}
+
+// 互动提醒 1
+message C100011s2c {
+    required string alias = 1; // 用户昵称 【弹窗数据展示·例如：xxxxx申请添加你为好友】
+    required string thumbIconURL = 2; // 用户图标 【例如： http://www.xxxxxx.com/xxxxxxxxxxxxxxx?w=400】
+    required int32 noticeSource = 3; // 0 关注用户 1 评论动态 2 回复评论 3 转发动态 4 点赞动态 5 点赞评论 6 @xxx用户
+    optional int32 postId = 4; // 动态ID
+    optional int32 attachId = 5; // 评论ID
+}
+
+// 聊天提醒 2
+message C100012s2c {
+    required string alias = 1; // 聊天别称 【弹窗数据展示·例如：王xx】
+    repeated string thumbIconURL = 2; // 聊天图标 【例如： http://www.xxxxxx.com/xxxxxxxxxxxxxxx?w=400】
+    required int32 sort = 3; // 聊天分类 【1 单聊 2 群聊】
+    required int64 attachId = 4; // 附属id·单聊&群聊 【好友id/群聊id】 
+    optional string message = 5; // 消息内容·单聊&群聊  【messageType = 0/1】 
+    required int32 messageType = 6; // 消息类型 【0 文本 1 Emoji 2 图片 3 语音 4 视频 5 双人游戏邀请·单聊 6 多人游戏邀请·单聊】
+}
+
+// 软件提醒 3
+message C100013s2c {
+    required int32 noticeType = 1; // 通知类型 【0系统 1会员 2个人】
+    required string title = 2; // 通知标题 【弹窗数据展示·例如： 新游上线,快来看看...】
+    required string content = 3; // 通知内容 【弹窗数据展示·例如：新游上线,快来看看...】
+}

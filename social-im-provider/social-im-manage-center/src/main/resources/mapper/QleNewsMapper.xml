@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.QleNewsMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.QleNews">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="pic_url" jdbcType="VARCHAR" property="picUrl" />
+    <result column="brief" jdbcType="VARCHAR" property="brief" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, title, pic_url, brief, content, author, `status`, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_7le_news
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_7le_news
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.QleNews" useGeneratedKeys="true">
+    insert into tb_7le_news (title,pic_url, brief, content,
+    author, `status`, create_time)
+    values (#{title,jdbcType=VARCHAR}, #{picUrl,jdbcType=VARCHAR}, #{brief,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR},
+      #{author,jdbcType=VARCHAR}, 1, NOW())
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.QleNews">
+    update tb_7le_news
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="picUrl != null">
+          pic_url = #{picUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="brief != null">
+        brief = #{brief,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=TINYINT},
+      </if>
+        create_time = NOW()
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectNewsList" resultMap="BaseResultMap">
+    select
+    id, pic_url, title, brief, create_time
+    from tb_7le_news
+    where status = 1
+    ORDER BY create_time DESC
+  </select>
+
+  <select id="selectNewsTitle" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    id, pic_url, title, brief, create_time
+    from tb_7le_news
+    where status =1 and title LIKE CONCAT('%',#{title},'%')
+  </select>
+</mapper>

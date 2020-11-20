@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ExpMapper">
+
+    <!--阈值-->
+    <select id="getThreshold" resultType="com.enuos.live.pojo.Threshold">
+        select
+        code,
+        code_type codeType,
+        threshold
+        from tb_code_config
+        where code_type in (0,1,2)
+        order by code_type, code
+    </select>
+
+    <!--等级经验-->
+    <select id="getUserLevelExp" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.AccountAttach">
+        select
+        t1.user_id userId,
+        t1.level,
+        t1.experience,
+        if(t1.vip <![CDATA[>]]> 0 and t1.expiration_time <![CDATA[>]]> now(), 1, 0) isMember,
+        t1.gold,
+
+        t2.experience dayExp,
+        t2.update_time updateTime
+
+        from tb_user_account_attach t1
+        left join tb_day_exp t2 on t2.user_id = t1.user_id
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--修改-->
+    <update id="update" parameterType="com.enuos.live.pojo.AccountAttach">
+        update tb_user_account_attach
+        <set>
+            level = #{level},
+            experience = #{experience},
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!--游戏今日已得经验-->
+    <select id="getTodayGameExp" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.AccountAttach">
+        select
+        user_id userId,
+        experience dayExp,
+        update_time updateTime
+        from tb_day_exp
+        where user_id = #{userId}
+    </select>
+
+    <!--获取等级经验-->
+    <select id="getLevelExp" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.AccountAttach">
+        select
+        user_id userId,
+        level,
+        experience
+        from tb_user_account_attach
+        where user_id = #{userId}
+    </select>
+</mapper>

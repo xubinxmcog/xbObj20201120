@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ActiveMapper">
+
+    <!--获取天活跃-->
+    <select id="getActive" resultType="java.util.Map">
+        select
+        user_id userId,
+        active
+        from tb_task_active
+        where user_id = #{userId} and create_time = #{createTime}
+    </select>
+
+    <!--保存活跃-->
+    <insert id="save" useGeneratedKeys="true">
+        insert into tb_task_active(user_id, create_time) values (#{userId}, #{createTime})
+    </insert>
+
+    <!--修改-->
+    <update id="update">
+        update tb_task_active
+        set active = #{active}
+        where user_id = #{userId} and create_time = #{createTime}
+    </update>
+</mapper>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsProductCategoryMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsProductCategory">
+    <id column="id" jdbcType="INTEGER" property="categoryId" />
+    <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
+    <result column="category_code" jdbcType="VARCHAR" property="categoryCode" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="using_pro" jdbcType="TINYINT" property="usingPro" />
+    <result column="is_status" jdbcType="TINYINT" property="isStatus" />
+    <result column="indate_time" jdbcType="TIMESTAMP" property="indateTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, category_name, category_code, parent_id, using_pro, is_status, indate_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from pets_product_category
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pets_product_category
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsProductCategory" useGeneratedKeys="true">
+    insert into pets_product_category (category_name, category_code, parent_id, 
+      is_status, indate_time, update_time
+      )
+    values (#{categoryName,jdbcType=VARCHAR}, #{categoryCode,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER}, 
+      #{isStatus,jdbcType=TINYINT}, #{indateTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsProductCategory">
+    update pets_product_category
+    <set>
+      <if test="categoryName != null">
+        category_name = #{categoryName,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryCode != null">
+        category_code = #{categoryCode,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="isStatus != null">
+        is_status = #{isStatus,jdbcType=TINYINT},
+      </if>
+      <if test="indateTime != null">
+        indate_time = #{indateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="getCategoryList" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from pets_product_category
+    where is_status = 1
+  </select>
+
+  <!--查询背包物品分类的父类ID-->
+  <select id="getProductParentId" resultType="java.lang.Integer">
+    SELECT
+        parent_id
+    FROM
+        pets_product_category
+    WHERE
+        id = (select category_id from pets_product_backpack where id = #{backpackId})
+  </select>
+
+</mapper>

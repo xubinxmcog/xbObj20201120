@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.InviteMapper">
+
+    <select id="getReward" resultType="java.util.Map">
+        select
+        t1.code,
+        t2.reward_code rewardCode,
+        t2.number,
+        t2.life,
+        t2.suffix
+        from tb_task t1
+        left join tb_task_reward t2 on t2.task_code = t1.code
+        where t1.category = 9
+    </select>
+
+    <!--邀请者是否存在-->
+    <select id="isExistsInviter" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select 1 from tb_inviter where user_id = #{userId}
+    </select>
+
+    <!--受邀者是否注册过-->
+    <select id="isExistsAccount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select 1 from tb_user_account where phone = #{account}
+    </select>
+
+    <!--受邀者是否存在被他人邀请-->
+    <select id="isExistsInviterUser" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select 1 from tb_inviter_user where to_user_account = #{account}
+    </select>
+
+    <!--获取受邀用户信息-->
+    <select id="getInviterUser" resultType="com.enuos.live.pojo.InviteUser">
+        select
+        t2.to_user_id,
+        t2.id,
+        t2.user_id,
+        t2.to_user_account,
+        t2.platform,
+        t2.login_time
+        from tb_user_account t1
+        inner join tb_inviter_user t2 on t2.to_user_account = t1.phone
+        where t1.regist_type = 0 and t1.user_id = #{toUserId}
+    </select>
+
+    <!--创建邀请者信息-->
+    <insert id="saveInviter" parameterType="java.lang.Long" useGeneratedKeys="true">
+        insert into tb_inviter (user_id) values (#{userId})
+    </insert>
+
+    <!--创建邀请者受邀者关系-->
+    <insert id="saveInviterUser" parameterType="com.enuos.live.pojo.InviteUser" useGeneratedKeys="true">
+        insert into tb_inviter_user (user_id, platform, to_user_account) values (#{userId}, #{platform}, #{toUserAccount})
+    </insert>
+
+    <!--更新受邀用户ID及登陆时间-->
+    <update id="updateInviterUser" parameterType="com.enuos.live.pojo.InviteUser">
+        update tb_inviter_user
+        <set>
+            to_user_id = #{toUserId},
+            login_time = #{loginTime}
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--获取邀请相关信息-->
+    <select id="getInviteInfo" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Invite">
+        select
+        t1.sum_money sumMoney,
+        t1.have_money haveMoney,
+        count(t2.id) inviteNum
+        from tb_inviter t1
+        left join tb_inviter_user t2 on t2.user_id = t1.user_id and t2.to_user_id != 0 and t2.login_time is not null
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--新增审核单-->
+    <insert id="saveAuditMoney" useGeneratedKeys="true">
+        insert into tb_money_audit (source_code, user_id, to_user_id, audit_money) values (#{sourceCode}, #{userId}, #{toUserId}, #{auditMoney})
+    </insert>
+
+    <!--待审核&审核通过金额-->
+    <select id="getAuditMoney" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.InviteMoney">
+        select
+        audit_money auditMoney,
+        audit_status auditStatus
+        from tb_money_audit
+        where user_id = #{userId}
+        and source = 1
+        and audit_status in (0, 1)
+    </select>
+
+    <!--今日是否存在审核单-->
+    <select id="isExistsAuditMoneyByDay" resultType="java.lang.Integer">
+        select 1 from tb_money_audit
+        where
+        source_code = #{sourceCode}
+        and user_id = #{userId}
+        and to_user_id = #{toUserId}
+        and date_format(create_time, '%Y-%m-%d') = date_format(#{createTime}, '%Y-%m-%d')
+    </select>
+
+    <!--获取可用金额-->
+    <select id="getAbleMoney" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Invite">
+        select
+        t1.have_money haveMoney,
+        sum(t2.audit_money) auditMoney
+        from tb_inviter t1
+        left join tb_money_audit t2 on t2.user_id = t1.user_id and t2.source = 1 and t2.audit_status = 1
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--获取今日已提现-->
+    <select id="getTodayGetMoney" resultType="java.math.BigDecimal">
+        select
+        sum(get_money) getMoney
+        from tb_money_get
+        where user_id = #{userId}
+        and date_format(get_time, '%Y-%m-%d') = #{localDate}
+    </select>
+
+    <!--保存提现-->
+    <insert id="saveMoneyGet" parameterType="com.enuos.live.pojo.InviteMoney" useGeneratedKeys="true">
+        insert into tb_money_get (
+        order_id, description, user_id, get_money
+        ) values (
+        #{orderId}, #{description}, #{userId}, #{getMoney}
+        )
+    </insert>
+
+    <!--提现记录-->
+    <select id="getRecordList" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.InviteMoney">
+        select
+        description,
+        get_money getMoney,
+        get_time getTime
+        from tb_money_get
+        where user_id = #{userId}
+        and order_status = 1
+        order by get_time desc
+    </select>
+
+    <!--更新支付结果-->
+    <update id="updateOrderStatus" parameterType="java.util.Map">
+        update tb_money_get
+        <set>
+            order_status = #{orderStatus},
+            <if test="remark != null and remark != ''">
+                remark = #{remark}
+            </if>
+        </set>
+        where order_id = #{orderId}
+    </update>
+
+    <!--获取邀请者已提现-->
+    <select id="getHaveMoney" parameterType="java.lang.String" resultType="com.enuos.live.pojo.Invite">
+        select
+        t1.user_id userId,
+        t1.get_money getMoney,
+        t2.have_money haveMoney
+        from tb_money_get t1
+        inner join tb_inviter t2 on t2.user_id = t1.user_id
+        where t1.order_id = #{orderId}
+    </select>
+
+    <!--获取用户金额-->
+    <select id="getInvite" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Invite">
+        select
+        user_id userId,
+        sum_money sumMoney,
+        have_money haveMoney
+        from tb_inviter
+        where user_id = #{userId}
+    </select>
+
+    <!--更新-->
+    <update id="updateInvite" parameterType="com.enuos.live.pojo.Invite">
+        update tb_inviter
+        <set>
+            <if test="haveMoney != null">
+                have_money = #{haveMoney},
+            </if>
+            <if test="sumMoney != null">
+                sum_money = #{sumMoney},
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!--查询记录-->
+    <select id="getRecordListByLimit" parameterType="java.lang.Integer" resultType="java.util.Map">
+        select
+        t1.get_money getMoney,
+        t2.nick_name nickName
+        from tb_money_get t1
+        inner join tb_user t2 on t2.user_id = t1.user_id
+        order by t1.get_time desc limit #{limit}
+    </select>
+</mapper>

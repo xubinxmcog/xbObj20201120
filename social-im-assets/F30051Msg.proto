@@ -1,0 +1,263 @@
+// Platform.Model + classname >>>> java方式
+package Platform.ModelF30051;
+// 生成文件位置 >>>> java方式
+option java_package = "com.enuos.live.proto.f30051msg";
+// 生成class名称 >>>> java方式
+option java_outer_classname = "F30051";
+// 谁是卧底 >>>> 通讯协议 >>>> 消息号(唯一KEY) 30051
+// enum 可以包含一个用户自定义的枚举类型uint32
+// message 可以包含一个用户自定义的消息类型
+// 定义格式:
+// F + 消息号 + 子消息号 + S2C/C2S 
+// 限定修饰符包含 required(必须)\optional(可选)\repeated(数组)等自行了解
+// 限定修饰符 | 数据类型 | 字段名称 | = | 字段编码值 |
+// remark:
+// F >>>> 协议标记(区分协议)
+// 消息号 >>>> 功能KEY 例如: 30051/30061
+// 子消息号 >>>> 操作编号 例如: 1/2/3/4/5
+// S2C >>>> Server to Client
+// C2S >>>> Client to Server
+
+// 玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别 1-男 2-女
+  required int32 deviPosition = 5; //玩家座位
+  required int32 state = 6; //用户状态 0-未准备 1-已准备 2-游戏中 3-已出局 4-已离开(前端显示已出局>已离开)
+  optional string speakWords = 7; //用户描述
+  optional string iconFrame = 8; //头像框
+  optional int32 readyTime = 9; //准备时间
+  optional int32 playerIdentity = 10; //玩家身份 1-平民 2-卧底
+}
+
+// 进入游戏 子消息号 0
+message F30051S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  optional int32 speakMode = 2; //交流方式 0-文字 1-语音
+  optional int32 numberMode = 3; //房间类型 0-[4-6人»1卧底] 1-[7-8人»2卧底].
+  repeated PlayerInfo seatPlayer = 4; //玩家信息
+}
+
+// 玩家准备 子消息号 1 
+message F300511C2S {
+  required int32 isReady = 1; //准备状态 0-准备 1-取消
+}
+message F300511S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  required int32 isReady = 2; //准备状态 0-准备 1-取消
+  optional int64 userID = 3; //玩家ID
+  optional int32 deviPosition = 4; //玩家座位
+  optional int32 gameTime = 5; //开始倒计时
+  optional int32 readyTime = 6; //准备时间
+}
+
+// 轮次开始 子消息号 2 
+message F300512S2C {
+  required int32 rotationNum = 1; //游戏轮次
+  //required int32 roundTimes = 2; //回合时间
+}
+
+// 推送词汇 子消息号 3 
+message F300513S2C {
+  required int32 type = 1; //消息目标 0-玩家 1-观众
+  optional string word = 2; //游戏词汇
+  optional bool isChange = 3; //是否能换词 
+  required int32 showTime = 4; //展示时间 5s
+}
+
+// 换词申请 子消息号 4 
+message F300514S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  optional int32 applyNo = 2; //申请玩家编号
+  optional int32 ChangeTime = 3; //换词时间 15s
+  repeated ChangeInfo changeInfo = 4; //换词信息
+}
+message ChangeInfo {
+  required int32 playerNo = 1; //玩家编号
+  required string playerIcon = 2; //玩家头像
+  required int32 isChangeWord = 3; //是否同意 0-同意 1-不同意 2-未操作
+}
+
+// 换词操作 子消息号 5
+message F300515C2S {
+  required int32 isChangeWord = 1; //是否同意 0-同意 1-不同意
+}
+message F300515S2C {
+  optional int32 playerNo = 1; //玩家编号
+  optional int32 isChangeWord = 2; //是否同意 0-同意 1-不同意
+  optional int32 changeResult = 3; //换词结果 1-换词成功 2-换词失败 
+}
+
+// 开始描述 子消息号 6 (文字场) 
+message F300516S2C {
+  repeated int64 playerUser = 1; //描述玩家
+  optional int32 speakTime = 2; //说话时间
+}
+
+// 描述信息 子消息号 7 
+message F300517C2S {
+  required string word = 1; //玩家描述
+}
+message F300517S2C {
+  required string word = 1; //玩家描述
+  required int64 userID = 2; //描述玩家
+  required int32 speakPlayer = 3; //当前描述玩家(座位号)
+}
+
+// 开始说话 子消息号 8 (语音场)
+message F300518S2C {
+  required int32 speakPlayer = 1; //当前说话玩家
+  // optional int32 speakStatus = 2; //说话状态 0-关闭 1-说话
+  optional int32 speakTime = 2; //说话时间
+}
+
+// 开始投票 子消息号 9
+message F300519S2C {
+  repeated int64 doUserId = 1; //可以投票的玩家
+  repeated int64 killUserId = 2; //可以被投票的玩家
+  required int32 voteTime = 3; //投票时间
+}
+
+// 玩家投票 子消息号 10
+message F3005110C2S {
+  required int64 userID = 1; //目标玩家ID
+}
+message F3005110S2C {
+  //required int64 voteID = 1; //投票玩家ID
+  //required int64 targetID = 2; //被投票玩家ID
+  //repeated string userIcon = 3; //投票的玩家头像
+  repeated VoteInfo voteInfo=1;//投票人员信息
+}
+
+// 平票决斗 子消息号 11 
+message F3005111S2C {
+  repeated string iconUrl = 1; //玩家头像
+  repeated int64 userID = 2;//玩家ID
+}
+
+// 投票结果 子消息号 12 
+message F3005112S2C {
+  required int64 outPlayerUserID = 1; //出局玩家ID
+  required int32 playerIdentity = 2; //玩家身份 1-平民 2-卧底
+  required bool isBlastWord = 3; //是否爆词
+  optional int32 selectTime = 4; //选择时间
+}
+
+// 是否爆词 子消息号 13 
+message F3005113C2S {
+  required int32 isBlastWord = 1; //是否爆词 0-是 1-否
+}
+message F3005113S2C {
+  required int64 userID = 1; //描述爆词的玩家ID
+  required int32 blastTime = 2; //爆词时间
+}
+
+// 描述爆词 子消息号 14 
+message F3005114C2S {
+  required string blastWord = 1; //描述爆词
+}
+message F3005114S2C {
+  required int32 result = 1; //描述爆词结果 0-成功 1-失败
+  required int64 userID = 2; //描述结果的ID
+}
+
+// 游戏结算 子消息号 15 
+message F3005115S2C {
+  repeated SettlementPlayerInfo playerInfo = 1; //结算玩家信息
+  required int32 isUncoverWin = 2; //卧底是否赢 0-是 1-否
+  required string civilianWord = 3; //平民词汇
+  required string uniCoverWord = 4; //卧底词汇
+}
+message SettlementPlayerInfo {
+  required string nick = 1; //玩家昵称
+  required string url = 2; //玩家头像
+  required int32 sex = 3; //玩家性别 1-男 2-女
+  required int32 score = 4; //玩家得分
+  required int32 isUndercover = 5; //是否卧底 0-是 1-否
+  optional int32 isBlast = 6; //是否爆词 0-是 1-否
+  optional int32 isDouble = 7; //0-不加倍 1-加倍
+}
+
+// 玩家退出 子消息号 16
+message F3005116S2C {
+  required int32 result = 1; //退出结果码 0-成功 1-失败
+  optional int64 userID = 2; //退出玩家ID
+}
+
+// 断线重连 子消息号 17
+message F3005117S2C {
+  repeated PlayerInfo breakLineInfo = 1; //玩家信息
+  optional int32 roundTimes = 2; //回合时间
+  required int32 messageIndex = 3; //消息标记 1-词汇展示 2-开始描述 3-开始说话 4-开始投票 5-玩家爆词 6-结算信息 7-换词信息
+  optional F300513S2C wordsShow = 4; //词汇展示
+  optional F300516S2C startWords = 5; //开始描述
+  optional F300518S2C startSpeak = 6; //开始说话
+  optional F300519S2C startVote = 7; //开始投票
+  repeated VoteInfo voteinfos= 8;//投票人员信息
+  optional F3005113S2C openWords = 9; //玩家爆词
+  optional F3005115S2C settlementInfo = 10; //游戏结算
+  required int32 rotationNum = 11; //游戏轮次
+  optional F300514S2C changeWords = 12; //换词信息
+  optional string word = 13; //游戏词汇
+}
+
+// 投票信息
+message VoteInfo{
+  required int64 userID = 1;
+  repeated string userIcon = 2; //投票的玩家头像
+}
+
+// 观战信息 子消息号 18
+message F3005118S2C {
+  required PlayerInfo nowUser = 1; //当前玩家
+  required bool isCanAction = 2; //是否可以操作
+  required int32 nowStatus = 3; //当前状态 0-坐下 1-站起
+  repeated string watchUser = 4; //观战玩家
+}
+
+// 站起&坐下 子消息号 19
+message F3005119C2S {
+  required int32 isStand = 1; //玩家操作 0-站起 1-坐下
+}
+message F3005119S2C {
+  required int32 stand = 1; //玩家操作 0-站起 1-坐下
+  required int32 result = 2; //结果码 0-成功 1-失败
+  optional int32 seatNo = 3; //座位编号
+  optional PlayerInfo joinInfo = 4; //玩家信息
+}
+
+// 处理玩家 子消息号 20
+message F3005120S2C {
+  repeated int64 userID = 1; // 玩家ID列表 
+}
+
+// 选择位置 子消息号 21
+message F3005121C2S {
+  required int32 seatNo = 1; //座位号
+}
+message F3005121S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  required int64 userID = 2; //玩家ID
+  optional int32 seatNo = 3; //座位编号
+  optional PlayerInfo joinInfo = 4; //玩家信息
+}
+
+// 聊天内容 子消息号 22
+message F3005122C2S {
+  required string message = 1; // 消息内容  
+}
+message F3005122S2C {
+  required int32 type = 1; //消息类型 0「法官」 1「玩家」
+  optional string icon = 2; //玩家头像
+  optional string nick = 3; //玩家昵称
+  required string message = 4; //消息内容 
+  required int64 userID=5; //玩家UserID
+}
+
+// 结束说话 子消息号 23
+message F3005123S2C {
+  required int32 nextPlayer = 1; //下一个说话玩家
+  required int32 speakTime = 2; //说话时间
+}

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.TipOffUserMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.TipOffs">
+        <id column="id" property="id"/>
+        <id column="user_id" property="userId"/>
+        <id column="user_name" property="userName"/>
+        <id column="target_id" property="targetId"/>
+        <id column="target_name" property="targetName"/>
+        <id column="report_cause" property="reportCause"/>
+        <id column="content" property="content"/>
+        <id column="handle_id" property="handleId"/>
+        <id column="handle_name" property="handleName"/>
+        <id column="handle_action" property="handleAction"/>
+        <id column="handle_status" property="handleStatus"/>
+        <id column="report_file" property="reportFile"/>
+        <id column="create_time" property="createTime"/>
+        <id column="update_time" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, user_name, target_id, target_name, report_cause, content, handle_id,
+        handle_name, handle_action, handle_status, create_time, update_time
+  </sql>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.TipOffs"
+            useGeneratedKeys="true">
+        insert into tb_report_user (
+            user_id,
+            user_name,
+            target_id,
+            target_name,
+            report_cause,
+            content,
+            handle_id,
+            handle_name,
+            handle_action,
+            handle_status,
+            create_time,
+            update_time
+        ) values (
+            #{userId},
+            #{userName},
+            #{targetId},
+            #{targetName},
+            #{reportCause},
+            #{content},
+            #{handleId},
+            #{handleName},
+            #{handleAction},
+            #{handleStatus},
+            NOW(),
+            NOW()
+        )
+    </insert>
+    <update id="update" parameterType="com.enuos.live.pojo.TipOffs">
+        update tb_report_user
+        <set>
+            <if test="handleId != null and handleId != 0">
+                handle_id = #{handleId},
+            </if>
+            <if test="handleName != null and handleName != ''">
+                handle_name = #{handleName},
+            </if>
+            <if test="handleAction != null and handleAction != 0">
+                handle_action = #{handleAction},
+            </if>
+            <if test="handleStatus != null and handleStatus != 0">
+                handle_status = #{handleStatus},
+            </if>
+            update_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="queryTipOffs" parameterType="com.enuos.live.dto.TipOffsDTO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        (select GROUP_CONCAT(att.report_file SEPARATOR',') from tb_report_user_attach att where att.report_id = re.id)
+        as report_file
+        from tb_report_user re
+        <where>
+           <!-- <if test="id != null and id != 0">
+                re.id = #{id}
+            </if>-->
+            <!--<if test="userId != null and userId != 0">
+                and re.user_id = #{userId}
+            </if>-->
+            <!--<if test="userName != null and userName != ''">
+                and re.user_name = #{userName}
+            </if>-->
+            <!--<if test="groupId != null and groupId != 0">
+                and re.group_id = #{groupId}
+            </if>-->
+            <!--<if test="adminId != null and adminId != 0">
+                and re.admin_id = #{adminId}
+            </if>-->
+            <!--<if test="adminName != null and adminName != ''">
+                and re.admin_name = #{adminName}
+            </if>-->
+            <!--<if test="reportCause != null and reportCause != ''">
+                and re.report_cause = #{reportCause}
+            </if>-->
+            <if test="handleAction != null and handleAction != ''">
+                and re.handle_action = #{handleAction}
+            </if>
+            <if test="handleStatus != null and handleStatus != ''">
+                and re.handle_status = #{handleStatus}
+            </if>
+            <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+                and re.update_time BETWEEN #{beginTime} and #{endTime}
+            </if>
+        </where>
+        order by re.update_time desc
+    </select>
+
+    <select id="queryByIdTipOff" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        (select GROUP_CONCAT(att.report_file SEPARATOR',') from tb_report_user_attach att where att.report_id = re.id)
+        as report_file
+        from tb_report_user re
+        where
+          re.id = #{id}
+    </select>
+
+</mapper>

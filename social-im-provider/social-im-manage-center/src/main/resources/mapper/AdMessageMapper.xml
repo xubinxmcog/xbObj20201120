@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.AdMessageMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.AdMessage">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="link_url" jdbcType="VARCHAR" property="linkUrl"/>
+        <result column="file_url" jdbcType="VARCHAR" property="fileUrl"/>
+        <result column="edit_id" jdbcType="BIGINT" property="editId"/>
+        <result column="edit_name" jdbcType="VARCHAR" property="editName"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="crate_time" jdbcType="TIMESTAMP" property="crateTime"/>
+        <result column="release_time" jdbcType="TIMESTAMP" property="releaseTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, title, content, link_url, file_url, edit_id, edit_name, `status`, crate_time, 
+    release_time, update_time
+  </sql>
+
+    <select id="queryDetail" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_ad_message
+        where id = #{id}
+    </select>
+    <select id="userQueryDetail" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_ad_message
+        where
+        id = #{id}
+        and  <![CDATA[ release_time < NOW()]]>
+        and `status` = 1
+    </select>
+
+    <select id="queryList" parameterType="com.enuos.live.dto.AdMessageDTO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_ad_message
+        <where>
+            <if test="title != null">
+                and title LIKE CONCAT('%',#{title},'%')
+            </if>
+            <if test="content != null">
+                and title LIKE CONCAT('%',#{content},'%')
+            </if>
+            <if test="linkUrl != null">
+                and link_url = #{linkUrl}
+            </if>
+            <if test="fileUrl != null">
+                and file_url = #{fileUrl}
+            </if>
+            <if test="editId != null">
+                and edit_id = #{editId}
+            </if>
+            <if test="editName != null">
+                and edit_name = #{editName}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+                and release_time between releaseTime and endTime
+            </if>
+            <if test="releaseTime != null and releaseTime != null">
+                <![CDATA[and release_time < #{releaseTime}]]>
+            </if>
+        </where>
+        order by release_time desc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_ad_message
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.AdMessage"
+            useGeneratedKeys="true">
+    insert into tb_ad_message (
+      title,
+      content,
+      link_url,
+      file_url,
+      edit_id,
+      edit_name,
+      `status`,
+      crate_time,
+      release_time,
+      update_time
+      )values (
+      #{title},
+      #{content},
+      #{linkUrl},
+      #{fileUrl},
+      #{editId},
+      #{editName},
+      1,
+      NOW(),
+      #{releaseTime},
+      #{updateTime})
+  </insert>
+    <update id="update" parameterType="com.enuos.live.dto.AdMessageDTO">
+        update tb_ad_message
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="linkUrl != null">
+                link_url = #{linkUrl},
+            </if>
+            <if test="fileUrl != null">
+                file_url = #{fileUrl},
+            </if>
+            <if test="editId != null">
+                edit_id = #{editId},
+            </if>
+            <if test="editName != null">
+                edit_name = #{editName},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="releaseTime != null">
+                release_time = #{releaseTime},
+            </if>
+            update_time =NOW()
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

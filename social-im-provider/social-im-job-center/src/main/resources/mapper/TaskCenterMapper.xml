@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.TaskCenterMapper">
+
+    <!--删除本周一以前的活跃记录-->
+    <delete id="deleteTaskActive" parameterType="java.time.LocalDate">
+        delete from tb_task_active where create_time <![CDATA[ < ]]> #{localDate}
+    </delete>
+
+    <!--删除本周一以前的日常任务记录-->
+    <delete id="deleteTaskFollow" parameterType="java.time.LocalDate">
+        delete t1 from tb_task_follow t1
+        where exists (
+            select 1 from tb_task t2 where t2.code = split_str(t1.code, '_', 2) and t2.category = 4
+        )
+        and t1.create_time <![CDATA[ < ]]> #{localDate}
+    </delete>
+
+    <!--删除本周一以前的领奖记录-->
+    <delete id="deleteTaskRewardRecord" parameterType="java.time.LocalDate">
+        delete t1 from tb_task_reward_record t1
+        where exists (
+            select 1 from tb_task t2 where t2.code = split_str(t1.code, '_', 2) and t2.category in(3, 4)
+        )
+        and t1.create_time <![CDATA[ < ]]> #{localDate}
+    </delete>
+
+</mapper>

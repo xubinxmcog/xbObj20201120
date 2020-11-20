@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.SolveProblemMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.SolveProblem">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <!--<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />-->
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, category,category_id, content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from solve_problem
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByKeyword"  resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    FROM solve_problem
+     <where>
+       <if test="keyword !=null and keyword !=''">
+         category_id = #{categoryId}
+       </if>
+       <if test="keyword !=null and keyword !=''">
+         and category like concat(#{category},'%')
+       </if>
+     </where>
+    order by create_time
+  </select>
+  
+  <select id="findAllSolveProblem" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    FROM solve_problem
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from solve_problem
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.SolveProblem" useGeneratedKeys="true">
+    insert into solve_problem (category, content, create_time
+      )
+    values (#{category,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.SolveProblem">
+    update solve_problem
+    <set>
+      <if test="category != null">
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

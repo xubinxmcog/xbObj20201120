@@ -1,0 +1,106 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: dev
+  jackson:
+    default-property-inclusion: non_null
+
+mybatis:
+  #注意：一定要对应mapper映射xml文件的所在路径
+  mapper-locations: classpath:mapper/*.xml
+  #注意：对应实体类的路径
+  type-aliases-package: com.enuos.live.pojo
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    use-generated-keys: true
+    lazyLoadingEnabled: true
+    multipleResultSetsEnabled: true
+    mapUnderscoreToCamelCase: true
+
+pagehelper:
+  helper-dialect: mysql
+  #启用合理化，如果pageNum < 1 会查询第一页，如果 pageNum > pages 会查询最后一页
+  reasonable: true
+  support-methods-arguments: true
+  page-size-zero: true
+  params: count=countSql
+
+logging:
+  level:
+    com.enuos.live.mapper: DEBUG
+  config: classpath:logback-spring.xml
+
+aliyun:
+  # 支付宝支付配置
+  pay:
+    # 支付宝APP_ID
+    app_id: 2021001182602691
+    appp_id: 2021002100624136
+    # 商户私钥
+    app_private_key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3xNXBTPKIC5qH0X5yh/ER3sTY4FOE5GvLKBtWzKHLpoLXKKr/OO2G/NYrIKVES7tsyIHkjcUmNYKfk1mMJKyD5dh9rbWZNtu0U2LUWoxJ1Kt3cCALhLNfLrI3Th8PhMc83y8wRvnTMywWm+RO3NFtOz3UmyLVYptdvCjaO6oHWqYQw8tzZyKSz55yaOMUh4nDvmYO/zrbr8dw0ULMDcYSRxhzGwcFrc4NwhgLEJXAoSuxTB6s5UFfbcixexqJOWlX4RfnygP4bllA7WPmuOodC+2mLkX2M/ErtuKWUwmKf2FzgmQpP3BPhz44OhlJiUs7uT3tL5M93tb6Vc3i9THVAgMBAAECggEAVIRNftphzNnxVzetPQVyhLJ8u/Xn032uab/nWvNAEkZhdIz6n+jRrTyJT0pzV8awy2Yn/zKIknsXuUZub7rKMNs7xwlmNLH7N6MGF/4Q+T+7IHJL+qAsUsFKK49dT6jUbRWEQWLTMSQeycMmrHJ4SxFs7WPwEE2KgQCxlTTNjRWFX3Qqcxkv+TmwIKn5KPdGq660mrWcAgNILpjvhmNrlb1q3ENYwZh/vFf44tmKycaksX90ze9kJRWLVjP59ORGIKZbm7QbHcQUr469Mos00MGyYmHKLyGJV8poxJDiDKYcwej9bcJpGmfCFuKKGUsgjngOHMl+RgMI0IJxX5o9PQKBgQD4j01yOlPoIr63XgNdS+yWTSe6s2ieJ3A2f7LXABEcWz/7Xq8dR/5of73N2OqJzV4j6hT1rQe+k1OmvQVTU942zdIuWhcAciNTzMNIkIsbZuaEIVqnPSXeH4xe1eKR5X93MK0w28hlHljc7dFvqnKij95f+vEx45GL5UA6q5F0jwKBgQC9RQtIB7BhnUeDJtOQlEpnDxfVs9Dr/B37R8sKSig3p9DpefvpBP5h9HMnBIbf6u0XDFM6czrLHVpL+4Pzyp4XZR3D3iJjslRpQ1Cz89Ay0LE0P1uG3ZQ7e10sUhq2bowJNfwDLli011Sc+hb7R06huiToWh8ZOO2+bUK+eRKNWwKBgEscIq8N6SUQusj2Y9Xhh5Czp/nHFSoViNcvJ3/IyWLkQCVZq1kR1FMHpvd5QQZ7RKNdrQ/ARcLVCkYsgFt50ICHGahgGOtNkldUXP6kjySsp6Pt4FMBK1w/9E8EGv8zdp0x3GQTRi8oSHoac1tnClUNXIlsb05AEk9P62TPS5kJAoGBAK9IgBgnNsxQMmhdztU44GbtbW92ZmgGR2XtqTZQU0qn2iw/0nKNM2FYWESsRpSdJxGPUozxJmPxPSzdM+jVnu+fr58z27lk8BPESbs+c3R8HYB7pLIUBzHHIBTpvN9zJbFqE4iGpZRlT3FJk3sHIOVaVM/ylpZvSI5w9b0ct3e9AoGAY+5vQh4Da3DuzlJBKNF34IwknunRLDke96shUAlRUvfU5shxzhm8aBM58L1gM/Bwm/wrIidu/oqCVbMWx9jr2D9dJ3dXb0Suu8JLEat9sWnb/fAe66MjcXNaPrlf4rhLE94+Y5C2gtL+1IwWSk6tTtCZstiKyIPaHUV1iTYxJqY=
+    # 公钥
+    alipay_public_key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt8TVwUzyiAuah9F+cofxEd7E2OBThORryygbVsyhy6aC1yiq/zjthvzWKyClREu7bMiB5I3FJjWCn5NZjCSsg+XYfa21mTbbtFNi1FqMSdSrd3AgC4SzXy6yN04fD4THPN8vMEb50zMsFpvkTtzRbTs91Jsi1WKbXbwo2juqB1qmEMPLc2ciks+ecmjjFIeJw75mDv8626/HcNFCzA3GEkcYcxsHBa3ODcIYCxCVwKErsUwerOVBX23IsXsaiTlpV+EX58oD+G5ZQO1j5rjqHQvtpi5F9jPxK7billMJin9hc4JkKT9wT4c+ODoZSYlLO7k97S+TPd7W+lXN4vUx1QIDAQAB
+    # 支付宝网关
+    gateway: https://openapi.alipay.com/gateway.do
+    pay_notify: http://domain.com/CallBack/notify_url.jsp
+    refund_notify: http://domain.com/CallBack/notify_url.jsp
+    # 支付成功的通知页面
+    return_url: https://www.enuos.net/shop?type=2
+    # 支付成功的通知地址
+    notify_url: https://new7le.enuos.club/orderApi/payment/aliPay/signVerified
+    # 字符集
+    charset: utf-8
+    # 格式
+    param_type: json
+    # 签名类型
+    sign_type: RSA2
+    success_request: TRADE_SUCCESS
+    trade_closed: TRADE_CLOSED
+    seller_id: oxkhbf6418@sandbox.com
+
+    # 应用公钥证书路径
+    app_cert_path: /java/project/aliKey/appCertPublicKey_2021001182602691.crt
+    # 支付宝公钥证书文件路径
+    cert_path:  /java/project/aliKey/alipayCertPublicKey_RSA2.crt
+    # 支付宝CA根证书文件路径
+    root_cert_path:  /java/project/aliKey/alipayRootCert.crt
+
+    # 应用APP公钥证书路径
+    appp_cert_path: /java/project/aliKey/androidApp/appCertPublicKey_2021002100624136.crt
+    # 支付宝APP公钥证书文件路径
+    certp_path:  /java/project/aliKey/androidApp/alipayCertPublicKey_RSA2.crt
+    # 支付宝APP CA根证书文件路径
+    rootp_cert_path:  /java/project/aliKey/androidApp/alipayRootCert.crt
+
+# 微信支付配置文件
+wx:
+  app_id: wxdfbd92887c7d7a81
+  aapp_id: wx3a899175fadd3dac
+  app_secret:
+  mch_id: 1601105314
+  api_key: MIIEvgIBADANBgkqhkiG9w0BAQEFAASC
+  wechat_pay_url: https://api.mch.weixin.qq.com/pay/unifiedorder
+  pay_orderquery: https://api.mch.weixin.qq.com/pay/orderquery
+  wechat_pay_notify:  https://new7le.enuos.club/orderApi/payment/weChatPay/callback
+  # 企业付款请求Url
+  business_pay_url: https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers
+  # 企业向个人转账查询URL
+  business_select_url: https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo
+  redirect_url: https://www.enuos.net/shop?type=1
+  sing_md5: MD5
+  sing_hmacsha256: HMAC-SHA256
+
+
+#ftp:
+#  host: 192.168.0.50
+#  port: 21
+#  username: ftptest
+#  password: ftptest@1234
+#  basePath: /home/ftptest/uploadFile
+#  httpPath: http://192.168.0.50
+#  filePath: /uploadFile
+

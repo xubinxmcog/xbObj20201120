@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GiftExtraRewardMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.GiftExtraReward">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="gift_id" jdbcType="BIGINT" property="giftId" />
+    <result column="award_code" jdbcType="VARCHAR" property="awardCode" />
+    <result column="time_limit" jdbcType="INTEGER" property="timeLimit" />
+    <result column="award_num_id" jdbcType="INTEGER" property="awardNumId" />
+    <result column="probability" jdbcType="DOUBLE" property="probability" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, gift_id, award_code, time_limit, award_num_id, probability
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from gift_extra_reward
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from gift_extra_reward
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.GiftExtraReward" useGeneratedKeys="true">
+    insert into gift_extra_reward (gift_id, award_code, award_num_id, 
+      probability, modified_time)
+    values (#{giftId,jdbcType=BIGINT}, #{awardCode,jdbcType=VARCHAR}, #{awardNumId,jdbcType=INTEGER}, 
+      #{probability,jdbcType=DOUBLE}, #{modifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.GiftExtraReward">
+    update gift_extra_reward
+    <set>
+      <if test="giftId != null">
+        gift_id = #{giftId,jdbcType=BIGINT},
+      </if>
+      <if test="awardCode != null">
+        award_code = #{awardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="awardNumId != null">
+        award_num_id = #{awardNumId,jdbcType=INTEGER},
+      </if>
+      <if test="probability != null">
+        probability = #{probability,jdbcType=DOUBLE},
+      </if>
+      <if test="modifiedTime != null">
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getGiftExtraRewards" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from gift_extra_reward
+    where gift_id = #{giftId,jdbcType=BIGINT}
+  </select>
+
+  <select id="getGiftExtraRewardNum" parameterType="java.lang.Integer" resultType="java.util.Map">
+    select
+      num_min numMin,
+      num_max numMax
+    from gift_extra_reward_num
+    where id = #{id}
+  </select>
+
+  <!--获取用户称号-->
+  <select id="getUserTitle" resultType="com.enuos.live.pojo.UserTitle">
+    select
+      id,
+      user_id userId,
+      title_code titleCode,
+      expire_time expireTime
+    from
+      tb_user_title
+     where
+      user_id = #{userId}
+      and title_code = #{titleCode}
+  </select>
+
+  <!--新增用户称号-->
+  <insert id="insertUserTitle" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.UserTitle"
+          useGeneratedKeys="true">
+    insert into tb_user_title (user_id, title_code, expire_time)
+    values (#{userId}, #{titleCode}, #{expireTime})
+  </insert>
+
+  <!--更新用户称号过期时间-->
+  <update id="updateUserTitle" parameterType="com.enuos.live.pojo.UserTitle">
+    update tb_user_title
+    set
+      expire_time = #{expireTime}
+    where id = #{id}
+  </update>
+
+</mapper>

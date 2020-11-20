@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserSettingMapper">
+    <insert id="insert" keyColumn="id" useGeneratedKeys="true">
+        insert into user_settings (user_id, receive_notification, chat_notice,
+          system_notice, room_notice, sound,
+          shock, `position`,teens_model, friend_recommend,
+          modified_time)
+        values (#{userId}, 0, 1,
+          1, 1, 1,
+          1, 1, 0,1,
+          NOW())
+  </insert>
+</mapper>

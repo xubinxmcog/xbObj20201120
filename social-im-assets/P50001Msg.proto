@@ -1,0 +1,53 @@
+
+package Platform.ModelP50001;
+option java_package = "com.enuos.live.proto.p50001msg";
+option java_outer_classname = "P50001";
+
+//进入游戏 0 -
+message P500010S2C {
+  required int32 result=1;//玩家进入游戏
+  repeated PetsInfo pets=2;//玩家宠物
+}
+//宠物信息
+message PetsInfo{
+  required string petNick = 1; //宠物昵称「例如：Lake😀」
+  required int32 petGrades=2;//宠物等级
+  required int32 petId=3;//宠物ID
+  required int32 allSaturat=4;//总饱食
+  required int32 currentSaturat=5;//当前饱食
+  required int32 allMoodNum=6;//总心情
+  required int32 currentMoodNum=7;//当前心情 
+}
+//宠物ID
+message P500011C2S{
+  required int32 petId=1;//宠物ID
+  required int32 operation=2;//1.喂食  2.互动
+}
+message P500011S2C{
+  required int32 result=1;//操作结果码
+  repeated int32 foodIDs=2;//当前可以使用食物 1.坚果 2.饼干 3.蜂蜜 4.烤鱼 5.肉排
+  repeated int32 toysIDs=3;//当前可以使用玩具 1.竹子 2.气球 3.跳绳 4.麦克风 5.游戏机
+}
+//玩家喂食
+message P500012C2S{
+  required int32 foodID=1;//1.坚果 2.饼干 3.蜂蜜 4.烤鱼 5.肉排
+  required int32 petId=2;//宠物ID
+}
+//喂食结果
+message P500012S2C{
+  required int32 result=1;//玩家喂食结果码
+  required int32 foodID=2;//喂食物ID
+  required PetsInfo pets=3;//宠物信息更新
+}
+//玩家给宠物玩具
+message P500013C2S{
+  required int32 toysID=1;//1.竹子 2.气球 3.跳绳 4.麦克风 5.游戏机
+  required int32 petId=2;//宠物ID
+}
+//玩家给宠物玩具结果
+message P500013S2C{
+  required int32 result=1;//结果码
+  required int32 toysID=2;//1.竹子 2.气球 3.跳绳 4.麦克风 5.游戏机
+  required PetsInfo pets=3;//宠物信息更新
+}
+

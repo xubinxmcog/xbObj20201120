@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.Thesaurus30061Mapper">
+
+  <insert id="insertNewWords" parameterType="com.enuos.live.pojo.Thesaurus30061"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO thesaurus30061 (
+      lexicon,
+      lexicon_hint,
+      lexicon_words,
+      label_id,
+      submit_user
+    ) VALUES (
+      #{lexicon,jdbcType=VARCHAR},
+      #{lexiconHint,jdbcType=VARCHAR},
+      #{lexiconWords,jdbcType=INTEGER},
+      #{labelId,jdbcType=INTEGER},
+      #{submitUser,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <select id="findWordsIsExist"  resultType="java.lang.Integer">
+    SELECT 1
+      FROM thesaurus30061
+     WHERE lexicon LIKE CONCAT('%', #{newWords,jdbcType=VARCHAR}, '%') LIMIT 1
+  </select>
+
+  <select id="getTodaySubmitQuantity" resultType="java.lang.Integer" parameterType="java.util.Map">
+    SELECT count(submit_user)
+      FROM thesaurus30061
+     WHERE submit_user = #{userId,jdbcType=BIGINT}
+       AND create_time BETWEEN #{startTime,jdbcType=VARCHAR} AND #{finishTime,jdbcType=VARCHAR}
+  </select>
+
+  <select id="getGuessedSaidWords" resultType="java.util.Map">
+    SELECT lexicon       AS lexicon,
+           lexicon_hint  AS lexiconHint,
+           lexicon_words AS lexiconWords
+      FROM thesaurus30061
+     WHERE id >= ((SELECT MAX(id) FROM thesaurus30061) - (SELECT MIN(id) FROM thesaurus30061)) * RAND() + (SELECT MIN(id) FROM thesaurus30061)
+       AND lexicon_status = 1
+       AND audit_status = 1 LIMIT 6
+  </select>
+
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.LogMapper">
+
+    <!--保存登陆日志-->
+    <insert id="saveLogLogin" parameterType="java.util.Map" useGeneratedKeys="true">
+        insert into log_login(
+        account,
+        type,
+        user_id,
+        device_number,
+        model,
+        level,
+        address,
+        login_device,
+        download,
+        result,
+        log_time
+        ) values (
+        #{account},
+        #{type},
+        #{userId},
+        #{deviceNumber},
+        #{model},
+        #{level},
+        #{address},
+        #{loginDevice},
+        #{download},
+        #{result},
+        #{logTime}
+        )
+    </insert>
+
+    <!--保存动态日志-->
+    <insert id="saveLogPost" parameterType="java.util.Map" useGeneratedKeys="true">
+        insert into log_post(user_id, operation, log_time) values (#{userId}, #{operation}, #{logTime})
+    </insert>
+    
+    <!--保存账单日志-->
+    <insert id="saveLogBill" parameterType="java.util.Map" useGeneratedKeys="true">
+        insert into log_bill(
+        user_id,
+        product_code,
+        old_currency,
+        new_currency,
+        price,
+        price_type,
+        status,
+        remark,
+        log_time
+        ) values (
+        #{userId},
+        #{productCode},
+        #{oldCurrency},
+        #{newCurrency},
+        #{price},
+        #{priceType},
+        #{status},
+        #{remark},
+        #{logTime}
+        )
+    </insert>
+</mapper>

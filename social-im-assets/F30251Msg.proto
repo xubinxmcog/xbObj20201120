@@ -1,0 +1,242 @@
+//优诺
+package Platform.ModelF30251;
+option java_package = "com.enuos.live.proto.f30251msg";
+option java_outer_classname = "F30251";
+
+//进入游戏 0 
+message F30251S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败 2-网络错误
+  repeated PlayerInfo seatPlayer = 2; //玩家信息
+}
+
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别 1-男 2-女
+  required int32 deviPosition = 5; //玩家座位「例如：1」
+  required int32 state = 6; //玩家状态 0-未准备 1-已准备 2-游戏中 3-已离开
+  required int32 coin = 7; //玩家金币
+  optional string iconFrame = 8; // 头像框
+  repeated CardInfos handCard = 9; //玩家手牌
+  optional GameStyle gameStyle = 10; //游戏风格 
+  optional int32 readyTime = 11; //准备时间
+}
+
+//游戏风格
+message GameStyle {
+  required string cardBack = 1; //卡背
+}
+
+//玩家准备 1 
+message F302511C2S {
+  required int32 isReady = 1; //准备状态 0-准备 1-取消
+}
+
+message F302511S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  required int32 isReady = 2; //准备状态 0-准备 1-取消
+  optional int64 userID = 3; //玩家ID [例如：1234567890]
+  optional int32 readyTime = 4; //准备倒计时 [默认: 15(s)]
+  optional int32 gameTime = 5; //开始倒计时 [默认: 3(s)]
+}
+
+//开始游戏 2 
+message F302512S2C {
+  repeated CardInfos handCards = 1; //玩家手牌
+  required CardInfos tableCards = 2; //桌子上牌的ID
+  required int64 nextUsrdId = 3; //操作玩家ID
+  required int32 times = 4; //玩家操作时间
+  required int32 direction = 5; // 1-顺时针 2-逆时针
+  repeated CardInfos hintHandCard = 6; //操作玩家提示手牌
+  optional bool isGrabCards = 7; //操作玩家是否抓牌
+}
+
+//卡牌信息
+message CardInfos {
+  required int32 handCardID = 1; // 牌ID -1 背面 0-14 正面
+  required int32 handCardDecor = 2; //牌花色 无-0 红-1 黄-2 蓝-3 绿-4
+  required int32 cardFunc = 3; //牌功能 0-数字 1-禁止 2-倒转 3-加2 4-改变颜色 5-质疑.
+}
+//玩家出牌 3
+message F302513C2S {
+  required CardInfos playCardId = 1; //玩家出牌
+}
+message F302513S2C {
+  required int32 result = 1; //出牌结果码
+  required int64 actionUserId = 2; //操作玩家ID
+  required CardInfos playCardId = 3; //玩家出牌
+  optional int32 direction = 4; // 1-顺时针 2-逆时针
+  optional int32 nowColor = 5; // 当前颜色
+  repeated CardInfos lastHandCard = 6; //剩余手牌
+  optional CardAbility cardAbility = 7; // 卡牌效果
+  required int64 nextUser = 8; //下次操作玩家ID
+  required int32 nextTimes = 9; //玩家操作时间
+  repeated CardInfos hintHandCard = 10; //操作玩家提示手牌
+  optional bool isHintUno = 11; //是否提示Uno
+  optional bool nextGrabCards = 12; //下次操作玩家是否提示抓牌
+  optional int32 cardStock = 13; //牌库剩余
+}
+
+//卡片效果
+message CardAbility {
+  required int32 cardFunc = 1; //牌功能 0-跳过 1-下家+2 2-发动质疑 3-选择颜色 4-转向
+  optional int64 attackedPlayer = 2; //被攻击的玩家ID
+  repeated CardInfos addCardId = 3; //加牌CardId
+  repeated CardInfos handCards = 4; //玩家手牌
+  optional int32 color = 5; //质疑颜色 红-1 黄-2 蓝-3 绿-4
+}
+
+//选择颜色 4
+message F302514C2S {
+  required int32 decor = 1; //红-1 黄-2 蓝-3 绿-4
+}
+message F302514S2C {
+  required int32 decor = 1; //红-1 黄-2 蓝-3 绿-4
+  required int64 actionUserID = 2; //操作玩家ID
+  optional CardInfos playCardId = 3; //玩家出牌
+  optional CardAbility cardAbility = 4; // 卡牌效果
+  repeated CardInfos lastHandCard = 5; //剩余手牌
+  required int64 nextUserID = 6; //下次操作玩家ID
+  required int32 nextTimes = 7; //玩家操作时间
+  repeated CardInfos hintHandCard = 8; //操作玩家提示手牌
+  optional bool isHintUno = 9; //是否提示Uno
+  optional bool nextGrabCards = 10; //下次操作玩家是否提示抓牌
+  optional int32 cardStock = 11; //牌库剩余
+  required int32 direction = 12; // 1-顺时针 2-逆时针
+}
+
+//玩家摸牌 5
+message F302515S2C {
+  required int64 playerId = 1; //玩家ID
+  required CardInfos cardId = 2; //摸到牌的ID
+  required int32 isPlay = 3; //是否可以出牌
+  repeated CardInfos lastHandCard = 4; //剩余手牌
+  optional int64 nextUserID = 5; //下次操作玩家ID
+  optional int32 nextTimes = 6; //玩家操作时间
+  repeated CardInfos hintHandCard = 7; //操作玩家提示手牌
+  optional bool nextGrabCards = 8; //下次操作玩家是否提示抓牌
+  optional int32 cardStock = 9; //牌库剩余
+}
+
+//质疑选择 6
+message F302516C2S {
+  required int32 query = 1; //1:质疑  2.直接加牌
+}
+message F302516S2C {
+  required int32 queryResult = 1; //质疑结果码
+  repeated CardInfos cardId = 2; //加牌
+  required int64 userId = 3; //加牌玩家ID
+  optional int64 nextUserId = 4; //下次操作玩家ID
+  optional int32 nextTimes = 5; //下次操作玩家时间
+  repeated CardInfos hintHandCard = 6; //操作玩家提示手牌
+  optional bool nextGrabCards = 7; //下次操作玩家是否提示抓牌
+  repeated CardInfos lastHandCard = 8; //剩余手牌(加牌玩家)
+  optional int32 cardStock = 9; //牌库剩余
+  required int32 queryAction = 10; //操作
+  required int64 queryUsreID = 11; //质疑玩家
+}
+
+//游戏结算 7 
+message F302517S2C {
+  repeated EnterPlayerInfo enterPlayerInfo = 1; //结算玩家信息
+}
+//玩家信息
+message EnterPlayerInfo {
+  required string icon = 1; //玩家头像
+  required string nick = 2; //玩家昵称
+  required int32 coin = 3; //玩家金币
+  required int32 expNum = 4; //玩家exp
+  required int32 sex = 5; //玩家性别
+  required int32 ranking = 6; //名次
+  required int32 playGold = 7; //剩余金币
+  optional int32 isDouble = 8;//默认是0  0.不加倍  1.加倍
+}
+//玩家退出 8  
+message F302518S2C {
+  required int64 userID = 1; //退出玩家UserId
+}
+
+//观战信息 9
+message F3025190S2C {
+  required PlayerInfo nowUser = 1; //当前玩家
+  required bool isCanAction = 2; //是否可以操作「例如：true」
+  required int32 nowStatus = 3; //当前状态 0-坐下 1-站起
+  repeated string watchUser = 4; //观战玩家
+}
+
+//站起&坐下 10 
+message F3025110C2S {
+  required int32 isStand = 1; //玩家操作 0-站起 1-坐下
+}
+message F3025110S2C {
+  required int32 stand = 1; //玩家操作 0-站起 1-坐下
+  required int32 result = 2; //结果码 0-成功 1-失败 2-金币不足
+  optional int32 seatNo = 3; //座位编号「例如：4」
+  optional PlayerInfo joinInfo = 4; //玩家信息
+}
+
+//清除玩家 11 
+message F3025111S2C {
+  repeated int64 userID = 1; // 玩家ID列表 
+}
+
+//断线重连 12 
+message F3025112S2C {
+  repeated PlayerInfo breakLineInfo = 1; //玩家信息
+  optional F302513S2C playCardInfo = 2; //玩家i出牌
+  optional F302514S2C changeColorInfo = 3; //选择颜色信息
+  optional F302515S2C moCardInfo = 4; //摸牌信息
+  optional F302516S2C zyInfo = 5; //质疑信息
+}
+
+//质疑选色 13 
+
+//跳过出牌 14
+message F3025114S2C {
+  required int64 nextUserId = 1; //下次操作玩家ID
+  required int32 nextTimes = 2; //下次操作玩家时间
+  repeated CardInfos hintHandCard = 3; //操作玩家提示手牌
+  optional bool nextGrabCards = 4; //下次操作玩家是否提示抓牌
+}
+
+//玩家金币 15
+message F3025115S2C {
+  required int32 playGold = 1; //玩家金币 
+}
+
+//出牌观战 16
+message F3025116S2C {
+  required int32 playerAction = 1; //0 出牌 1 选色 2 摸牌 3 质疑
+  required int64 actionUserId = 2; //操作玩家ID
+  optional CardInfos playCardId = 3; //玩家出牌
+  required int32 direction = 4; // 1-顺时针 2-逆时针
+  required int32 nowColor = 5; // 当前颜色
+  optional CardAbility cardAbility = 6; // 卡牌效果
+  repeated PlayCard playLastCard = 7; // 玩家卡牌
+  required int64 nextUser = 8; //下次操作玩家ID
+  required int32 nextTimes = 9; //玩家操作时间
+  optional bool isHintUno = 10; //是否提示Uno
+}
+//玩家卡牌
+message PlayCard {
+  required int64 playerId = 1; //玩家ID
+  required int32 cardNum = 2; //卡牌数量
+}
+
+//发牌信息 17
+message F3025117S2C {
+  repeated PlayCard playLastCard = 1; // 玩家卡牌
+  required CardInfos tableCards = 2; //桌子上牌的ID
+  required int64 nextUsrdId = 3; //操作玩家ID
+  required int32 times = 4; //玩家操作时间
+  required int32 direction = 5; // 1-顺时针 2-逆时针
+}
+
+//观战断线 18
+message F3025118S2C {
+  repeated PlayerInfo seatPlayer = 1; //玩家信息
+  required F3025116S2C watchInfo = 2; //观战信息
+  optional F3025117S2C dealCard = 3; //发牌消息
+}

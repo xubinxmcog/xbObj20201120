@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsInfoMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="nest_id" jdbcType="BIGINT" property="nestId" />
+    <result column="pet_code" jdbcType="VARCHAR" property="petCode" />
+    <result column="pet_nick" jdbcType="VARCHAR" property="petNick" />
+    <result column="pet_level" jdbcType="INTEGER" property="petLevel" />
+    <result column="all_saturat" jdbcType="INTEGER" property="allSaturat" />
+    <result column="current_saturat" jdbcType="INTEGER" property="currentSaturat" />
+    <result column="all_mood_num" jdbcType="INTEGER" property="allMoodNum" />
+    <result column="current_mood_num" jdbcType="INTEGER" property="currentMoodNum" />
+    <result column="is_status" jdbcType="TINYINT" property="isStatus" />
+    <result column="is_use" jdbcType="INTEGER" property="isUse" />
+    <result column="nest_id" jdbcType="INTEGER" property="nestId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, pet_code, pet_nick, pet_level, all_saturat, current_saturat, all_mood_num,
+    current_mood_num, is_status, create_time, update_time
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select
+      t1.id, t1.user_id, t1.pet_code, t1.pet_nick, t1.pet_level, t1.all_saturat, t1.current_saturat, t1.all_mood_num,
+      t1.current_mood_num, t1.is_status, t1.create_time, t1.update_time,
+      t2.nest_id
+      from pets_info t1
+      LEFT JOIN pets_nest_unlock t2 ON t1.id = t2.pets_id
+      <where>
+      <if test="id != null">
+        t1.id = #{id}
+      </if>
+      <if test="userId != null and petCode != null ">
+        and t1.user_id = #{userId} and t1.pet_code = #{petCode}
+      </if>
+    </where>
+  </select>
+
+  <!--查询用户所有宠物-->
+  <select id="selectAllUserPetss" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    SELECT
+      t1.id, t1.user_id, t1.pet_code, t1.pet_nick, t1.pet_level, t1.all_saturat, t1.current_saturat, t1.all_mood_num,
+      t1.current_mood_num, t1.is_status, t1.create_time, t1.update_time,
+      if(t2.id is null,0,1) AS is_use,
+      t3.pic_url picUrl
+    FROM
+      pets_info t1
+      LEFT JOIN pets_nest_unlock t2 ON t2.pets_id = t1.id AND t1.user_id = t2.user_id
+      LEFT JOIN pets_piece_config t3 ON t3.pets_code = t1.pet_code
+    WHERE
+      t1.user_id = #{userId,jdbcType=BIGINT} AND t1.is_status = 1
+  </select>
+
+    <resultMap id="NestPetsMaps" type="com.enuos.live.dto.PetsNestDTO">
+        <id column="id" property="id" />
+        <result column="userId" property="userId" />
+        <result column="nestId" property="nestId" />
+        <result column="nestId" property="nestId" />
+        <result column="lockType" property="lockType" />
+        <result column="lockValue" property="lockValue" />
+        <result column="nestName" property="nestName" />
+        <result column="isUnlock" property="isUnlock" />
+        <collection property="petsInfo" ofType="com.enuos.live.dto.PetsInfoDTO">
+            <result column="petCode" property="petCode" />
+            <result column="petNick" property="petNick" />
+            <result column="petSex" property="petSex" />
+            <result column="allSaturat" property="allSaturat" />
+            <result column="isStatus" property="isStatus" />
+            <result column="allMoodNum" property="allMoodNum" />
+            <result column="petsId" property="petsId" />
+            <result column="petLevel" property="petLevel" />
+            <result column="currentMoodNum" property="currentMoodNum" />
+            <result column="picUrl" property="picUrl" />
+            <result column="currentSaturat" property="currentSaturat" />
+            <result column="createTime" property="createTime" />
+            <result column="updateTime" property="updateTime" />
+        </collection>
+    </resultMap>
+  <!--查询用户小窝-->
+  <select id="selectUserNestPetss" parameterType="java.lang.Long" resultMap="NestPetsMaps">
+    SELECT
+        t1.id,
+        t1.user_id userId,
+        t1.pets_id petsId,
+        if(t1.is_unlock is null or t1.is_unlock = 0, 0,1) isUnlock,
+
+        t2.id nestId,
+        t2.nest_name nestName,
+        t2.lock_value lockValue,
+        t2.lock_type lockType,
+
+        t3.pet_code petCode,
+        t3.pet_nick petNick,
+        t3.pet_sex petSex,
+        t3.pet_level petLevel,
+        t3.all_saturat allSaturat,
+        t3.current_saturat currentSaturat,
+        t3.all_mood_num allMoodNum,
+        t3.current_mood_num currentMoodNum,
+        t3.is_status isStatus,
+        DATE_FORMAT(t3.create_time, '%Y-%m-%d %H:%m:%s') createTime,
+        DATE_FORMAT(t3.update_time, '%Y-%m-%d %H:%m:%s') updateTime,
+        (SELECT pic_url FROM pets_piece_config WHERE pets_code = t3.pet_code) picUrl
+    FROM
+        pets_nest_unlock t1
+        RIGHT JOIN pets_nest_config t2 ON t1.nest_id = t2.id AND t1.user_id = #{userId}
+        LEFT JOIN pets_info t3 ON t1.pets_id = t3.id AND t1.user_id = t3.user_id
+  </select>
+
+  <!--查询已上阵宠物-->
+  <select id="selectUserPetss" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    SELECT
+        t1.pets_id AS id,
+        t1.user_id,
+        t1.nest_id,
+        t2.pet_code,
+        t2.pet_nick,
+        t2.pet_level,
+        t2.all_saturat,
+        t2.current_saturat,
+        t2.all_mood_num,
+        t2.current_mood_num,
+        t2.is_status,
+        t2.create_time,
+        t2.update_time
+    FROM
+        pets_nest_unlock t1
+        INNER JOIN pets_info t2 ON t1.pets_id = t2.id AND t1.user_id = t2.user_id
+    WHERE
+        t1.user_id = #{userId,jdbcType=BIGINT} AND is_status = 1
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from pets_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsInfo" useGeneratedKeys="true">
+    insert into pets_info (user_id, pet_code, pet_nick,pet_sex,
+      pet_level, all_saturat, current_saturat, all_mood_num,
+      current_mood_num, is_status)
+    values (#{userId}, #{petCode}, #{petNick},#{petSex},
+      #{petLevel}, #{allSaturat}, #{currentSaturat}, #{allMoodNum},
+      #{currentMoodNum}, #{isStatus})
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsInfo">
+    update pets_info
+    <set>
+      <if test="petNick != null">
+        pet_nick = #{petNick},
+      </if>
+      <if test="petSex != null">
+          pet_sex = #{petSex},
+      </if>
+      <if test="petLevel != null">
+        pet_level = #{petLevel},
+      </if>
+      <if test="allSaturat != null">
+        all_saturat = #{allSaturat},
+      </if>
+      <if test="currentSaturat != null">
+        current_saturat = #{currentSaturat},
+      </if>
+      <if test="allMoodNum != null">
+        all_mood_num = #{allMoodNum},
+      </if>
+      <if test="currentMoodNum != null">
+        current_mood_num = #{currentMoodNum},
+      </if>
+      <if test="isStatus != null">
+        is_status = #{isStatus},
+      </if>
+      <if test="saturatUpTime != null">
+          saturat_up_time = #{saturatUpTime},
+      </if>
+      <if test="moodUpTime != null">
+          moodUpTime = #{moodUpTime},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime},
+      </if>
+        update_time = NOW()
+    </set>
+    where id = #{id}
+  </update>
+
+    <!--查询宠物原始名字和现在的名字-->
+    <select id="getPetIdName" resultType="java.util.Map">
+      SELECT
+        t1.pet_nick petNick,
+        t2.pets_name petsName
+      FROM
+        pets_info t1
+        LEFT JOIN pets_piece_config t2 ON t1.pet_code = t2.pets_code
+      WHERE
+        t1.id = #{id}
+    </select>
+
+    <select id="getIsPets" resultType="java.lang.Integer">
+        select
+          1
+        from pets_info
+        where
+        id = #{petsId}
+        and user_id = #{userId}
+    </select>
+
+    <resultMap id="PetsInfoAndDressUpMap" type="com.enuos.live.dto.PetsInfoAndDressUpDTO">
+        <result column="user_id" property="userId"/>
+        <result column="pets_id" property="petsId"/>
+        <result column="pet_code" property="petCode"/>
+        <result column="pet_nick" property="petNick"/>
+        <result column="pet_sex" property="petSex"/>
+        <result column="pet_level" property="petLevel"/>
+        <result column="all_saturat" property="allSaturat"/>
+        <result column="current_saturat" property="currentSaturat"/>
+        <result column="all_mood_num" property="allMoodNum"/>
+        <result column="current_mood_num" property="currentMoodNum"/>
+        <result column="saturat_up_time" property="saturatUpTime"/>
+        <result column="mood_up_time" property="moodUpTime"/>
+        <collection property="effectQualitys" ofType="com.enuos.live.pojo.PetsDressUpQualityConfig">
+            <id column="id" property="id"/>
+            <result column="quality_id" property="qualityId"/>
+            <result column="quality_name" property="qualityName"/>
+            <result column="effect_gold" property="effectGold"/>
+            <result column="effect_beFull" property="effectBeFull"/>
+            <result column="effect_mood" property="effectMood"/>
+            <result column="effect_food" property="effectFood"/>
+            <result column="effect_toys" property="effectToys"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPetsInfoAndDressUp" resultMap="PetsInfoAndDressUpMap">
+        SELECT
+            t1.user_id,
+            t1.pets_id,
+
+            t2.pet_code,
+            t2.pet_nick,
+            t2.pet_sex,
+            t2.pet_level,
+            t2.all_saturat,
+            t2.current_saturat,
+            t2.all_mood_num,
+            t2.current_mood_num,
+            t2.saturat_up_time,
+            t2.mood_up_time,
+
+            t5.quality_id,
+            t5.quality_name,
+            t5.effect_gold,
+            t5.effect_beFull,
+            t5.effect_mood,
+            t5.effect_food,
+            t5.effect_toys
+        FROM
+            pets_nest_unlock t1
+            LEFT JOIN pets_info t2 ON t2.id = t1.pets_id
+            LEFT JOIN pets_dress_up t3 ON t3.pets_id = t1.pets_id AND t3.user_id = t1.user_id
+            LEFT JOIN pets_product_backpack t4 ON t4.id = t3.backpack_id AND t4.product_status = 2 AND t4.use_time > NOW()
+            LEFT JOIN pets_dress_up_quality_config t5 ON t5.product_code = t4.product_code
+        WHERE
+            t1.user_id = #{userId}
+            AND t1.pets_id = #{petsId}
+    </select>
+</mapper>

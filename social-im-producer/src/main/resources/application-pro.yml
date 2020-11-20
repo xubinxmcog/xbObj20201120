@@ -1,0 +1,58 @@
+#server
+server:
+  port: 7107
+  undertow:
+    direct-buffers: true
+    io-threads: 4
+    worker-threads: 160
+
+#spring
+spring:
+  application:
+    name: SOCIAL-IM-PRODUCER
+  security:
+    user:
+      name: nanjing7le
+      password: enuos2020
+  zipkin:
+    base-url: http://localhost:9771
+    sender:
+      type: web
+  sleuth:
+    sampler:
+      #采样100%
+      probability: 1.0
+  #nacos注册中心
+  cloud:
+    nacos:
+      discovery:
+        #注册地址
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        #dashboard
+        dashboard: localhost:8088
+        port: 8719
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+      bindings:
+        output_login:
+          destination: topic_login
+        output_post:
+          destination: topic_post
+        output_bill:
+          destination: topic_bill
+      binder:
+        auto-add-partitions: true
+
+#日志
+logging:
+  level:
+    com.enuos.live: warn
+  config: classpath:logback-spring.xml
+
+#参数加解密
+data:
+  is-cipher: false

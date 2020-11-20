@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.AmpaignMessageMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.AmpaignMessage">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="link_url" jdbcType="VARCHAR" property="linkUrl"/>
+        <result column="file_url" jdbcType="VARCHAR" property="fileUrl"/>
+        <result column="edit_id" jdbcType="BIGINT" property="editId"/>
+        <result column="edit_name" jdbcType="VARCHAR" property="editName"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="ampaign_start_time" jdbcType="TIMESTAMP" property="ampaignStartTime"/>
+        <result column="ampaign_end_time" jdbcType="TIMESTAMP" property="ampaignEndTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="sort" jdbcType="INTEGER" property="sort"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, title, content, link_url, file_url, edit_id, edit_name, `status`, ampaign_start_time, 
+    ampaign_end_time, create_time, update_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_ampaign_message
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_ampaign_message
+        where
+        `status` = 1
+        and ampaign_start_time <![CDATA[<]]> #{userTime}
+        and ampaign_end_time <![CDATA[>]]> #{userTime}
+        order by sort desc,create_time,update_time
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_ampaign_message
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.AmpaignMessage"
+            useGeneratedKeys="true">
+    insert into tb_ampaign_message (title, content, link_url, 
+      file_url, edit_id, edit_name, 
+      `status`, ampaign_start_time, ampaign_end_time, 
+      create_time, update_time)
+    values (#{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{linkUrl,jdbcType=VARCHAR}, 
+      #{fileUrl,jdbcType=VARCHAR}, #{editId,jdbcType=INTEGER}, #{editName,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{ampaignStartTime,jdbcType=TIMESTAMP}, #{ampaignEndTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.AmpaignMessage">
+        update tb_ampaign_message
+        <set>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="linkUrl != null">
+                link_url = #{linkUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="fileUrl != null">
+                file_url = #{fileUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="editId != null">
+                edit_id = #{editId,jdbcType=INTEGER},
+            </if>
+            <if test="editName != null">
+                edit_name = #{editName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                `status` = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="ampaignStartTime != null">
+                ampaign_start_time = #{ampaignStartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="ampaignEndTime != null">
+                ampaign_end_time = #{ampaignEndTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

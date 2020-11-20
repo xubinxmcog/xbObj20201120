@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RoomRoleMapper">
+    <!--保存-->
+    <insert id="save" useGeneratedKeys="true">
+        insert into tb_voice_room_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            room_id, user_id, role
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{roomId}, #{userId}, #{role}
+        </trim>
+    </insert>
+
+    <!--删除-->
+    <delete id="delete">
+        delete from tb_voice_room_role
+        <where>
+            room_id = #{roomId}
+            and user_id = #{userId}
+            <if test="role != null">
+                and role = #{role}
+            </if>
+        </where>
+
+    </delete>
+
+    <select id="getRole" resultType="java.util.Map">
+       select
+        t1.room_id AS roomId,
+        t1.user_id AS userId,
+        t1.role,
+        t2.nick_name AS nickName,
+        t2.thumb_icon_url AS thumbIconUrl,
+        t2.sex,
+        t3.`level`
+	  from tb_voice_room_role t1
+		LEFT JOIN tb_user t2 on t1.user_id=t2.user_id
+		LEFT JOIN tb_user_account_attach t3 on t1.user_id=t3.user_id
+      where
+        t1.room_id = #{roomId}
+        and t1.role = #{role}
+    </select>
+    <select id="getAdmin" resultType="java.lang.Integer">
+        select role
+        from tb_voice_room_role
+        where
+        room_id = #{roomId}
+        and user_id = #{userId}
+    </select>
+</mapper>

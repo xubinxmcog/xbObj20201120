@@ -1,0 +1,65 @@
+//你画我猜
+package Platform.ModelF30041;
+option java_package = "com.enuos.live.proto.f30041msg";
+option java_outer_classname = "F30041";
+
+///进入游戏
+message F30041S2C{
+    repeated PlayerInfo player=1;//玩家信息
+}
+
+//玩家列表
+message PlayerInfo{
+    required string nick=1;//玩家昵称
+    required int32 userID=2;//玩家ID
+    required string url =3;//玩家头像
+    required int32 sex=4;//玩家性别
+    required int32 deviPosition=5;//位置偏移
+}
+
+message F300411S2C{
+    required int32 nextUserID=1;//操作玩家
+    required int32 lastTimes=2;//操作玩家
+}
+
+//2 服务器和客服端都是空消息
+message F300412S2C{
+    required int32 lineID=1;//创建线ID
+}
+
+message F300413C2S{
+    required PaintPosition painPosi=1;//画画位置
+}
+
+message PaintPosition{
+    required float positionX=1;//X轴
+    required float positionY=2;//Y轴
+}
+
+message F300413S2C{
+    required PaintPosition painPosition=1;//画画位置
+    required int32 userID=2;//玩家ID
+}
+
+message F300414C2S{
+    required string playerResult=1;//玩家猜的结果
+}
+
+message F300414S2C{
+    required string playerResult=1;//玩家猜的结果
+    required int32 userID=2;//猜结果的玩家ID
+}
+
+//玩家撤销
+message F300415S2C{
+    required int32 lineID=1;//撤销线ID
+}
+
+message F300416S2C{
+    required int32 result=1;//退出结果码
+    required int32 userID=2;//退出玩家ID
+}
+
+message F300417S2C{
+    required int32 result=1;//玩家认输
+}

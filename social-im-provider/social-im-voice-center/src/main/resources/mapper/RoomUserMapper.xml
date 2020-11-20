@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RoomUserMapper">
+
+    <!--新增-->
+    <insert id="save">
+        insert into tb_voice_room_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            room_id, user_id
+        </trim>
+        <trim prefix="select">
+            #{roomId}, #{userId}
+        </trim>
+        <where>
+            and not exists (select 1 from tb_voice_room_user where room_id = #{roomId} and user_id = #{userId})
+        </where>
+    </insert>
+
+    <!--删除-->
+    <delete id="delete" parameterType="com.enuos.live.pojo.RoomPO">
+        delete from tb_voice_room_user where room_id = #{roomId} and user_id = #{userId}
+    </delete>
+
+    <!--删除房间用户-->
+    <delete id="deleteRommUser" parameterType="java.lang.Long">
+        delete from tb_voice_room_user where room_id = #{roomId}
+    </delete>
+
+    <select id="delRoomUserOnlineNum" resultType="java.lang.Integer">
+        delete from tb_voice_room_user where room_id = #{roomId} and user_id = #{userId};
+        select count(1) from tb_voice_room_user where room_id = #{roomId};
+    </select>
+
+    <!--获取禁言用户-->
+    <select id="getBannedUser" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.nick_name nickName,
+        t1.thumb_icon_url thumbIconUrl,
+        t1.sex,
+        t2.level,
+        t3.remark
+        from tb_user t1
+        left join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        left join tb_user_friend t3 on t3.friend_id = t1.user_id and t3.user_id = #{userId}
+        <where>
+            and t1.is_del = 0
+            and t1.user_id in
+            <foreach collection="userIdList" item="uid" open="(" close=")" separator=",">
+                #{uid}
+            </foreach>
+        </where>
+    </select>
+
+    <!--获取房间用户信息-->
+    <select id="getRoomUserInfo" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.nick_name nickName,
+        t1.sex,
+        t1.thumb_icon_url thumbIconUrl,
+        if(t1.if_time <![CDATA[ > ]]> now(), t1.icon_frame, '') iconFrame,
+
+        if(t2.id is null, 0, 1) isFriend,
+        t2.remark,
+
+        t3.level,
+
+        if(t4.role is null, 0, t4.role) role,
+
+        if(t5.seat_id is null, 0, 1) isOnSeat,
+        t5.seat_id seatId,
+        t5.mic isBanMic
+
+        from tb_user t1
+        left join tb_user_friend t2 on t2.friend_id = t1.user_id and t2.user_id = #{userId} and t2.is_del = 0
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_voice_room_role t4 on t4.user_id = t1.user_id and t4.room_id = #{roomId}
+        left join tb_voice_room_seat t5 on t5.user_id = t1.user_id and t5.room_id = #{roomId}
+
+        <where>
+            and t1.user_id = #{targetId}
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.enuos.live.pojo.MicPO">
+        update tb_voice_room_user
+        <set>
+            is_close_mic = #{type}
+        </set>
+        <where>
+            and room_id = #{roomId}
+            and user_id = #{userId}
+        </where>
+    </update>
+
+    <!--[OPEN]获取房间内的所有用户id-->
+    <select id="getRoomUserIdList" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select user_id from tb_voice_room_user where room_id = #{roomId}
+    </select>
+
+    <!--获取房间内所有用户-->
+    <select id="getRoomUserList" parameterType="java.lang.Long" resultType="java.util.Map">
+        SELECT
+         t1.user_id userId,
+         t2.nick_name nickName,
+         t2.thumb_icon_url thumbIconUrl,
+         t2.sex
+        FROM
+            tb_voice_room_user t1
+            LEFT JOIN tb_user t2 ON t2.user_id = t1.user_id
+        WHERE
+            t1.room_id = #{roomId}
+    </select>
+
+    <select id="queryUsersMsg" resultType="java.util.Map">
+        SELECT
+        user_id AS userId,
+        sex AS sex,
+        thumb_icon_url AS thumbIconUrl,
+        nick_name AS nickName
+        FROM
+        tb_user
+        <where>
+            user_id IN
+            <foreach item="list" index="index" collection="list" open="(" separator="," close=")">
+                #{list}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getRoomUsers" resultType="java.util.Map">
+        SELECT
+            t1.user_id AS userId,
+            t2.sex AS sex,
+            t2.thumb_icon_url AS thumbIconUrl,
+            t2.nick_name AS nickName,
+            if(t3.role is null,0,t3.role) role,
+            if(t4.user_id is null,0,1) AS isOnSeat,
+            t5.`level`
+        FROM
+            tb_voice_room_user t1
+            LEFT JOIN tb_user t2 ON t1.user_id = t2.user_id
+            LEFT JOIN tb_voice_room_role t3 ON t1.user_id = t3.user_id AND t1.room_id = t3.room_id
+            LEFT JOIN tb_voice_room_seat t4 ON t1.user_id = t4.user_id AND t4.room_id = #{roomId}
+            LEFT JOIN tb_user_account_attach t5 ON t1.user_id = t5.user_id
+        WHERE
+	      t1.room_id = #{roomId}
+    </select>
+
+    <select id="getOnlineNum" resultType="java.lang.Integer">
+        select count(1) from tb_voice_room_user where room_id= #{roomId}
+    </select>
+
+    <!--判断用户是否在房间内-->
+    <select id="getUserIsRoom" resultType="java.lang.Integer">
+      select 1 from tb_voice_room_user where room_id= #{roomId} and user_id = #{userId} limit 1
+    </select>
+
+</mapper>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsProductBackpackMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsProductBackpack">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_num" property="productNum"/>
+        <result column="time_limit" property="timeLimit"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="product_status" property="productStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="use_time" property="useTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, product_id, product_code, product_num, time_limit, category_id, product_status, 
+    create_time, modified_time, use_time
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from pets_product_backpack
+        <where>
+            <if test="id != null and id !=0">
+                id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="productCode != null">
+                and product_code = #{productCode}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pets_product_backpack
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsProductBackpack"
+            useGeneratedKeys="true">
+    insert into pets_product_backpack (user_id, product_id, product_code, 
+      product_num, time_limit, category_id, 
+      product_status, create_time, modified_time, 
+      use_time)
+    values (#{userId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, #{productCode,jdbcType=VARCHAR}, 
+      #{productNum,jdbcType=INTEGER}, #{timeLimit,jdbcType=BIGINT}, #{categoryId,jdbcType=INTEGER}, 
+      #{productStatus,jdbcType=TINYINT}, NOW(), NOW(),
+      #{useTime,jdbcType=TIMESTAMP})
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsProductBackpack">
+        update pets_product_backpack
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="productCode != null">
+                product_code = #{productCode,jdbcType=VARCHAR},
+            </if>
+            <if test="productNum != null">
+                product_num = #{productNum,jdbcType=INTEGER},
+            </if>
+            <if test="timeLimit != null">
+                time_limit = #{timeLimit,jdbcType=BIGINT},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="productStatus != null">
+                product_status = #{productStatus,jdbcType=TINYINT},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = NOW(),
+            </if>
+            <if test="useTime != null">
+                use_time = #{useTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    
+    <update id="upProductStatus">
+        update pets_product_backpack
+        set
+          product_status = #{productStatus}
+        where
+           id = #{id}
+    </update>
+
+    <update id="upByCategoryProductStatus">
+        update pets_product_backpack
+        set
+          product_status = 1
+        where
+          user_id = #{userId}
+          and category_id = #{categoryId}
+          and id <![CDATA[ <> ]]> #{id}
+    </update>
+
+    <update id="updateProductNum">
+    update pets_product_backpack
+    set
+      product_num = product_num-1,
+      modified_time = NOW()
+    where
+      id = #{id}
+      and product_num = #{productNum}
+  </update>
+
+    <update id="updateUserTimeLimit">
+        update pets_product_backpack
+        set
+          time_limit = 0,
+          product_status = 1,
+          modified_time = NOW()
+        where
+        <![CDATA[
+          user_id = #{userId}
+          AND time_limit <> 0
+          AND time_limit <> -1
+          AND (UNIX_TIMESTAMP(STR_TO_DATE(create_time, '%Y-%m-%d %H:%i:%s' )) + time_limit ) < UNIX_TIMESTAMP( STR_TO_DATE( NOW(), '%Y-%m-%d %H:%i:%s' ))
+        ]]>
+    </update>
+
+    <select id="getUserCategory" resultType="java.util.Map">
+    select
+      t1.category_id categoryId,
+	  t1.product_id productId,
+      t1.product_num productNum,
+      t1.product_code productCode,
+
+      t2.product_name productName
+    from
+      pets_product_backpack t1
+      left join pets_product_info t2 on t2.product_code = t1.product_code
+    where
+      t1.user_id = #{userId}
+      and t1.category_id = #{categoryId}
+  </select>
+
+    <select id="getUserPetsProductInfo" resultType="java.util.Map">
+    SELECT
+        t1.id,
+        t1.product_num productNum,
+        t2.attribute
+    FROM
+        pets_product_backpack t1
+        LEFT JOIN pets_product_info t2 ON t1.product_code = t2.product_code
+    WHERE
+        t1.user_id = #{userId}
+        AND t1.product_code = ( SELECT label FROM pets_label WHERE label_code = #{labelCode} and parent_id = ( SELECT id FROM pets_label WHERE label = #{label}) )
+  </select>
+
+    <resultMap id="PetsBackpackDTOMap" type="com.enuos.live.dto.PetsBackpackDTO">
+        <id column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="category_code" property="categoryCode"/>
+        <result column="parent_id" property="parentId"/>
+        <collection property="list" ofType="com.enuos.live.dto.ProductBackpackDTO">
+            <result column="id" property="id"/>
+            <result column="user_id" property="userId"/>
+            <result column="category_id" property="categoryId"/>
+            <result column="product_id" property="productId"/>
+            <result column="product_code" property="productCode"/>
+            <result column="product_num" property="productNum"/>
+            <result column="time_limit" property="timeLimit"/>
+            <result column="product_status" property="productStatus"/>
+            <result column="create_time" property="createTime"/>
+            <result column="use_time" property="useTime"/>
+            <result column="product_name" property="productName"/>
+            <result column="pic_url" property="picUrl"/>
+            <result column="attribute" property="attribute"/>
+            <result column="descript" property="descript"/>
+        </collection>
+    </resultMap>
+
+    <select id="getUserPetsBackpack" resultMap="PetsBackpackDTOMap">
+        SELECT
+        t1.category_id,
+        t2.category_name,
+        t2.category_code,
+        t2.parent_id,
+
+        t1.id,
+        t1.user_id,
+        t1.product_id,
+        t1.product_code,
+        t1.product_num,
+        t1.time_limit,
+        t1.product_status,
+        t1.create_time,
+        t1.use_time,
+        t3.product_name,
+        t3.pic_url,
+        t3.attribute,
+        t3.descript
+        FROM
+        pets_product_backpack t1
+        LEFT JOIN pets_product_category t2 ON t2.id = t1.category_id
+        LEFT JOIN pets_product_info t3 ON t3.id = t1.product_id
+        <where>
+            t1.user_id = #{userId}
+            AND t1.time_limit <![CDATA[ <> ]]> 0
+            AND t1.product_num > 0
+            <if test="categoryId != null">
+                AND t1.category_id IN ( SELECT id FROM pets_product_category WHERE parent_id = #{categoryId} OR id = #{categoryId})
+            </if>
+            <if test="categoryId == null">
+                AND t1.category_id <![CDATA[ <> ]]>  15
+            </if>
+        </where>
+        ORDER BY
+        t1.category_id DESC
+    </select>
+
+    <select id="getProductCodeBackpack" resultType="java.util.Map">
+    select
+      t1.id,
+      t1.category_id categoryId,
+	  t1.product_id productId,
+      t1.product_num productNum,
+      t1.product_code productCode,
+
+      t2.product_name productName
+    from
+      pets_product_backpack t1
+      left join pets_product_info t2 on t2.product_code = t1.product_code
+    where
+      t1.user_id = #{userId}
+      and t1.product_code = #{productCode}
+  </select>
+
+    <!--获取用户碎片列表-->
+    <select id="getUserPieces" resultType="java.util.Map">
+    SELECT
+      t1.product_num uPieceNum,
+      t1.product_code pieceCode,
+      t2.piece_num needPieceNum,
+      t2.pets_code petsCode,
+      t3.product_name pieceName,
+      t3.pic_url picUrl,
+    IF
+      ( t1.product_num <![CDATA[ < ]]> t2.piece_num, 0, 1 ) isExchange
+    FROM
+      pets_product_backpack t1
+      LEFT JOIN pets_piece_config t2 ON t2.piece_type = t1.product_code
+      LEFT JOIN pets_product_info t3 ON t1.product_code = t3.product_code
+    WHERE
+      t1.user_id = #{userId}
+      AND t1.category_id = 15
+  </select>
+
+    <!--根据code获取用户碎片-->
+    <select id="getUserPiece" resultType="java.util.Map">
+    SELECT
+      t1.id,
+	  t1.product_num uPieceNum,
+      IF( t1.product_num <![CDATA[ < ]]> t2.piece_num, 0, 1 ) isExchange,
+
+	  t2.pets_code petsCode,
+	  t2.pets_name petsName,
+      t2.piece_num needPieceNum,
+      t2.init_sex initSex
+    FROM
+      pets_product_backpack t1
+      LEFT JOIN pets_piece_config t2 ON t2.piece_type = t1.product_code
+    WHERE
+      t1.user_id = #{userId}
+      AND t1.product_code = #{pieceCode}
+      AND t1.category_id = 15
+  </select>
+
+    <!--更新用户宠物碎片-->
+    <update id="updateUserBackpackPiece">
+        UPDATE pets_product_backpack
+        SET
+          product_num = #{currentNum}
+        WHERE id = #{id}
+        AND user_id = #{userId}
+        AND product_num = #{productNum}
+    </update>
+    
+</mapper>

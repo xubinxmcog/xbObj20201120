@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GroupMessageVoiceMapper">
+
+  <!--批量新增语音操作信息-->
+  <insert id="saveUserMessageList" parameterType="java.util.List" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO group_message_voice (
+      group_id,
+      record_id,
+      user_id
+    ) VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.groupId},
+      #{item.recordId},
+      #{item.userId})
+    </foreach>
+  </insert>
+
+  <!--更新消息状态-->
+  <update id="updateMessageVoice" parameterType="java.util.Map">
+    UPDATE group_message_voice
+       SET action = 1
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND record_id = #{recordId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <delete id="deleteGroupMessage" parameterType="java.lang.Long">
+    DELETE FROM group_message_voice
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteGroupVoiceMessage">
+    DELETE FROM group_message_voice
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteGroupVoiceMessageByList">
+    DELETE FROM group_message_voice
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id IN
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </delete>
+
+</mapper>

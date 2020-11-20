@@ -1,0 +1,164 @@
+// 语音房 消息号 20001
+package Platform.ModelC20001;
+option java_package = "com.enuos.live.proto.c20001msg";
+option java_outer_classname = "C20001";
+
+
+// 开播
+message C200010c2s {
+    required int64 roomId = 1; // 房间号
+}
+
+// 观众进入房间
+message C200011c2s {
+    required int64 roomId = 1; // 房间号
+}
+
+message C200011s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 userId = 2; // 用户ID
+    required string alias = 3; // 用户别称 【处理了昵称和备注】
+    required string thumbIconURL = 4;// 用户头像
+    required int32 sex = 5; // 性别 1-男 2-女
+    required int32 isMember = 6; // 是否是会员 [0：否； 1：是]
+    optional int32 vip = 7; // 会员等级
+    required int32 onlineNum = 8; // 在线人数
+    optional int32 role = 9; // 角色 [0观众 1房主 2管理员 3官方]
+    optional string enterEffects = 10;// 进场特效
+}
+
+// 发送消息
+message C200012c2s {
+    required int64 roomId = 1; // 房间号
+    optional string message = 2; // 消息内容
+    required int32 messageType = 3; // 消息类型 【0 文本 1 Emoji 2 图片 ...】
+    required string messageId = 4; // 消息的唯一标识符
+    repeated ESRImageInfo imageInfo = 5; // 图片信息字段 【messageType = 2】
+    optional int32 role = 6; // 角色 【0 观众 1 房主 2 管理员 3 官方】
+}
+
+message C200012s2c { //self
+    required int32 result = 1; // 返回结果 【0 成功 1 失败】
+    required string errorMsg = 2; //失败原因
+    required string messageId = 3; // 消息的唯一标识符
+}
+
+// 接收消息
+message C200013s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 userId = 2; // 用户ID
+    required string alias = 3; // 用户别称 【处理了昵称和备注】
+    required string thumbIconURL = 4;// 用户头像
+    required int32 sex = 5; // 性别 1-男 2-女
+    optional string message = 6; // 消息内容
+    repeated ESRImageInfo imageInfo = 7; // 图片信息字段 【messageType = 2】
+    required int32 messageType = 8; // 消息类型 【0 文本 1 Emoji 2 图片 ...】
+    required string messageId = 9; // 消息的唯一标识符
+    optional int32 role = 10; // 角色 【0 观众 1 房主 2 管理员 3 官方】
+}
+
+// 房间信息改变
+message C200014c2s {
+    required int64 roomId = 1; // 房间号
+}
+
+message C200014s2c { //All
+    required int64 roomId = 1; // 房间号
+}
+
+// 座位列表改变
+message C200015c2s {
+    required int64 roomId = 1; // 房间号
+    optional int64 targetUserId = 2; // 操作的目标用户
+}
+
+message C200015s2c { //All
+    required int64 roomId = 1; // 房间号
+    optional int64 targetUserId = 2; // 操作的目标用户
+}
+
+// 正在说话状态
+message C200016c2s {
+    required int64 roomId = 1; // 房间号
+    required int32 userId = 2; // 用户ID
+    required int32 type = 3; // 1-说话 0-未说话
+}
+
+message C200016s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int32 userId = 2; // 用户ID
+    required int32 type = 3; // 1-说话 0-未说话
+}
+
+// 房主下播
+message C200017c2s {
+    required int64 roomId = 1; // 房间号
+}
+
+message C200017s2c { //other
+    required int64 roomId = 1; // 房间号
+}
+
+// 观众离开房间
+message C200018c2s {
+    required int64 roomId = 1; // 房间号 
+}
+
+message C200018s2c { //other
+    required int64 roomId = 1; // 房间号
+    required int64 userId = 2; // 离开房间的用户
+    required int32 onlineNum = 3; // 在线人数
+}
+
+// 排麦列表改变
+message C200019c2s {
+    required int64 roomId = 1; // 房间号
+}
+
+message C200019s2c { //All
+    required int64 roomId = 1; // 房间号
+}
+
+
+// 图片信息字段
+message ESRImageInfo {
+    required int32 width = 1; // 图片宽度 【例如： 200】
+    required int32 height = 2; // 图片高度 【例如： 200】
+    optional bytes imageFile = 3; // 图片文件 【字节数据】
+    optional string imageExt = 4; // 文件格式 【例如：jpg】
+    optional string imageURL = 5;// 图片原图访问地址
+    optional string litimg = 6; // 图片缩略图访问地址
+}
+
+// 房间信息
+message RoomInfo {
+    required int64 roomId = 1; // 房间id
+    required int32 userId = 2; // 房主Id
+    required string name = 3; // 房间名称
+    required string coverUrl = 4; // 房间封面
+    required string backgroundUrl = 5;// 语音房背景
+    required string musicUrl = 6;// 音乐URL
+    required int32 themeId = 7;// 语音房主题 [ 0 无 1 脱口秀 2 音乐 3 游戏 4 闲聊 5 情感 6 读文 ]
+    required string themeName = 8; // 主题
+    required string topic = 9; // 话题
+    optional string notice = 10; // 房公告
+    optional int32 isFollow = 11; // 是否关注 0 否 1是
+    required int32 onNum = 12; //在线人数
+    optional int32 isOnSeat = 13; // 是否在位置上
+    optional int32 isBanMic = 14; // 是否禁麦
+    required  int32 role = 15; // 角色
+    repeated SeatInfo seat = 17;
+}
+
+// 座位信息
+message SeatInfo {
+    required int64 seatId = 1; // 座位id
+    required int64 userId = 2; // 用户Id
+    required string nickName = 3; // 昵称
+    required string thumbIconUrl = 4; // 用户头像
+    optional int32 sex = 5;// 性别
+    optional int32 isLock = 6;// 是否加锁
+    optional int32 isBanMic = 7;// // 是否禁麦
+    required int32 role = 8; // 角色
+}
+

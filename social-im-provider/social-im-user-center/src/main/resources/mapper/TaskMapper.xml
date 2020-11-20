@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.TaskMapper">
+    
+    <!--获取任务列表-->
+    <select id="getList" resultType="com.enuos.live.pojo.Task">
+        select
+        distinct
+        t1.name title,
+        t1.description,
+        t1.template_code code,
+        t1.background_url,
+        t1.to_finish_path,
+        t1.task_code,
+        t1.group_id,
+        t1.sort,
+
+        t2.suffix
+
+        from task t1
+        inner join task_reward t2 on t2.task_code = t1.task_code and t2.template_code = t1.template_code
+        where t1.task_code = '003'
+        <!--游戏未上线时剔除游戏任务-->
+        and t1.group_id > 2
+        and t1.is_show = 1
+        order by t1.sort
+    </select>
+    
+    <!--任务[阈值]-->
+    <select id="getSuffix" parameterType="com.enuos.live.pojo.TaskParam" resultType="java.lang.Integer">
+        select distinct suffix
+        from task_reward
+        <where>
+            and task_code = #{taskCode}
+            and template_code = #{templateCode}
+        </where>
+    </select>
+    
+    <!--任务-->
+    <select id="getTaskActive" resultType="java.util.Map">
+        select
+        distinct
+        t1.template_code code,
+        t2.suffix line
+        from task t1
+        left join task_reward t2 on t2.task_code = t1.task_code and t2.template_code = t1.template_code
+        <where>
+            and t1.task_code = #{taskCode}
+            <if test="templateCodes.length > 0">
+                and t1.template_code in
+                <foreach collection="templateCodes" item="templateCode" open="(" close=")" separator=",">
+                    #{templateCode}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <!--任务记录[列表]-->
+    <select id="getRecord" parameterType="com.enuos.live.pojo.TaskParam" resultType="java.lang.String">
+        select
+        concat_ws('.', prefix, task_code, template_code, category, suffix) code
+        from task_record
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="prefix != null and prefix != ''">
+                and prefix = #{prefix}
+            </if>
+            <if test="taskCode != null and taskCode != ''">
+                and task_code = #{taskCode}
+            </if>
+            <if test="templateCode != null and templateCode != ''">
+                and template_code = #{templateCode}
+            </if>
+            <if test="templateCodes != null and templateCodes.length > 0">
+                and template_code in
+                <foreach collection="templateCodes" item="tc" open="(" separator="," close=")">
+                    #{tc}
+                </foreach>
+            </if>
+            <if test="category != null">
+                and category = #{category}
+            </if>
+            <if test="suffix != null">
+                and suffix = #{suffix}
+            </if>
+            <if test="date != null">
+                and date_format(create_time, '%Y-%m-%d') = #{date}
+            </if>
+        </where>
+    </select>
+    
+    <!--任务记录[是否完成]-->
+    <select id="isExistsRecord" parameterType="com.enuos.live.pojo.TaskParam" resultType="java.lang.Integer">
+        select 1 from task_record
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="prefix != null and prefix != ''">
+                and prefix = #{prefix}
+            </if>
+            <if test="taskCode != null and taskCode != ''">
+                and task_code = #{taskCode}
+            </if>
+            <if test="templateCode != null and templateCode != ''">
+                and template_code = #{templateCode}
+            </if>
+            <if test="category != null">
+                and category = #{category}
+            </if>
+            <if test="suffix != null">
+                and suffix = #{suffix}
+            </if>
+            <if test="date != null">
+                and date_format(create_time, '%Y-%m-%d') = #{date}
+            </if>
+        </where>
+        limit 1
+    </select>
+    
+    <!--任务记录[保存]-->
+    <insert id="saveRecord" parameterType="com.enuos.live.pojo.TaskParam" useGeneratedKeys="true">
+        insert into task_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            task_code,
+            template_code,
+            <if test="prefix != null and prefix != ''">
+                prefix,
+            </if>
+            <if test="category != null">
+                category,
+            </if>
+            <if test="suffix != null">
+                suffix
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{taskCode},
+            #{templateCode},
+            <if test="prefix != null and prefix != ''">
+                #{prefix},
+            </if>
+            <if test="category != null">
+                #{category},
+            </if>
+            <if test="suffix != null">
+                #{suffix}
+            </if>
+        </trim>
+    </insert>
+    
+    <!--任务奖励[获取]-->
+    <select id="getReward" parameterType="com.enuos.live.pojo.TaskParam" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.category,
+        t1.life,
+        t1.number,
+        t1.suffix,
+        
+        t2.one_category_id categoryId,
+        t2.product_name rewardName,
+        t2.pic_url url
+        
+        from task_reward t1
+        left join product_info t2 on t2.product_code = t1.reward_code
+        <where>
+            <if test="taskCode != null and taskCode != ''">
+                and t1.task_code = #{taskCode}
+            </if>
+            <if test="templateCode != null and templateCode != ''">
+                and t1.template_code = #{templateCode}
+            </if>
+            <if test="category != null">
+                and t1.category = #{category}
+            </if>
+            <if test="suffix != null">
+                and t1.suffix = #{suffix}
+            </if>
+        </where>
+    </select>
+    
+    <!--任务进度[获取]-->
+    <select id="getFollow" parameterType="com.enuos.live.pojo.TaskParam" resultType="java.util.Map">
+        select
+        id,
+        progress
+        from task_follow
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="taskCode != null and taskCode != ''">
+                and task_code = #{taskCode}
+            </if>
+            <if test="templateCode != null and templateCode != ''">
+                and template_code = #{templateCode}
+            </if>
+            <if test="category != null">
+                and category = #{category}
+            </if>
+            <if test="suffix != null">
+                and suffix = #{suffix}
+            </if>
+        </where>
+    </select>
+    
+    <!--任务进度[保存]-->
+    <insert id="saveFollow" parameterType="com.enuos.live.pojo.TaskParam" useGeneratedKeys="true" keyColumn="id">
+        insert into task_follow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            task_code,
+            template_code,
+            progress,
+            <if test="category != null">
+                category,
+            </if>
+            <if test="suffix != null">
+                suffix
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{taskCode},
+            #{templateCode},
+            #{progress},
+            <if test="category != null">
+                #{category},
+            </if>
+            <if test="suffix != null">
+                #{suffix}
+            </if>
+        </trim>
+    </insert>
+    
+    <!--任务进度[更新]-->
+    <update id="updateFollow">
+        update task_follow
+        <set>
+            progress = progress + #{byValue}
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

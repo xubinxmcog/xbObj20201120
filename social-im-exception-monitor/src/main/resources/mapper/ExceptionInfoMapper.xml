@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ExceptionInfoMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ExceptionInfo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="exception_code" jdbcType="VARCHAR" property="exceptionCode"/>
+        <result column="describe" jdbcType="VARCHAR" property="describe"/>
+        <result column="contnet" jdbcType="VARCHAR" property="contnet"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, url, exception_code, `describe`, contnet, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from exception_code_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from exception_code_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <delete id="deleteByCreateTime">
+        delete from exception_code_info
+        where create_time <![CDATA[ < ]]> date_sub(now(),interval 1 month)
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ExceptionInfo"
+            useGeneratedKeys="true">
+    insert into exception_code_info (url, exception_code, `describe`, contnet)
+    values (#{url,jdbcType=VARCHAR}, #{exceptionCode,jdbcType=VARCHAR}, #{describe,jdbcType=VARCHAR}, #{contnet,jdbcType=VARCHAR})
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ExceptionInfo">
+        update exception_code_info
+        <set>
+            <if test="url != null">
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="exceptionCode != null">
+                exception_code = #{exceptionCode,jdbcType=VARCHAR},
+            </if>
+            <if test="describe != null">
+                `describe` = #{describe,jdbcType=VARCHAR},
+            </if>
+            <if test="contnet != null">
+                contnet = #{contnet,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getExceptionMsg" resultType="java.util.Map">
+        SELECT
+            exception_code 'code',
+	        count(1)  'num',
+	        `describe`
+        FROM
+            exception_code_info
+        WHERE
+            create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY
+            exception_code
+    </select>
+
+    <insert id="insertServiceException" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ExceptionServiceInfo"
+            useGeneratedKeys="true">
+    insert into exception_service_info (`name`, `ip`, last_connection_time)
+    values
+       <foreach collection="records" item="param" separator=",">
+           (#{param.name}, #{param.ip}, #{param.lastConnectionTime})
+       </foreach>
+  </insert>
+
+    <select id="getServiceName" resultType="java.lang.String">
+        select service_name from exception_service_dictionary where service_code = #{code}
+    </select>
+
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ProductServiceMapper">
+    <resultMap type="com.enuos.live.pojo.ProductCategory" id="ProductCategoryResult">
+        <id property="id" column="id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="categoryCode" column="category_code"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="categoryLevel" column="category_level"/>
+        <result property="categoryStatus" column="category_status"/>
+        <result property="attributeStatus" column="attribute_status"/>
+        <result property="indateTime" column="indate_time"/>
+        <result property="modifiedTime" column="modified_time"/>
+    </resultMap>
+    <sql id="commonSelect">
+       id,category_name,category_code,parent_id,category_level,category_status, attribute,attribute_status, indate_time,modified_time
+    </sql>
+
+    <select id="getCategoryList" resultMap="ProductCategoryResult" parameterType="java.util.Map">
+        select
+        category.id,
+        category.category_name,
+        category.category_code,
+        category.category_status,
+        category.attribute_status,
+        category.indate_time,
+        category.modified_time
+        from product_category category
+        where
+          category.category_status = 1
+    </select>
+    <select id="detailCategory" resultMap="ProductCategoryResult">
+        select
+        <include refid="commonSelect"/>
+        from product_category
+        where id=#{id}
+    </select>
+
+    <!--<select id="selectAttributeStatus" resultType="java.lang.Integer">
+        select
+        attribute_status
+        from product_category
+        where id=#{id}
+    </select>-->
+
+</mapper>

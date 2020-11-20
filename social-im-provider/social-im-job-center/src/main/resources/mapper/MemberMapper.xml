@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.MemberMapper">
+
+    <!--充值会员列表-->
+    <select id="getMemberList" resultType="com.enuos.live.pojo.Member">
+        select
+        t1.user_id,
+        t1.vip,
+        t1.growth,
+        t1.expiration_time,
+        t1.gashapon
+        from tb_user_account_attach t1
+        inner join tb_user_account t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        where vip <![CDATA[>]]> 0
+    </select>
+
+    <!--会员的扭蛋权益-->
+    <select id="getGashaponInterest" resultType="java.util.Map">
+        select
+        vip,
+        exclusive_num exclusiveNum
+        from tb_member_interest
+        where code = 'MI06'
+    </select>
+
+    <!--vip配置-->
+    <select id="getVipConfig" resultType="java.util.Map">
+        select
+        code_type codeType,
+        code,
+        threshold
+        from tb_code_config
+        where code_type in(3, 4)
+    </select>
+
+    <!--更新会员-->
+    <update id="batchUpdateMember" parameterType="java.util.List">
+        update tb_user_account_attach
+        <set>
+            <trim prefix="vip = case" suffix="end,">
+                <foreach collection="list" item="member">
+                    when user_id = #{member.userId} then #{member.vip}
+                </foreach>
+            </trim>
+
+            <trim prefix="growth = case" suffix="end,">
+                <foreach collection="list" item="member">
+                    when user_id = #{member.userId} then #{member.growth}
+                </foreach>
+            </trim>
+
+            <trim prefix="gashapon = case" suffix="end,">
+                <foreach collection="list" item="member">
+                    when user_id = #{member.userId} then #{member.gashapon}
+                </foreach>
+            </trim>
+        </set>
+        <where>
+            and user_id in
+            <foreach collection="list" item="member" open="(" separator="," close=")">
+                #{member.userId}
+            </foreach>
+        </where>
+    </update>
+</mapper>

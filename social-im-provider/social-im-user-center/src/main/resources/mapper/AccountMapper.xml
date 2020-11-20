@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.AccountMapper">
+
+    <!--白名单账号-->
+    <select id="getWhiteList" resultType="java.lang.String">
+        select phone from tb_user_whitelist
+    </select>
+
+    <!--获取账户-->
+    <select id="getAccount" parameterType="com.enuos.live.pojo.Account" resultType="com.enuos.live.pojo.Account">
+        select
+        t1.user_id userId,
+        t1.regist_type registType,
+        t1.phone,
+        t1.union_id unionId,
+        t1.q_open_id openId,
+        t1.platform,
+        t1.status,
+        t2.level
+        from tb_user_account t1
+        left join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        <where>
+            and t1.is_del = 0
+            <choose>
+                <when test="registType == 0">
+                    and t1.phone = #{phone}
+                </when>
+                <when test="registType == 1">
+                    and t1.union_id = #{unionId}
+                </when>
+                <when test="registType == 2">
+                    and t1.q_open_id = #{openId}
+                </when>
+                <otherwise>
+                    and t1.apple_user_id = #{appleUserId}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!--获取账户-->
+    <select id="getAccountByUserId" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Account">
+        select
+        user_id userId,
+        regist_type registType,
+        phone,
+        union_id unionId,
+        w_open_id wOpenId,
+        q_open_id qOpenId,
+        platform,
+        status
+        from tb_user_account
+        <where>
+            and user_id = #{userId}
+        </where>
+    </select>
+
+    <!--获取账户-->
+    <select id="getAccountBindInfo" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.BindAccount">
+        select
+        t1.user_id userId,
+        t1.phone,
+        if(t1.phone = '', 0, 1) isBindPhone,
+        if(t1.union_id = '', 0, 1) isBindWeChat,
+        if(t1.q_open_id = '', 0, 1) isBindQQ,
+        if(t2.id is null, 0, 1) isAuthentication
+        from tb_user_account t1
+        left join tb_user_card t2 on t2.user_id = t1.user_id and t2.card_type = 1
+        <where>
+            and t1.user_id = #{userId}
+        </where>
+    </select>
+
+    <!--保存账户-->
+    <insert id="saveAccount" parameterType="com.enuos.live.pojo.Account" useGeneratedKeys="true">
+        insert into tb_user_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            regist_type,
+            <if test="phone != null and phone != ''">
+                phone,
+            </if>
+            <if test="unionId != null and unionId != ''">
+                union_id,
+            </if>
+            <if test="openId != null and openId != '' and registType == 1">
+                w_open_id,
+            </if>
+            <if test="openId != null and openId != '' and registType == 2">
+                q_open_id,
+            </if>
+            <if test="appleUserId != null and appleUserId != ''">
+                apple_user_id,
+            </if>
+            <if test="platform != null">
+                platform,
+            </if>
+            <if test="status != null">
+                status
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{registType},
+            <if test="phone != null and phone != ''">
+                #{phone},
+            </if>
+            <if test="unionId != null and unionId != ''">
+                #{unionId},
+            </if>
+            <if test="openId != null and openId != ''">
+                #{openId},
+            </if>
+            <if test="appleUserId != null and appleUserId != ''">
+                #{appleUserId},
+            </if>
+            <if test="platform != null">
+                #{platform},
+            </if>
+            <if test="status != null">
+                #{status}
+            </if>
+        </trim>
+    </insert>
+
+    <!--用户ID是否可用-->
+    <select id="isExistsUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select 1 from tb_user_account where user_id = #{userId}
+    </select>
+
+    <!--账号是否可用-->
+    <select id="isExistsAccount" resultType="java.lang.Integer">
+        select 1
+        from tb_user_account
+        <where>
+            and is_del = 0
+            <choose>
+                <when test="registType == 0">
+                    and phone = #{account}
+                </when>
+                <when test="registType == 1">
+                    and union_id = #{account}
+                </when>
+                <when test="registType == 2">
+                    and q_open_id = #{account}
+                </when>
+                <otherwise>
+                    and apple_user_id = #{account}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!--绑定账号-->
+    <update id="update" parameterType="com.enuos.live.pojo.BindAccount">
+        update tb_user_account
+        <set>
+            <choose>
+                <when test="type == 0">
+                    phone = #{phone},
+                </when>
+                <when test="type == 1">
+                    union_id = #{unionId}, w_open_id = #{openId},
+                </when>
+                <otherwise>
+                    q_open_id = #{openId},
+                </otherwise>
+            </choose>
+        </set>
+        <where>
+            and user_id = #{userId}
+        </where>
+    </update>
+
+    <!--注销账号和用户[逻辑]-->
+    <update id="logout">
+        update ${table}
+        <set>
+            is_del = 1
+        </set>
+        <where>
+            and user_id = #{userId}
+        </where>
+    </update>
+
+    <!--删除-->
+    <delete id="logoutToDelete">
+        <foreach collection="tables" item="table" separator=";">
+            delete from ${table}
+            <where>
+                and user_id = #{userId}
+            </where>
+        </foreach>
+    </delete>
+
+    <!--手机账号获取用户信息-->
+    <select id="getUserBaseForWebByPhone" parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t2.nick_name nickName,
+        t2.icon_url iconUrl
+        from tb_user_account t1
+        inner join tb_user t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        where t1.is_del = 0 and t1.phone = #{phone}
+    </select>
+</mapper>

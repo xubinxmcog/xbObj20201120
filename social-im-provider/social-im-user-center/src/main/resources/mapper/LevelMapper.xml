@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.LevelMapper">
+
+    <!--获取当前的等级-->
+    <select id="getLevel" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select level from tb_user_account_attach where user_id = #{userId}
+    </select>
+
+    <!--获取等级阈值-->
+    <select id="getLevelThreshold" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.code level,
+        t1.threshold,
+        t2.experience
+        from tb_code_config t1
+        left join tb_user_account_attach t2 on t2.level = t1.code and t2.user_id = #{userId}
+        where t1.code_type = 1
+    </select>
+
+
+</mapper>

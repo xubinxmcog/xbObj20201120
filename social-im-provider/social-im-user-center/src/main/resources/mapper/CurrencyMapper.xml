@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.CurrencyMapper">
+
+    <!--获取金币-->
+    <select id="getCurrency" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Currency">
+        select
+        user_id userId,
+        diamond,
+        gold,
+        gashapon
+        from tb_user_account_attach
+        where user_id = #{userId}
+    </select>
+
+    <!--更新金币-->
+    <update id="updateGold">
+        update tb_user_account_attach
+        set gold = #{gold}
+        where user_id = #{userId}
+    </update>
+
+    <!--更新钻石-->
+    <update id="updateDiamond">
+        update tb_user_account_attach
+        set diamond = #{diamond}
+        where user_id = #{userId}
+    </update>
+
+    <update id="upUserCurrency">
+        update tb_user_account_attach
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="gold != null">gold = #{gold},</if>
+            <if test="diamond != null">diamond = #{diamond},</if>
+            <if test="gashapon != null">gashapon = #{gashapon},</if>
+            update_time = NOW()
+        </trim>
+        <where>
+            <if test="id != null">
+                id =#{id}
+            </if>
+            <if test="userId != null">
+                and user_id =#{userId}
+            </if>
+            <if test="originalDiamond != null">
+                and diamond =#{originalDiamond}
+            </if>
+            <if test="originalGold != null">
+                and gold =#{originalGold}
+            </if>
+            <if test="originalGashapon != null">
+                and gashapon =#{originalGashapon}
+            </if>
+        </where>
+    </update>
+
+    <!--更新扭蛋-->
+    <update id="updateGashapon">
+        update tb_user_account_attach
+        set gashapon = #{gashapon}
+        where user_id = #{userId}
+    </update>
+</mapper>

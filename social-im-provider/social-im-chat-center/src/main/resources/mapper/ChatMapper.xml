@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ChatMapper">
+
+  <sql id="info">
+    a.sort,
+    a.groupId,
+    a.targetId,
+    a.thumbIconURL,
+    a.alias,
+    a.flagTop,
+    a.notDisturb,
+    a.unreadNum,
+    a.message,
+    a.messageUser,
+    a.messageType,
+    a.lastTime
+  </sql>
+
+  <!--新增聊天关系-->
+  <insert id="newUserChatLink" parameterType="java.util.List">
+    INSERT INTO chat (
+      user_id,
+      link_id,
+      unread_num,
+      message_id,
+      message_time
+    ) VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.userId},
+      #{item.linkId},
+      #{item.unreadNum},
+      #{item.messageId},
+      #{item.messageTime})
+    </foreach>
+  </insert>
+
+  <!--更新聊天设置-->
+  <update id="updUserChatSetting" parameterType="com.enuos.live.pojo.Chat">
+    UPDATE chat
+    <set>
+      <if test="chatStatus != null">
+        chat_status = #{chatStatus,jdbcType=INTEGER},
+      </if>
+      <if test="unreadNum != null">
+        unread_num = #{unreadNum,jdbcType=INTEGER},
+      </if>
+      <if test="flagTop != null">
+        flag_top = #{flagTop,jdbcType=INTEGER},
+      </if>
+      <if test="flagDelete != null">
+        flag_delete = #{flagDelete,jdbcType=INTEGER},
+      </if>
+      <if test="notDisturb != null">
+        not_disturb = #{notDisturb,jdbcType=INTEGER},
+      </if>
+    </set>
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{linkId,jdbcType=BIGINT}
+  </update>
+
+  <!--更新聊天信息-->
+  <update id="updUserChatMessage" parameterType="com.enuos.live.pojo.Chat">
+    UPDATE chat
+    <set>
+      <if test="unreadNum != null">
+        unread_num = #{unreadNum,jdbcType=INTEGER},
+      </if>
+      <if test="messageId != null">
+        message_id = #{messageId,jdbcType=BIGINT},
+      </if>
+      <if test="flagDelete != null">
+        flag_delete = #{flagDelete,jdbcType=INTEGER},
+      </if>
+      <if test="messageTime != null">
+        message_time = #{messageTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{linkId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateUserChatSetting">
+    UPDATE chat
+       SET unread_num = #{unreadNum,jdbcType=INTEGER},
+           message_id = #{messageId,jdbcType=BIGINT},
+           message_time = #{messageTime,jdbcType=TIMESTAMP},
+           flag_delete = 0
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{linkId,jdbcType=BIGINT}
+  </update>
+
+  <update id="emptyResidualMessage">
+    UPDATE chat
+       SET message_id = 0
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{targetId,jdbcType=BIGINT}
+  </update>
+  
+  <select id="userRelationIsExist"  resultType="java.lang.Integer">
+    SELECT 1
+      FROM chat
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{targetId,jdbcType=BIGINT}
+  </select>
+
+  <update id="updateUserChatStatusAll" parameterType="java.lang.Long">
+    UPDATE chat
+       SET chat_status = 0
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <!--获得聊天配置-->
+  <select id="getChatInfo" resultType="com.enuos.live.pojo.Chat">
+    SELECT chat_status AS chatStatus,
+           flag_delete AS flagDelete,
+           flag_top    AS flagTop,
+           not_disturb AS notDisturb,
+           unread_num  AS unreadNum
+      FROM chat
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{targetId,jdbcType=BIGINT}
+  </select>
+
+  <!--当前用户聊天列表-->
+  <select id="getChatNoticeList" resultType="java.util.Map" parameterType="java.lang.Long">
+    SELECT <include refid="info"/>
+      FROM (
+         ( SELECT 1                                             AS sort,
+                  0                                             AS groupId,
+                  tab1.link_id                                  AS targetId,
+                  NULL                                          AS thumbIconURL,
+                  NULL                                          AS alias,
+                  tab1.flag_top                                 AS flagTop,
+                  tab1.not_disturb                              AS notDisturb,
+                  tab1.unread_num                               AS unreadNum,
+                  IF(tab1.message_Id > 0, tab2.message, "")     AS message,
+                  NULL                                          AS messageUser,
+                  IF(tab1.message_Id > 0, tab2.message_type, 0) AS messageType,
+                  tab1.message_time                             AS lastTime
+             FROM chat tab1
+             LEFT JOIN chat_message tab2
+               ON tab1.message_id = tab2.id
+            WHERE tab1.flag_delete != 1
+              AND tab1.user_id = #{userId,jdbcType=BIGINT}
+         ) UNION ALL
+         ( SELECT 2                 AS sort,
+                  tab3.group_id     AS groupId,
+                  0                 AS targetId,
+                  tab4.group_icon   AS thumbIconURL,
+                  tab4.group_name   AS alias,
+                  tab3.flag_top     AS flagTop,
+                  tab3.not_disturb  AS notDisturb,
+                  tab3.unread_num   AS unreadNum,
+                  tab3.message      AS message,
+                  tab3.send_name    AS messageUser,
+                  tab3.message_type AS messageType,
+                  tab3.create_time  AS lastTime
+             FROM ( SELECT tab1.group_id,
+                           tab1.flag_top,
+                           tab1.not_disturb,
+                           tab1.unread_num,
+                           IF(tab1.message_Id > 0, tab2.message, "")     AS message,
+                           IF(tab1.message_Id > 0, tab2.send_name, "")   AS send_name,
+                           IF(tab1.message_Id > 0, tab2.message_type, 0) AS message_type,
+                           tab1.message_time                             AS create_time
+                      FROM group_member tab1
+                      LEFT JOIN group_message tab2
+                        ON tab1.message_id = tab2.id
+                     WHERE tab1.flag_delete != 1
+                       AND tab1.user_id = #{userId,jdbcType=BIGINT}
+                  ) tab3
+             LEFT JOIN `group` tab4
+               ON tab3.group_id = tab4.group_id
+         )
+    ) AS a
+    ORDER BY a.flagTop DESC, a.lastTime DESC
+  </select>
+
+  <delete id="relieveChatRelation" parameterType="java.lang.Long">
+    DELETE FROM chat
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="relieveRelation">
+    DELETE FROM chat
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{targetId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="checkUserRelation" resultType="java.lang.Integer">
+    SELECT COUNT(user_id)
+      FROM chat
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND link_id = #{targetId,jdbcType=BIGINT}
+  </select>
+
+  <insert id="insertUserRelation" parameterType="com.enuos.live.pojo.Chat" useGeneratedKeys="true"
+    keyProperty="id">
+      INSERT INTO chat (
+        user_id,
+        link_id,
+        unread_num,
+        message_id
+      ) VALUES (
+        #{userId,jdbcType=BIGINT},
+        #{linkId,jdbcType=BIGINT},
+        #{unreadNum,jdbcType=INTEGER},
+        #{messageId,jdbcType=BIGINT}
+      )
+  </insert>
+
+  <!--获得未读数量-->
+  <select id="getUserUnreadNum" resultType="java.lang.Integer" parameterType="java.lang.Long">
+    SELECT SUM(unread_num)
+      FROM chat
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND not_disturb = 0
+       AND flag_delete = 0
+  </select>
+</mapper>

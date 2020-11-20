@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ProductInfoMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ProductInfo">
+        <id column="id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="one_category_id" property="oneCategoryId"/>
+        <result column="pay_type" property="payType"/>
+        <result column="price_basic" property="priceBasic"/>
+        <result column="publish_status" property="publishStatus"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="sort" property="sort"/>
+        <result column="game_label_id" property="gameLabelId"/>
+        <result column="market" property="market"/>
+        <result column="attribute4" property="attribute4"/>
+        <result column="attribute5" property="attribute5"/>
+        <result column="descript" property="descript"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="indate_time" property="indateTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, product_code, product_name, one_category_id, pay_type, price_basic, publish_status,
+    audit_status, sort, game_label_id, market, attribute4, attribute5, descript, pic_url, indate_time,
+    modified_time
+  </sql>
+
+    <resultMap id="ProductInfoBaseResultMap" type="com.enuos.live.pojo.ProductInfo">
+        <id column="id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="one_category_id" property="oneCategoryId"/>
+        <result column="pay_type" property="payType"/>
+        <result column="price_basic" property="priceBasic"/>
+        <result column="publish_status" property="publishStatus"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="sort" property="sort"/>
+        <result column="game_label_id" property="gameLabelId"/>
+        <result column="market" property="market"/>
+        <result column="attribute4" property="attribute4"/>
+        <result column="attribute5" property="attribute5"/>
+        <result column="descript" property="descript"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="indate_time" property="indateTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <collection property="prices" column="id" javaType="ArrayList" ofType="com.enuos.live.pojo.ProductPrice"
+                    select="findPrices"/>
+    </resultMap>
+
+    <select id="getProductInfo" parameterType="com.enuos.live.dto.ProductInfoDTO"
+            resultMap="ProductInfoBaseResultMap">
+        select
+        product.id,
+        product.product_code,
+        product.product_name,
+        product.one_category_id,
+        product.publish_status,
+        product.audit_status,
+        product.sort,
+        product.game_label_id,
+        product.market,
+        product.attribute4,
+        product.attribute5,
+        product.descript,
+        product.pic_url,
+        product.indate_time,
+        product.modified_time
+        from product_info product
+        <where>
+            <if test="id != 0 and id != null">
+                and product.id = #{id}
+            </if>
+            <if test="productCode != null">
+                and product.product_code = #{productCode}
+            </if>
+            <if test="productName != null">
+                and product.product_name LIKE CONCAT('%',#{productName},'%')
+            </if>
+            <if test="oneCategoryId != null and oneCategoryId !=0">
+                and product.one_category_id = #{oneCategoryId}
+            </if>
+            <if test="beginPrice != null and beginPrice !=0 and endPrice != null and endPrice !=0">
+                and product.price_basic between #{beginPrice} and #{endPrice}
+            </if>
+            <if test="beginTime != null and beginTime !=0 and endTime != null and endTime !=0">
+                and product.modified_time between #{beginTime} and #{endTime}
+            </if>
+            <if test="market == null || market == 0">
+                and market = 0
+            </if>
+            and product.audit_status = 1
+            and product.publish_status = 1
+        </where>
+        order by product.sort ASC
+    </select>
+
+    <resultMap id="findPricesMap" type="com.enuos.live.pojo.ProductPrice">
+        <result column="id" property="priceId"/>
+        <result column="product_id" property="productId"/>
+        <result column="time_limit" property="timeLimit"/>
+        <result column="pay_type1" property="payType1"/>
+        <result column="price1" property="price1"/>
+        <result column="pay_type2" property="payType2"/>
+        <result column="describe" property="describe"/>
+        <result column="price2" property="price2"/>
+    </resultMap>
+    <select id="findPrices" resultMap="findPricesMap">
+        select id, time_limit, pay_type1, price1, pay_type2, price2,`describe`
+        FROM product_price
+        where
+        product_id = #{id}
+        and `status`=1
+    </select>
+
+<!--    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from product_info
+    where id = #{id}
+  </delete>-->
+<!--    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ProductInfo"
+            useGeneratedKeys="true">
+        insert into product_info (
+          product_code,
+          product_name,
+          one_category_id,
+          pay_type,
+          price_basic,
+          publish_status,
+          audit_status,
+          sort,
+          game_label_id,
+          market,
+          attribute4,
+          attribute5,
+          descript,
+          pic_url,
+          indate_time,
+          modified_time
+      )
+    values (
+        #{productCode},
+        #{productName},
+        #{oneCategoryId},
+        #{payType},
+        #{priceBasic},
+        #{priceGold},
+        #{priceDiamond},
+        #{publishStatus},
+        #{auditStatus},
+        #{sort},
+        #{gameLabelId},
+        #{market},
+        #{attribute4},
+        #{attribute5},
+        #{descript},
+        #{picUrl},
+        NOW(),
+        NOW()
+      )
+  </insert>-->
+    <!--<select id="countByExample" resultType="java.lang.Long">
+        select count(0) from product_info
+        where
+        publish_status=1
+        and audit_status=1
+        and id = #{id}
+    </select>-->
+   <!-- <select id="selectCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(*) from product_info where id = #{id}
+  </select>-->
+    <!--<update id="updateByExampleSelective" parameterType="map">
+        update product_info
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.product_code != null">
+                productCode = #{record.product_code,jdbcType=CHAR},
+            </if>
+            <if test="record.product_name != null">
+                productName = #{record.product_name,jdbcType=VARCHAR},
+            </if>
+            <if test="record.one_category_id != null">
+                oneCategory_id = #{record.one_category_id,jdbcType=SMALLINT},
+            </if>
+            <if test="record.price != null">
+                price = #{record.price,jdbcType=INTEGER},
+            </if>
+            <if test="record.publish_status != null">
+                publishStatus = #{record.publish_status,jdbcType=TINYINT},
+            </if>
+            <if test="record.audit_status != null">
+                auditStatus = #{record.audit_status,jdbcType=TINYINT},
+            </if>
+            <if test="record.sort != null">
+                sort = #{record.sort,jdbcType=VARCHAR},
+            </if>
+            <if test="record.gameLabelId != null">
+                sort = #{record.gameLabelId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.market != null">
+                market = #{record.market,jdbcType=VARCHAR},
+            </if>
+            <if test="record.attribute4 != null">
+                attribute4 = #{record.attribute4,jdbcType=VARCHAR},
+            </if>
+            <if test="record.attribute5 != null">
+                attribute5 = #{record.attribute5,jdbcType=VARCHAR},
+            </if>
+            <if test="record.descript != null">
+                descript = #{record.descript,jdbcType=VARCHAR},
+            </if>
+            <if test="record.indate_time != null">
+                indateTime = #{record.indate_time,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.modified_time != null">
+                modifiedTime = #{record.modified_time,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        <if test="_parameter != null">
+        </if>
+    </update>-->
+    <!--<update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ProductInfo">
+        update product_info
+        <set>
+            <if test="productCode != null">
+                product_code = #{productCode},
+            </if>
+            <if test="productName != null">
+                product_name = #{productName},
+            </if>
+            <if test="oneCategoryId != null">
+                one_category_id = #{oneCategoryId},
+            </if>
+            <if test="priceGold != null">
+                price_gold = #{priceGold},
+            </if>
+            <if test="priceDiamond != null">
+                price_diamond = #{priceDiamond},
+            </if>
+            <if test="publishStatus != null">
+                publish_status = #{publishStatus},
+            </if>
+            <if test="auditStatus != null">
+                audit_status = #{auditStatus},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="gameLabelId != null">
+                game_label_id = #{gameLabelId},
+            </if>
+            <if test="market != null">
+                market = #{market},
+            </if>
+            <if test="attribute4 != null">
+                attribute4 = #{attribute4},
+            </if>
+            <if test="attribute5 != null">
+                attribute5 = #{attribute5},
+            </if>
+            <if test="descript != null">
+                descript = #{descript},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = NOW()
+            </if>
+        </set>
+        where id = #{id}
+    </update>-->
+
+<!--    <select id="getPrice" resultType="java.util.Map">
+        select price_gold AS "priceGold",price_diamond AS "priceDiamond"
+        from product_info
+        where id = #{id}
+    </select>-->
+   <!-- <select id="getByIdProductInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_info
+        where
+        id = #{id}
+        and publish_status=1
+        and audit_status=1
+    </select>-->
+
+    <select id="getProductCoreById" resultType="java.util.Map">
+        select
+        id,
+        one_category_id categoryId
+        from product_info
+        where
+        product_code = #{productCode}
+    </select>
+   <!-- <select id="getByIdProductInfoMap" resultType="java.util.Map">
+        SELECT
+            pro.id,
+            pro.product_code AS productCode,
+            pro.product_name AS productName,
+            pro.price_basic AS priceBasic,
+            pro.descript,
+            gitf.`full` AS `full`,
+            pro.pay_type AS payType,
+            gitf.gift AS gift
+        FROM
+            product_info pro
+            LEFT JOIN product_full_gift gitf ON pro.id = gitf.product_id
+        WHERE
+            pro.id = #{id}
+            AND pro.publish_status = 1
+            AND pro.audit_status =1
+    </select>-->
+
+    <!--商品信息详情-->
+    <select id="getProductPayInfo" resultType="com.enuos.live.pojo.ProductPayInfo">
+        SELECT
+            t1.id AS productId,
+            t1.product_code AS productCode,
+            t1.product_name AS productName,
+            t1.one_category_id AS oneCategoryId,
+            t1.game_label_id AS gameLabelId,
+            t2.time_limit AS timeLimit,
+            t2.pay_type1 AS payType1,
+            t2.price1,
+            t2.pay_type2 AS payType2,
+            t2.price2,
+            if(t3.`full` is null,1,t3.`full`) `full`,
+	        if(t3.gift is null,0,t3.`gift`) gift
+        FROM
+            product_info t1
+            LEFT JOIN product_price t2 ON t2.product_id = t1.id
+            LEFT JOIN product_full_gift t3 ON t3.product_id = t1.id
+        WHERE
+            t1.id = #{productId}
+            AND t2.id = #{priceId}
+            AND t1.audit_status = 1
+            AND t1.publish_status = 1
+    </select>
+
+    <!--充值套餐-->
+    <select id="getRechargePackage" resultType="java.util.Map">
+        select
+        id,
+        product_id productCode,
+        name,
+        price,
+        duration
+        from tb_package
+        <where>
+            <if test="productId !=null">
+            and product_id = #{productId}
+            </if>
+            and type = 1
+        </where>
+    </select>
+
+    <!--充值套餐-->
+    <select id="getRechargePackageByCode" resultType="map">
+        select duration, duration_unit durationUnit from tb_package where product_id = #{productId}
+    </select>
+
+    <!--会员信息-->
+    <select id="getMember" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Member">
+        select
+        t1.user_id userId,
+        t1.vip,
+        t1.growth,
+        t1.expiration_time expirationTime,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl
+
+        from tb_user_account_attach t1
+        inner join tb_user t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--更新会员到期时间-->
+    <update id="updateExpirationTime" parameterType="com.enuos.live.pojo.Member">
+        update tb_user_account_attach
+        <set>
+            <if test="vip != null">
+                vip = #{vip},
+            </if>
+            expiration_time = #{expirationTime}
+        </set>
+        where user_id = #{userId}
+    </update>
+</mapper>

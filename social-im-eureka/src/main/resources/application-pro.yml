@@ -1,0 +1,36 @@
+#server
+server:
+  port: 7010
+  undertow:
+    direct-buffers: true
+    io-threads: 4
+    worker-threads: 160
+
+#eureka
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    #是否注册到注册中心
+    register-with-eureka: false
+    #是否从注册中心获取注册信息
+    fetch-registry: false
+    #查询服务和注册服务与注册中心交互的地址，多个地址用,分割
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    response-cache-update-interval-ms: 3000
+    response-cache-auto-expiration-in-seconds: 3
+    #驱逐下线的服务，间隔,5秒，默认是60
+    eviction-interval-timer-in-ms: 3000
+    enable-self-preservation: true
+
+#spring
+spring:
+  application:
+    name: 7LE-IM-EUREKA
+  security:
+    user:
+      name: nanjing7le
+      password: enuos2020
+      roles: admin

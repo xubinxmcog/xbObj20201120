@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.TopicMapper">
+
+    <!--列表-->
+    <select id="listWithPage" parameterType="com.enuos.live.pojo.Topic" resultType="com.enuos.live.pojo.Topic">
+        select
+        t1.id topicId,
+        t1.name topicName,
+        t1.description,
+        t1.url,
+        count(distinct t2.user_id) joinNum
+        from tb_label t1
+        left join tb_post t2 on t2.topic_id = t1.id
+        where t1.category = 1
+        <if test="isHot != null">
+            and t1.is_hot = #{isHot}
+        </if>
+        group by t1.id
+    </select>
+
+    <!--列表-->
+    <select id="list" resultType="com.enuos.live.pojo.Topic">
+        select
+        t1.id topicId,
+        t1.name topicName,
+        t1.description,
+        t1.url
+        from tb_label t1
+        where category = 1
+    </select>
+
+    <!--话题信息-->
+    <select id="info" parameterType="com.enuos.live.pojo.Topic" resultType="com.enuos.live.pojo.Topic">
+        select
+        t1.id topicId,
+        t1.name topicName,
+        t1.description,
+        t1.url,
+        count(t2.id) postNum,
+        count(distinct t2.user_id) joinNum
+        from tb_label t1
+        left join tb_post t2 on t2.topic_id = t1.id
+        where t1.id = #{topicId}
+    </select>
+
+</mapper>

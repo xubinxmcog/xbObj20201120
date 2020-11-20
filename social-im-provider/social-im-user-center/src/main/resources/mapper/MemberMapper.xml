@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.MemberMapper">
+
+    <!--会员说明-->
+    <select id="ship" resultType="java.lang.String">
+        select content from tb_agreement where type = 4
+    </select>
+
+    <!--vip配置-->
+    <select id="getVipConfig" resultType="java.util.Map">
+        select
+        code_type codeType,
+        code,
+        threshold,
+        url
+        from tb_code_config
+        where code_type in(3, 4)
+    </select>
+
+    <!--会员信息-->
+    <select id="getMember" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Member">
+        select
+        t1.user_id userId,
+        t1.vip,
+        t1.growth,
+        t1.expiration_time expirationTime,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl
+
+        from tb_user_account_attach t1
+        inner join tb_user t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--会员信息-->
+    <select id="getSimpleMember" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.Member">
+        select vip, expiration_time expirationTime from tb_user_account_attach where user_id = #{userId}
+    </select>
+
+    <!--更新会员成长值及等级-->
+    <update id="updateMember" parameterType="com.enuos.live.pojo.Member">
+        update tb_user_account_attach
+        <set>
+            vip = #{vip},
+            growth = #{growth}
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!--更新会员到期时间-->
+    <update id="updateExpirationTime" parameterType="com.enuos.live.pojo.Member">
+        update tb_user_account_attach
+        <set>
+            <if test="vip != null">
+                vip = #{vip},
+            </if>
+            expiration_time = #{expirationTime}
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!--权益列表-->
+    <select id="getMemberInterestList" resultType="com.enuos.live.pojo.MemberInterest">
+        select
+        interest,
+        icon_url iconUrl,
+        example_url exampleUrl,
+        group_concat(distinct vip) vips
+        from tb_member_interest
+        group by interest
+        order by id
+    </select>
+
+    <!--充值套餐-->
+    <select id="getRechargePackage" resultType="java.util.Map">
+        select
+        product_id productId,
+        name,
+        price,
+        duration
+        from tb_package
+        where type = 1
+    </select>
+
+    <!--充值套餐-->
+    <select id="getRechargePackageByCode" resultType="map">
+        select duration, duration_unit durationUnit from tb_package where product_id = #{productId}
+    </select>
+
+    <!--获取会员装饰-->
+    <select id="getMemberDecoration" resultType="java.util.Map">
+        select
+        t1.vip,
+        t1.exclusive_code rewardCode,
+        t1.exclusive_num number,
+        t2.one_category_id categoryId,
+        t2.product_name rewardName,
+        0 life
+        from
+        tb_member_interest t1
+        left join product_info t2 on t2.product_code = t1.exclusive_code
+        where t1.code = 'MI09' OR t1.code = 'MI10'
+        group by t1.exclusive_code
+    </select>
+</mapper>

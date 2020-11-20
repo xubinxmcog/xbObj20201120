@@ -1,0 +1,14 @@
+        // 消息提醒 消息号 10001
+package Platform.ModelC10000;
+option java_package = "com.enuos.live.proto.c10000msg";
+option java_outer_classname = "C10000";
+
+// 记录身份
+message C100001c2s {
+    required int32 identity = 1;// 用户身份 【0 普通用户 1 会员用户】
+    required string deviceId = 2; // 设备唯一标识
+    required string token = 3; // 令牌
+}
+// 被踢下线
+message C100002s2c {
+}

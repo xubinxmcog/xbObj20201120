@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GiftMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.Gift">
+        <id column="gift_id" property="giftId"/>
+        <result column="gift_name" property="giftName"/>
+        <result column="gift_price" property="giftPrice"/>
+        <result column="price_type" property="priceType"/>
+        <result column="exp_value" property="expValue"/>
+        <result column="gift_type" property="giftType"/>
+        <result column="gift_url" property="giftUrl"/>
+        <result column="dynamic_picture" property="dynamicPicture"/>
+        <result column="is_status" property="isStatus"/>
+        <result column="charm_value" property="charmValue"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    gift_id, gift_name, gift_price, price_type, exp_value, gift_type, gift_url, dynamic_picture, is_status,
+    charm_value, create_time, modified_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from gift
+        where gift_id = #{giftId} and is_status = 1
+    </select>
+
+    <select id="getList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from gift
+        where gift_type = 0 and is_status=1
+        order by sort asc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from gift
+    where gift_id = #{giftId,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="gift_id" keyProperty="giftId" parameterType="com.enuos.live.pojo.Gift"
+            useGeneratedKeys="true">
+    insert into gift (gift_name, gift_price, price_type, 
+      exp_value, gift_type, gift_url, dynamic_picture,
+      is_status, contribute_charm, carete_time, 
+      modified_time)
+    values (#{giftName,jdbcType=VARCHAR}, #{giftPrice,jdbcType=BIGINT}, #{priceType,jdbcType=BIGINT}, 
+      #{expValue,jdbcType=BIGINT}, #{giftType,jdbcType=TINYINT}, #{giftUrl,jdbcType=VARCHAR}, #{dynamicPicture,jdbcType=VARCHAR},
+      #{isStatus,jdbcType=TINYINT}, #{contributeCharm,jdbcType=BIGINT}, #{careteTime,jdbcType=TIMESTAMP}, 
+      #{modifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.Gift">
+        update gift
+        <set>
+            <if test="giftName != null">
+                gift_name = #{giftName,jdbcType=VARCHAR},
+            </if>
+            <if test="giftPrice != null">
+                gift_price = #{giftPrice,jdbcType=BIGINT},
+            </if>
+            <if test="priceType != null">
+                price_type = #{priceType,jdbcType=BIGINT},
+            </if>
+            <if test="expValue != null">
+                exp_value = #{expValue,jdbcType=BIGINT},
+            </if>
+            <if test="giftType != null">
+                gift_type = #{giftType,jdbcType=TINYINT},
+            </if>
+            <if test="giftUrl != null">
+                gift_url = #{giftUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="dynamicPicture != null">
+                dynamic_picture = #{dynamicPicture,jdbcType=VARCHAR},
+            </if>
+            <if test="isStatus != null">
+                is_status = #{isStatus,jdbcType=TINYINT},
+            </if>
+            <if test="contributeCharm != null">
+                contribute_charm = #{contributeCharm,jdbcType=BIGINT},
+            </if>
+            <if test="careteTime != null">
+                carete_time = #{careteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where gift_id = #{giftId,jdbcType=BIGINT}
+    </update>
+</mapper>

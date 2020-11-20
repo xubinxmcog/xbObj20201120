@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserCharmMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.UserCharm">
+        <id column="charm_id" property="charmId"/>
+        <result column="user_id" property="userId"/>
+        <result column="give_user_id" property="giveUserId"/>
+        <result column="gift_num" property="giftNum"/>
+        <result column="gift_id" property="giftId"/>
+        <result column="charm_value" property="charmValue"/>
+        <result column="gift_price" property="giftPrice"/>
+        <result column="price_type" property="priceType"/>
+        <result column="room_id" property="roomId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    charm_id, user_id, give_user_id, gift_num, gift_id, charm_value, gift_price, price_type, create_time, modified_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user_charm
+        where charm_id = #{charmId,jdbcType=BIGINT}
+    </select>
+    <select id="selectIsExistence" resultType="java.lang.Integer">
+        select
+          COUNT(1)
+        from user_charm
+        where user_id = #{userId} and give_user_id = #{giveUserId} and gift_id = #{giftId}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_charm
+    where charm_id = #{charmId,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="charm_id" keyProperty="charmId" parameterType="com.enuos.live.pojo.UserCharm"
+            useGeneratedKeys="true">
+    insert into user_charm (user_id, give_user_id, gift_num, 
+      gift_id, charm_value, gift_price,
+      price_type, room_id, create_time,
+      modified_time)
+    values (#{userId}, #{giveUserId}, #{giftNum},
+      #{giftId}, #{charmValue},#{giftPrice},
+      #{priceType}, #{roomId}, NOW(),
+      NOW())
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.UserCharm">
+        update user_charm
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="giveUserId != null">
+                give_user_id = #{giveUserId},
+            </if>
+            <if test="giftNum != null">
+                gift_num = #{giftNum},
+            </if>
+            <if test="giftId != null">
+                gift_id = #{giftId},
+            </if>
+            <if test="charmValue != null">
+                charm_value = #{charmValue},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where charm_id = #{charmId}
+    </update>
+    <update id="updateGiftNum" parameterType="com.enuos.live.pojo.UserCharm">
+        update user_charm
+        set
+            gift_num = gift_num + #{giftNum},
+            charm_value = charm_value + #{charmValue},
+            modified_time = NOW()
+        where
+            user_id = #{userId}
+            and give_user_id = #{giveUserId}
+            and gift_id = #{giftId}
+    </update>
+
+    <!--更新用户总魅力值-->
+    <update id="upUserCountCharm">
+        UPDATE `social_db`.`tb_user_account_attach`
+        SET `charm` = `charm` + #{charm}
+        WHERE
+            `user_id` = #{userId}
+    </update>
+
+    <select id="getDedicateRanking" resultType="java.util.Map">
+        SELECT
+            t1.give_user_id AS giveUserId,
+            sum( t1.charm_value ) AS charmValue,
+            t2.nick_name AS nickName,
+            t2.thumb_icon_url AS thumbIconUrl,
+            t2.sex,
+            t3.`level`
+        FROM
+            user_charm t1
+            LEFT JOIN tb_user t2 ON t1.give_user_id = t2.user_id
+            LEFT JOIN tb_user_account_attach t3 ON t1.give_user_id = t3.user_id
+        WHERE
+            t1.room_id = #{roomId}
+        GROUP BY
+            t1.give_user_id
+        ORDER BY
+            charmValue DESC
+            LIMIT #{limit}
+    </select>
+</mapper>

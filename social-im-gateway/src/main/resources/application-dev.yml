@@ -1,0 +1,119 @@
+#server
+server:
+  port: 7040
+  undertow:
+    direct-buffers: true
+    io-threads: 4
+    worker-threads: 160
+
+#spring
+spring:
+  application:
+    name: GATEWAY-SERVER
+  security:
+    user:
+      name: nanjing7le
+      password: enuos2020
+  #链路追踪
+  zipkin:
+    base-url: http://localhost:9771
+    sender:
+      type: web
+  sleuth:
+    sampler:
+      #100%采样
+      probability: 1.0
+  #redis
+  redis:
+    host: 192.168.0.50
+    port: 6379
+    password:
+    timeout: 20000
+    lettuce:
+      pool:
+        #最大连接数
+        max-active: 1024
+        #最大阻塞等待时间(负数表示没限制)
+        max-wait: 20000
+        #最大空闲
+        max-idle: 200
+        #最小空闲
+        min-idle: 10
+  #nacos注册中心
+  cloud:
+    nacos:
+      discovery:
+        #服务注册地址
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        # 配置sentinel dashboard地址
+        dashboard: localhost:8080
+        port: 8719
+      filter:
+        enabled: false
+
+    #spring cloud gateway 路由配置方式
+    gateway:
+      #是否与服务发现组件进行结合，通过 serviceId(必须设置成大写) 转发到具体的服务实例。默认为false，设为true便开启通过服务中心的自动根据 serviceId 创建路由的功能。
+      discovery:
+        #路由访问方式：http://Gateway_HOST:Gateway_PORT/大写的serviceId/**，其中微服务应用名默认大写访问。
+        locator:
+          enabled: true
+      routes:
+        - id: chat-route
+          uri: lb://CHAT-CENTER
+          predicates:
+            - Path=/chatApi/**
+          filters:
+            - StripPrefix=1
+        - id: game-route
+          uri: lb://GAME-CENTER
+          predicates:
+            - Path=/gameApi/**
+          filters:
+            - StripPrefix=1
+        - id: order-route
+          uri: lb://SOCIAL-IM-ORDER
+          predicates:
+            - Path=/orderApi/**
+          filters:
+            - StripPrefix=1
+        - id: manage-route
+          uri: lb://SOCIAL-IM-MANAGE
+          predicates:
+            - Path=/manageApi/**
+          filters:
+            - StripPrefix=1
+        - id: user-route
+          uri: lb://SOCIAL-IM-USER
+          predicates:
+            - Path=/userApi/**
+          filters:
+            - StripPrefix=1
+        - id: voice-route
+          uri: lb://SOCIAL-IM-VOICE
+          predicates:
+            - Path=/voiceApi/**
+          filters:
+            - StripPrefix=1
+        - id: post-route
+          uri: lb://SOCIAL-IM-POST
+          predicates:
+            - Path=/postApi/**
+          filters:
+            - StripPrefix=1
+        - id: activity-route
+          uri: lb://SOCIAL-IM-ACTIVITY
+          predicates:
+            - Path=/activityApi/**
+          filters:
+            - StripPrefix=1
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowedHeaders: "*"
+#            allowedOrigins: "*"
+#            allowedMethods:
+#              - GET
+#              - POST

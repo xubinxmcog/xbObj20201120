@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.AccountAttachMapper">
+
+    <!--附属信息初始化-->
+    <insert id="initAccountAttach" parameterType="java.lang.Long" useGeneratedKeys="true">
+        insert into tb_user_account_attach(
+        user_id
+        ) values (
+        #{userId}
+        )
+    </insert>
+    
+    <!--获取账号信息-->
+    <select id="getByUserId" parameterType="java.lang.Long" resultType="com.enuos.live.pojo.AccountAttach">
+        select
+        id, user_id, vip, growth, expiration_time, level, experience, gold, diamond, gashapon, worth, charm, create_time, update_time
+        from tb_user_account_attach
+        where user_id = #{userId}
+    </select>
+    
+    <!--更新-->
+    <update id="update" parameterType="com.enuos.live.pojo.AccountAttach">
+        update tb_user_account_attach
+        <set>
+            <if test="vip != null">
+                vip = #{vip},
+            </if>
+            <if test="growth != null">
+                growth = #{growth},
+            </if>
+            <if test="expirationTime != null">
+                expiration_time = #{expirationTime},
+            </if>
+            <if test="level != null">
+                level = #{level},
+            </if>
+            <if test="experience != null">
+                experience = #{experience},
+            </if>
+            <if test="gold != null">
+                gold = #{gold},
+            </if>
+            <if test="diamond != null">
+                diamond = #{diamond},
+            </if>
+            <if test="gashapon != null">
+                gashapon = #{gashapon},
+            </if>
+            <if test="worth != null">
+                worth = #{worth},
+            </if>
+            <if test="charm != null">
+                charm = #{charm}
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+</mapper>

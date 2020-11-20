@@ -1,0 +1,158 @@
+#server
+server:
+  port: 7109
+  undertow:
+    direct-buffers: true
+    io-threads: 4
+    worker-threads: 160
+
+#spring
+spring:
+  application:
+    name: SOCIAL-IM-USER
+  security:
+    user:
+      name: nanjing7le
+      password: enuos2020
+  zipkin:
+    base-url: http://localhost:9771
+    sender:
+      type: web
+  sleuth:
+    sampler:
+      #采样100%
+      probability: 1.0
+  #druid相关配置
+  datasource:
+    #如果存在多个数据源 监控的时候可以通过名字来区分
+    #name: mysql
+    #连接到数据库的url
+    url: jdbc:mysql://127.0.0.1:3306/social_db?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Hongkong
+    #连接数据库的账号
+    username: social
+    #连接数据库的密码
+    password: 4Ybn76@2019zyD
+    #驱动类名称
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    #配置druid
+    druid:
+      #初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时
+      initial-size: 10
+      #最大连接池数量
+      max-active: 40
+      #最小连接池数量
+      min-idle: 5
+      #获取连接时最大等待时间，单位毫秒
+      max-wait: 60000
+      #间隔多久进行一次检测，检测需要关闭的空闲连接
+      time-between-eviction-runs-millis: 60000
+      #连接保持空闲而不被驱逐的最长时间
+      min-evictable-idle-time-millis: 300000
+      #用来检测连接是否有效的sql
+      validation-query: SELECT 1 FROM DUAL
+      #申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis,执行validationQuery检测连接是否有效
+      test-while-idle: true
+      #申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+      test-on-borrow: false
+      #归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+      test-on-return: false
+      #是否缓存preparedStatement,即PSCache
+      pool-prepared-statements: true
+      #指定每个连接上PSCache的大小
+      max-pool-prepared-statement-per-connection-size: 20
+      #配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      #filters: stat,wall,log4j
+      #通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connect-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      #合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: true
+  #redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 20000
+    lettuce:
+      pool:
+        #最大连接数
+        max-active: 1024
+        #最大阻塞等待时间(负数表示没限制)
+        max-wait: 20000
+        #最大空闲
+        max-idle: 200
+        #最小空闲
+        min-idle: 10
+  #nacos注册中心
+  cloud:
+    nacos:
+      discovery:
+        #注册地址
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        #dashboard
+        dashboard: localhost:8088
+        port: 8719
+
+feign:
+  httpclient:
+    #是否启用httpclient
+    enabled: false
+    #请求连接超时时间（毫秒）
+    connection-timeout: 3000
+  okhttp:
+    #是否启用http-ok（性能比httpclient高）
+    enabled: true
+  hystrix:
+    #是否启用hystrix
+    enabled: true
+
+#日志
+logging:
+  level:
+    com.enuos.live: warn
+  config: classpath:logback-spring.xml
+
+#阿里云短信
+aliyun:
+  sms:
+    region-id: cn-hangzhou
+    access-key-id: LTAI4GGmEkNnbz5Nq3B8kbNJ
+    secret: niARnN93xkH3Cjp77DfHiPj8MicuVF
+    domain: dysmsapi.aliyuncs.com
+    action: SendSms
+    version: 2017-05-25
+    sign-name: 7LE
+    regist-template-code: SMS_190925137
+    login-template-code: SMS_190925139
+    on-off: true
+
+#任务
+task:
+  daily:
+    on-off: false
+
+#微信
+wechat:
+  appid: wx3a899175fadd3dac
+  secret: c3905f3a7700aef48ef93068f2ee30b4
+  grant-type: authorization_code
+
+#身份证
+idcard:
+  app-key: 203818668
+  app-secret: 3CaG4kxUrKbcqR2MR0IVgmoetAq0p6Kl
+  app-code: c9ea28dabaa447bc9755f6c92aac74e8
+  on-off: true
+
+#用户默认
+user:
+  default:
+    icon_file_id: 493
+    icon_url: https://7lestore.oss-cn-hangzhou.aliyuncs.com/picture/d8e2c38b88fe4eab884789a75166e8e0.png
+    thumb_icon_url: https://7lestore.oss-cn-hangzhou.aliyuncs.com/picture/d8e2c38b88fe4eab884789a75166e8e0.png
+
+#参数加解密
+data:
+  is-cipher: true

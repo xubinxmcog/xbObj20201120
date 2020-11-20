@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.CurrencyMapper">
+    
+    <!--获取钻石-->
+    <select id="getDiamond" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select diamond from tb_user_account_attach where user_id = #{userId}
+    </select>
+    
+    <!--更新钻石-->
+    <update id="updateDiamond">
+        update tb_user_account_attach set diamond = #{diamond} where user_id = #{userId}
+    </update>
+    
+    <!--获取金币-->
+    <select id="getGold" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select gold from tb_user_account_attach where user_id = #{userId}
+    </select>
+    
+    <!--修改金币-->
+    <update id="updateGold">
+        update tb_user_account_attach set gold = #{gold} where user_id = #{userId}
+    </update>
+</mapper>

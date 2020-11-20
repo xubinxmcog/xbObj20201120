@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserCharmHonorMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.UserCharmHonor">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="charm_value" jdbcType="BIGINT" property="charmValue"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, charm_value, `type`, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user_charm_honor
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_charm_honor
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.UserCharmHonor"
+            useGeneratedKeys="true">
+    insert into user_charm_honor (user_id, charm_value, `type`,
+      create_time)
+    values (#{userId,jdbcType=BIGINT}, #{charmValue,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.UserCharmHonor">
+        update user_charm_honor
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="charmValue != null">
+                charm_value = #{charmValue,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                `type` = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!--魅力,守护排行榜-->
+    <select id="getCharmDedicate" resultType="com.enuos.live.pojo.UserCharmHonor">
+      select
+        t1.${column} userId,
+        sum(t1.charm_value) totalValue,
+        DATE_FORMAT(t1.create_time,'%Y-%m-%d') as createTime
+      from user_charm t1
+      LEFT JOIN tb_user t2 ON t1.user_id = t2.user_id
+      where t1.create_time BETWEEN #{startTime} and #{endTime} group by userId
+      ORDER BY totalValue desc
+      limit #{limit}
+    </select>
+
+    <!--获取奖励配置-->
+    <select id="getTaskRewards" resultType="com.enuos.live.pojo.TaskReward">
+    select id,
+      task_code taskCode,
+      reward_code rewardCode,
+      life,
+      `number`,
+      suffix
+    from
+      tb_task_reward
+    where
+      task_code like CONCAT(#{taskCode}, '%')
+  </select>
+
+
+    <!--新增用户称号-->
+    <insert id="insertUserTitle" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.UserTitle"
+            useGeneratedKeys="true">
+    insert into tb_user_title (user_id, title_code, expire_time)
+    values (#{userId}, #{titleCode}, #{expireTime})
+  </insert>
+
+    <!--更新用户称号过期时间-->
+    <update id="updateUserTitle" parameterType="com.enuos.live.pojo.UserTitle">
+    update tb_user_title
+    set
+      expire_time = #{expireTime}
+    where id = #{id}
+  </update>
+
+
+    <!--获取用户称号-->
+    <select id="getUserTitle" resultType="com.enuos.live.pojo.UserTitle">
+    select
+      id,
+      user_id userId,
+      title_code titleCode,
+      expire_time expireTime
+    from
+      tb_user_title
+     where
+      user_id = #{userId}
+      and title_code = #{titleCode}
+  </select>
+
+</mapper>

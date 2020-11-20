@@ -1,0 +1,17 @@
+# 配置环境
+spring:
+  profiles:
+    active: dev
+    # .50
+    #active: pre
+    # .176
+    #active: test
+    # .234
+    #active: pro
+
+# 游戏接口
+game:
+  port: 9199
+
+logging:
+  config: classpath:logback-spring.xml

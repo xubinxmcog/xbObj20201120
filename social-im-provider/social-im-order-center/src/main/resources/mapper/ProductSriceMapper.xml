@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ProductPriceMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ProductPrice">
+    <id column="id" jdbcType="INTEGER" property="priceId" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="time_limit" jdbcType="INTEGER" property="timeLimit" />
+    <result column="pay_type1" jdbcType="INTEGER" property="payType1" />
+    <result column="pay_type2" jdbcType="INTEGER" property="payType2" />
+    <result column="price1" jdbcType="BIGINT" property="price1" />
+    <result column="price2" jdbcType="BIGINT" property="price2" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, product_id, time_limit, pay_type1, price1, pay_type2, price2, `status`, modify_time
+  </sql>
+ <!-- <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from product_price
+    where id = #{id}
+  </select>-->
+  <!--<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from product_price
+    where id = #{id,jdbcType=INTEGER}
+  </delete>-->
+  <!--<insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ProductPrice" useGeneratedKeys="true">
+    insert into product_price (product_id, pay_type, srice,
+      `status`, modify_time)
+    values (#{productId,jdbcType=BIGINT}, #{payType,jdbcType=INTEGER}, #{srice,jdbcType=BIGINT}, 
+      #{status,jdbcType=TINYINT}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>-->
+<!--  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ProductPrice" useGeneratedKeys="true">
+    insert into product_price
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="productId != null">
+        product_id,
+      </if>
+      <if test="payType != null">
+        pay_type,
+      </if>
+      <if test="srice != null">
+        srice,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="productId != null">
+        #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="payType != null">
+        #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="srice != null">
+        #{srice,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ProductPrice">
+    update product_price
+    <set>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="payType != null">
+        pay_type = #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="srice != null">
+        srice = #{srice,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.enuos.live.pojo.ProductPrice">
+    update product_price
+    set product_id = #{productId,jdbcType=BIGINT},
+      pay_type = #{payType,jdbcType=INTEGER},
+      srice = #{srice,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=TINYINT},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>-->
+</mapper>

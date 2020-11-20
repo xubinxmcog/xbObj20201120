@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ChatMessageInviteMapper">
+
+  <!--新增邀请记录-->
+  <insert id="newChatMessageInvite" parameterType="com.enuos.live.pojo.ChatMessageInvite"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO chat_message_invite
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="recordId != null">
+        record_id,
+      </if>
+      <if test="gameId != null">
+        game_id,
+      </if>
+      <if test="roomId != null">
+        room_id,
+      </if>
+      <if test="inviteTitle != null and inviteTitle != ''">
+        invite_title,
+      </if>
+      <if test="inviteImage != null and inviteImage != ''">
+        invite_Image,
+      </if>
+      <if test="inviteStatus != null">
+        invite_status,
+      </if>
+      <if test="acceptStatus != null">
+        accept_status,
+      </if>
+    </trim>
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+      <if test="recordId != null">
+        #{recordId,jdbcType=BIGINT},
+      </if>
+      <if test="gameId != null">
+        #{gameId,jdbcType=BIGINT},
+      </if>
+      <if test="roomId != null">
+        #{roomId,jdbcType=BIGINT},
+      </if>
+      <if test="inviteTitle != null and inviteTitle != ''">
+        #{inviteTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteImage != null and inviteImage != ''">
+        #{inviteImage,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteStatus != null">
+        #{inviteStatus,jdbcType=INTEGER},
+      </if>
+      <if test="acceptStatus != null">
+        #{acceptStatus,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <!--更新邀请记录-->
+  <update id="updateChatMessageInvite" parameterType="com.enuos.live.pojo.ChatMessageInvite">
+    UPDATE chat_message_invite
+    <set>
+      <if test="inviteStatus != null">
+        invite_status = #{inviteStatus,jdbcType=INTEGER},
+      </if>
+      <if test="acceptStatus != null">
+        accept_status = #{acceptStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+     WHERE record_id = #{recordId,jdbcType=BIGINT}
+  </update>
+
+  <select id="getMessageInviteInfo" parameterType="java.lang.Long"
+    resultType="com.enuos.live.pojo.ChatMessageInvite">
+      SELECT record_id     AS recordId,
+             game_id       AS gameId,
+             room_id       AS roomId,
+             invite_title  AS inviteTitle,
+             invite_Image  AS inviteImage,
+             invite_status AS inviteStatus,
+             accept_status AS acceptStatus,
+             create_time   AS createTime
+        FROM chat_message_invite
+       WHERE record_id = #{recordId,jdbcType=BIGINT}
+  </select>
+
+  <update id="updateInviteStatus">
+    UPDATE chat_message_invite
+       SET invite_status = 1
+     WHERE record_id IN
+     <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+       #{item}
+     </foreach>
+  </update>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.Thesaurus30051Mapper">
+
+  <insert id="insertNewWords" parameterType="com.enuos.live.pojo.Thesaurus30051"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO thesaurus30051 (
+      lexicon_mass,
+      lexicon_spy,
+      label_id,
+      submit_user
+    ) VALUES (
+      #{lexiconMass,jdbcType=VARCHAR},
+      #{lexiconSpy,jdbcType=VARCHAR},
+      #{labelId,jdbcType=INTEGER},
+      #{submitUser,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <select id="getWhoIsSpyWords" resultType="java.util.Map">
+    SELECT lexicon_mass AS lexiconMass,
+           lexicon_spy  AS lexiconSpy
+      FROM thesaurus30051
+     WHERE id >= ((SELECT MAX(id) FROM thesaurus30051) - (SELECT MIN(id) FROM thesaurus30051)) * RAND() + (SELECT MIN(id) FROM thesaurus30051)
+       AND lexicon_status = 1
+       AND audit_status = 1 LIMIT 1
+  </select>
+
+  <select id="findWordsIsExist" resultType="java.lang.Integer">
+    SELECT 1
+      FROM thesaurus30051
+     WHERE lexicon_mass LIKE CONCAT('%', #{massWords,jdbcType=VARCHAR}, '%')
+	     AND lexicon_spy LIKE CONCAT('%', #{spyWords,jdbcType=VARCHAR}, '%') LIMIT 1
+  </select>
+
+  <select id="getTodaySubmitQuantity" resultType="java.lang.Integer" parameterType="java.util.Map">
+    SELECT count(submit_user)
+      FROM thesaurus30051
+     WHERE submit_user = #{userId,jdbcType=BIGINT}
+       AND create_time BETWEEN #{startTime,jdbcType=VARCHAR} AND #{finishTime,jdbcType=VARCHAR}
+  </select>
+</mapper>

@@ -1,0 +1,108 @@
+//飞行棋
+package Platform.ModelF30021;
+option java_package = "com.enuos.live.proto.f30021msg";
+option java_outer_classname = "F30021";
+
+//加入游戏 0 
+message F30021S2C {
+  required int32 result = 1; //结果码 0 成功 1 房间已失效 2 获取数据失败，请重新匹配
+  required int32 roomType = 2; //房间类型 0 双人 1 四人
+  repeated PlayerInfo player = 3; //玩家信息
+}
+
+//玩家列表
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别
+  required int32 red = 5; //1.红 2.黄 3.蓝 4.绿  
+  required int32 playerStatus = 6; //玩家状态 0-游戏中 1-已结束 2-已离开.
+  optional GameStyle gameStyle = 7; //游戏风格 
+  repeated MAircraftInfo aircraftInfo = 8; //基地飞机
+  optional string iconFrame = 9; // 头像框
+}
+
+//游戏风格
+message GameStyle {
+  required string aircraftStyle = 1; //飞机风格
+}
+
+//开始游戏 1
+message F300211S2C {
+  required int64 actionUserId = 1; //操作玩家
+  required int32 actionTime = 2; //玩家操作时间
+}
+
+//掷骰子 2
+message F300212S2C {
+  required int32 diceNum = 1; //骰子值
+  required int64 actionUserId = 2; //操作玩家id
+  repeated AircraftInfo aircraftInfo = 3; //可移动飞机信息
+  required int64 nextUserID = 4; //下次玩家操作ID
+  required int32 actionTime = 5; //玩家操作时间
+}
+
+//飞机信息
+message AircraftInfo {
+  required int32 aircraftID = 1; //飞机ID
+  required int32 localPosition = 2; //飞机初始位置
+  required int32 isFly = 3; //跳越或者飞行 0.正常 1.跳越 2.飞行
+  repeated KillInfo killInfo = 4; //位置信息
+  optional int32 isFinish = 5; //是否结束
+}
+//击杀信息
+message KillInfo {
+  required int32 startFlyPosi = 1; //开始飞行的位置
+  optional bool isBeatRival = 2; //是否击落对方
+  optional int64 beatPosition = 3; //被击落玩家ID
+  repeated int32 beatAircraID = 4; //被击落玩家飞机ID
+}
+
+//移动飞机 3 
+message F300213C2S {
+  required int32 aircraftID = 1; //飞机ID
+}
+message F300213S2C {
+  required int64 actionUserId = 1; //操作玩家id
+  required AircraftInfo moveAircraftInfo = 2; //移动飞机信息
+  required int64 nextUserID = 3; //下一玩家操作ID
+  required int32 actionTime = 4; //玩家操作时间
+}
+
+//游戏结算 4
+message F300214S2C {
+  required int64 userID = 1; //胜利玩家ID
+  required int32 addExp = 2; //增加经验
+  required int32 addGold = 3; //增加金币
+  optional int32 isDouble=4;//默认是0  0.不加倍  1.加倍
+}
+
+//玩家认输 5 --> 返回结算
+message F300215S2C {
+  required int32 result = 1; //玩家认输结算
+}
+
+//断线重连 6
+message F300216S2C {
+  repeated PlayerInfo breakLineInfo = 1; //短线玩家消息
+  repeated MAircraftInfo aircraftFly = 2; //起飞数据
+  required int64 actionUserId = 3; //操作玩家
+  required int32 actionTime = 4; //操作时间
+}
+
+//飞机数据
+message MAircraftInfo {
+  required int32 aircraftID = 1; //飞机ID
+  required int32 newPosition = 2; //当前位置
+  required int32 isFinish = 3;//是否已飞到终点 0 否 1 是
+}
+
+//玩家退出 7
+message F300217S2C {
+  required int32 result = 1; //退出结果码
+  required int64 userID = 2; //退出玩家ID
+  repeated int32 aircraftFly = 3; //起飞数据
+  optional int64 nextUserID = 4; //下一个玩家ID
+  optional int32 actionTime = 5; //玩家操作时间
+}

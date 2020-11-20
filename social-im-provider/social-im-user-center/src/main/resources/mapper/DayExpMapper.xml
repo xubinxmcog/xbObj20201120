@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.DayExpMapper">
+
+    <!--初始化-->
+    <insert id="initDayExp" parameterType="java.lang.Long" useGeneratedKeys="true">
+        insert into tb_day_exp(
+        user_id
+        ) values (
+        #{userId}
+        )
+    </insert>
+
+    <!--更新-->
+    <update id="update">
+        update tb_day_exp
+        <set>
+            experience = #{experience},
+            update_time = #{updateTime},
+        </set>
+        where user_id = #{userId}
+    </update>
+</mapper>

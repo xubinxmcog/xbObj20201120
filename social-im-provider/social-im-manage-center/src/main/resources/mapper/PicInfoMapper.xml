@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PicInfoMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PicInfo">
+        <id column="id" property="id"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="pic_name" property="picName"/>
+        <result column="pic_new_name" property="picNewName"/>
+        <result column="pic_type" property="picType"/>
+        <result column="is_violation" property="isViolation"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, pic_url, pic_name, pic_new_name, pic_type,is_violation, modified_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from pic_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectPicUrl" resultType="java.util.Map">
+    select pic_url AS picUrl,
+    pic_new_name AS picNewName
+    from pic_info
+    where pic_new_name LIKE CONCAT('%',#{picNewName}, '%')
+</select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete from pic_info
+        where pic_new_name = #{picNewName}
+    </delete>
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from pic_info
+        where id = #{id}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PicInfo"
+            useGeneratedKeys="true">
+    insert into pic_info (pic_url, pic_name, pic_new_name, 
+      pic_type,is_violation, modified_time)
+    values (#{picUrl}, #{picName}, #{picNewName},
+      #{picType},0, NOW())
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PicInfo">
+        update pic_info
+        <set>
+            <if test="picUrl != null">
+                pic_url = #{picUrl},
+            </if>
+            <if test="picName != null">
+                pic_name = #{picName},
+            </if>
+            <if test="picNewName != null">
+                pic_new_name = #{picNewName},
+            </if>
+            <if test="picType != null">
+                pic_type = #{picType},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateIsViolation" parameterType="com.enuos.live.pojo.PicInfo">
+        update pic_info
+        set
+          is_violation = #{isViolation}
+        where
+          pic_new_name = #{picNewName}
+    </update>
+
+    <select id="queryPostResource" resultType="java.util.Map">
+        select
+          id AS id, url AS url, cover_url AS coverUrl, thumb_url AS thumbUrl
+        from
+          tb_post_resource
+        where
+          url = #{url}
+    </select>
+
+    <select id="queryVoiceRoomCoverUrl" resultType="java.util.Map">
+        select
+          id AS id, cover_url AS coverUrl
+        from
+          tb_voice_room
+        where
+          cover_url LIKE CONCAT(#{url}, '%')
+    </select>
+    <select id="queryBackgroundUrl" resultType="java.util.Map">
+        select
+          id AS id, background_url AS backgroundUrl
+        from
+          tb_user
+        where
+          background_url LIKE CONCAT(#{url}, '%')
+    </select>
+
+    <select id="queryVoiceRoomBackgroundUrl" resultType="java.util.Map">
+        select
+          id AS id, background_url AS backgroundUrl
+        from
+          tb_voice_room
+        where
+          background_url = #{url}
+    </select>
+
+    <select id="queryUrlUserHeader" resultType="java.util.Map">
+        select
+          id AS id, icon_url AS iconUrl, thumb_icon_url AS thumbIconUrl
+        from
+          tb_user
+        where
+          icon_url = #{iconUrl}
+    </select>
+
+    <select id="fileUrls" resultType="java.util.Map">
+        select
+          id, pic_new_name as picNewName
+        from pic_info
+        where pic_new_name like CONCAT('%', #{fileName}, '%')
+    </select>
+
+    <update id="updatePostResourceUrl">
+        update tb_post_resource
+        set
+          url = #{url},
+          cover_url = #{coverUrl},
+          thumb_url = #{thumbUrl}
+        where
+          id = #{id}
+    </update>
+
+    <update id="updateRoomUrl">
+        update tb_voice_room
+        <set>
+            <if test="coverUrl != null">
+                cover_url = #{coverUrl},
+            </if>
+            <if test="backgroundUrl != null">
+                background_url = #{backgroundUrl},
+            </if>
+        </set>
+        where
+          id = #{id}
+    </update>
+    <update id="updateUserHeader">
+        update tb_user
+        <set>
+            <if test="iconUrl != null">
+                icon_url = #{iconUrl},
+            </if>
+            <if test="thumbIconUrl != null">
+                thumb_icon_url = #{thumbIconUrl},
+            </if>
+            <if test="backgroundUrl != null">
+                background_url = #{backgroundUrl},
+            </if>
+        </set>
+        where
+          id = #{id}
+    </update>
+</mapper>

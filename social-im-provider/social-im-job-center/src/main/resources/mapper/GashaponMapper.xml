@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.GashaponMapper">
+
+    <!--获取cron-->
+    <select id="getGashaponCrontab" resultType="java.util.Map">
+        select
+        t1.code,
+        t2.cron
+        from tb_task t1
+        left join tb_job t2 on t2.task_code = t1.code
+        where t1.category = 6
+    </select>
+
+    <!--获取suffix-->
+    <select id="getSuffix" resultType="java.lang.String">
+        select
+        task_start_time
+        from tb_gashapon
+        where type = 1 and task_code = #{taskCode} and #{time} between start_time and end_time
+    </select>
+
+    <!--获取user-->
+    <select id="getJoinUser" resultType="com.enuos.live.pojo.GashaponUser">
+        select
+        id,
+        user_id userId,
+        join_count joinCount,
+        result
+        from tb_gashapon_record
+        where code = #{code}
+    </select>
+
+    <!--设置中奖用户-->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update tb_gashapon_record
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="result = case" suffix="end,">
+                <foreach collection="list" item="user">
+                    when id = #{user.id} then #{user.result}
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            and id in
+            <foreach collection="list" item="user" open="(" separator="," close=")">
+                #{user.id}
+            </foreach>
+        </where>
+    </update>
+
+    <!--获取奖励-->
+    <select id="getReward" parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        t1.number,
+        t1.life,
+        t2.code rewardCode,
+        t2.category_id categoryId,
+        t2.name rewardName
+        from tb_task_reward t1
+        left join tb_reward t2 on t2.code = t1.reward_code
+        where
+        t1.task_code = #{code}
+    </select>
+</mapper>

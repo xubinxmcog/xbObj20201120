@@ -1,0 +1,132 @@
+#server
+server:
+  port: 8151
+  undertow:
+    #是否分配的直接内存(NIO直接分配的堆外内存)
+    direct-buffers: true
+    #设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+    #不要设置过大，如果过大，启动项目会报错：打开文件数过多
+    io-threads: 16
+    #阻塞任务线程池, 当执行类似servlet请求阻塞IO操作, undertow会从这个线程池中取得线程
+    #它的值设置取决于系统线程执行任务的阻塞系数，默认值是IO线程数*8
+    worker-threads: 256
+    #以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
+    #每块buffer的空间大小,越小的空间被利用越充分，不要设置太大，以免影响其他应用，合适即可
+    buffer-size: 1024
+
+#spring 数据源
+spring:
+  security:
+    user:
+      name: nanjing7le
+      password: enuos2020
+  #链路追踪
+  zipkin:
+    base-url: http://localhost:9771
+    sender:
+      type: web
+  sleuth:
+    sampler:
+      #100%采样
+      probability: 1.0
+  #nacos注册中心
+  cloud:
+    nacos:
+      discovery:
+        #注册地址
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        #dashboard
+        dashboard: 192.168.0.50:8080
+        port: 8719
+  #druid 相关配置
+  datasource:
+    #如果存在多个数据源 监控的时候可以通过名字来区分
+    #name: mysql
+    #连接到数据库的url
+    url: jdbc:mysql://192.168.0.50:3306/social_game?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Hongkong
+    #连接数据库的账号
+    username: root
+    #连接数据库的密码
+    password: root
+    #驱动类名称
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    #配置druid
+    druid:
+      #初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时
+      initial-size: 10
+      #最大连接池数量
+      max-active: 40
+      #最小连接池数量
+      min-idle: 5
+      #获取连接时最大等待时间，单位毫秒
+      max-wait: 60000
+      #间隔多久进行一次检测，检测需要关闭的空闲连接
+      time-between-eviction-runs-millis: 60000
+      #连接保持空闲而不被驱逐的最长时间
+      min-evictable-idle-time-millis: 300000
+      #用来检测连接是否有效的sql
+      validation-query: SELECT 1 FROM DUAL
+      #申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis,执行validationQuery检测连接是否有效
+      test-while-idle: true
+      #申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+      test-on-borrow: false
+      #归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+      test-on-return: false
+      #是否缓存preparedStatement,即PSCache
+      pool-prepared-statements: true
+      #指定每个连接上PSCache的大小
+      max-pool-prepared-statement-per-connection-size: 20
+      #配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      #filters: stat,wall,log4j
+      #通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connect-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      #合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: true
+
+#feign
+feign:
+  sentinel:
+    #流量监控
+    enabled: true
+  httpclient:
+    #是否启用httpclient
+    enabled: false
+    #请求连接超时时间（毫秒）
+    connection-timeout: 3000
+  okhttp:
+    #是否启用http-ok（性能比httpclient高）
+    enabled: true
+#  hystrix:
+#    #是否启用hystrix
+#    enabled: true
+
+##Hystrix
+#hystrix:
+#  #这样将会自动配置一个 Hystrix 并发策略插件的 hook，这个 hook 会将 SecurityContext 从主线程传输到 Hystrix 的命令。
+#  #因为 Hystrix 不允许注册多个 Hystrix 策略，所以可以声明 HystrixConcurrencyStrategy
+#  #为一个 Spring bean 来实现扩展。Spring Cloud 会在 Spring 的上下文中查找你的实现，并将其包装在自己的插件中。
+#  shareSecurityContext: true
+#  command:
+#    default:
+#      circuitBreaker:
+#        #当在配置时间窗口内达到此数量的失败后，进行短路。默认20个
+#        requestVolumeThreshold: 1000
+#        #触发短路的时间值，当该值设为5000时，则当触发 circuit break 后的5000毫秒内都会拒绝request
+#        #也就是5000毫秒后才会关闭circuit。默认5000
+#        sleepWindowInMilliseconds: 15000
+#        #强制打开熔断器，如果打开这个开关，那么拒绝所有request，默认false
+#        forceOpen: false
+#        #强制关闭熔断器 如果这个开关打开，circuit将一直关闭且忽略，默认false
+#        forceClosed: false
+#      execution:
+#        isolation:
+#          thread:
+#            #熔断器超时时间，默认：1000/毫秒
+#            timeoutInMilliseconds: 10000
+
+#参数加解密
+data:
+  is-cipher: true

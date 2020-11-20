@@ -1,0 +1,72 @@
+// Platform.Model + classname >>>> java方式
+package Platform.ModelF20011;
+// 生成文件位置 >>>> java方式
+option java_package = "com.enuos.live.proto.f20011msg";
+// 生成class名称 >>>> java方式
+option java_outer_classname = "F20011";
+// 创建房间 >>>> 通讯协议 >>>> 消息号(唯一KEY) 20011
+// 协议定义格式:
+// enum 可以包含一个用户自定义的枚举类型uint32
+// message 可以包含一个用户自定义的消息类型
+// #########################################################
+// #                                                       #
+// #             F + 消息号 + 子消息号 + S2C/C2S             #
+// #                                                       #
+// #########################################################
+// 限定修饰符包含 required(必须)\optional(可选)\repeated(数组)等自行了解
+// 限定修饰符 | 数据类型 | 字段名称 | = | 字段编码值 |
+// remark:
+// F >>>> 协议标记(区分协议)
+// 消息号 >>>> 功能KEY 例如: 20001/20011
+// 子消息号 >>>> 操作编号 例如: 1/2/3/4/5
+// S2C >>>> Server to Client
+// C2S >>>> Client to Server
+
+// 谁是卧底 子消息号 1
+message F200111C2S {
+  required int32 playerNum = 1; //玩家人数 0-{4-6人} 1-{7-8人}
+  required int32 speakMode = 2; //交流方式 0-文字 1-语音
+}
+message F200111S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  optional int64 roomId = 2; //房间ID
+}
+
+// 狼人杀 子消息号 2
+message F200112C2S {
+  required int32 numberMatch = 1; //匹配人数 0-{6人} 1-{9人} 2-{12人}
+  required int32 screening = 2; //场次 1-普通场 2-进阶场
+}
+message F200112S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  optional int64 roomId = 2; //房间ID 
+}
+
+// 一起优诺/炸弹猫 子消息号 3
+message F200113C2S {
+  required int64 gameCode = 1; //游戏编号
+}
+message F200113S2C {
+  optional string error = 1; //金币不足提示
+  required int64 roomId = 2; //房间ID
+}
+
+// 七乐麻将 子消息号 4
+message F200114C2S {
+  required int32 gameMode = 1; //游戏方式 0-血战到底 1-血流到底
+  required int32 screening = 2; //场次 1-雀士场 2-雀杰场 3-雀豪场 4-雀圣场
+}
+message F200114S2C {
+  optional string error = 1; //金币不足提示
+  required int64 roomId = 2; //房间ID
+}
+
+// 七乐斗地主  子消息号 5
+message F200115C2S {
+  required int32 gameMode = 1; //游戏方式 0-经典 1-癞子
+  required int32 screening = 2; //场次 1-初级场 2-中级场 3-高级场 4-王者场
+}
+message F200115S2C {
+  optional string error = 1; //金币不足提示
+  required int64 roomId = 2; //房间ID
+}

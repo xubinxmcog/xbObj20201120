@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.TipOffGroupMapper">
+    <sql id="Base_Column_List">
+    id, user_id, user_name, group_id, admin_id, admin_name, report_cause, content, handle_id,
+        handle_name, handle_action, handle_status, create_time, update_time
+  </sql>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.TipOffs"
+            useGeneratedKeys="true">
+        insert into tb_report_group (
+            user_id,
+            user_name,
+            group_id,
+            admin_id,
+            admin_name,
+            report_cause,
+            content,
+            handle_id,
+            handle_name,
+            handle_action,
+            handle_status,
+            create_time,
+            update_time
+        ) values (
+            #{userId},
+            #{userName},
+            #{groupId},
+            #{groupAdminId},
+            #{groupAdminName},
+            #{reportCause},
+            #{content},
+            #{handleId},
+            #{handleName},
+            #{handleAction},
+            #{handleStatus},
+            NOW(),
+            NOW()
+        )
+    </insert>
+    <update id="update" parameterType="com.enuos.live.pojo.TipOffs">
+        update tb_report_group
+        <set>
+            <if test="handleId != null and handleId != 0">
+                handle_id = #{handleId},
+            </if>
+            <if test="handleName != null and handleName != ''">
+                handle_name = #{handleName},
+            </if>
+            <if test="handleAction != null and handleAction != 0">
+                handle_action = #{handleAction},
+            </if>
+            <if test="handleStatus != null and handleStatus != 0">
+                handle_status = #{handleStatus},
+            </if>
+            update_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="queryTipOffs" resultType="com.enuos.live.pojo.TipOffs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        (select GROUP_CONCAT(att.report_file SEPARATOR',') from tb_report_group_attach att where att.report_id = re.id)
+        as report_file
+        from tb_report_group re
+        <where>
+            <if test="handleAction != null and handleAction != ''">
+                and re.handle_action = #{handleAction}
+            </if>
+            <if test="handleStatus != null and handleStatus != ''">
+                and re.handle_status = #{handleStatus}
+            </if>
+            <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+                and re.update_time BETWEEN #{beginTime} and #{endTime}
+            </if>
+        </where>
+        order by re.update_time desc
+    </select>
+
+    <select id="queryByIdTipOff" parameterType="com.enuos.live.dto.TipOffsDTO" resultType="com.enuos.live.pojo.TipOffs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        (select GROUP_CONCAT(att.report_file SEPARATOR',') from tb_report_group_attach att where att.report_id = re.id)
+        as report_file
+        from tb_report_group re
+        where
+        re.id = #{id}
+    </select>
+
+    <select id="getGroupAdminId" resultType="java.lang.Long">
+        select group_admin FROM `group` where group_id=#{groupId}
+    </select>
+
+</mapper>

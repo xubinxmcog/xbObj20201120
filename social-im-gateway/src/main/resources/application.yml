@@ -1,0 +1,59 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: pro
+
+#日志
+logging:
+  level:
+    com.enuos.live.mapper: DEBUG
+  config: classpath:logback-spring.xml
+
+#白名单
+whitelist:
+  url:
+    /tip-offs/getCauseList
+    /system/newsNotice
+    /system/songAuditNotice
+    /system/topicAuditNotice
+    /system/infoAuditNotice
+    /system/memberAuditNotice
+    /system/punishmentNotice
+    /login/loginWithWeChat
+    /login/loginWithQQ
+    /login/loginWithApple
+    /login/loginWithSMS
+    /login/loginForWebWithSMS
+    /login/sendSMS
+    /user/getUserForRecharge
+    /account/regist
+    /common/label
+    /centerService/saveQuestionnairecallback
+    /centerService/agreement
+    /centerService/findAllSolveProblem
+    /centerService/versionCheck
+    /files/secret/uploadDocument
+    /files/scan/results/callback
+    /files/uploadFile
+    /homeMessage/getCampaign
+    /homeMessage/getBusinessEntry
+    /bs/gashapon/save
+    /product/getCategoryList
+    /product/getProductInfo
+    /product/rechargePackage
+    /payment/pricePayment
+    /payment/paymentVIP
+    /payment/aliPay/signVerified
+    /payment/aliPay/synCV
+    /payment/aliPay/phoneWeb
+    /payment/aliPay/pcWeb
+    /payment/aliPay/app
+    /payment/weChatPay/appSignSignatureAction
+    /payment/weChatPay/webSignSignatureAction
+    /payment/weChatPay/wapSignSignatureAction
+    /payment/weChatPay/native
+    /payment/weChatPay/callback
+    /7leNews/detail
+    /7leNews/list
+    /qiuri/getJackpot
+    /qiuri/initJackpot

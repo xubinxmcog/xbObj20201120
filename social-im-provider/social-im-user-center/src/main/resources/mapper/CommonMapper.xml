@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.CommonMapper">
+
+    <!--获取标签-->
+    <select id="getLabel" resultType="java.util.Map">
+        select
+        id,
+        name,
+        category
+        from tb_label
+        where category in (2, 3, 4, 5) and parent_id = 0
+    </select>
+
+    <!--获取用户信息-->
+    <select id="getUserBaseByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.sex,
+        date_format(t1.birth, '%Y-%m-%d') birth,
+        if(t3.position = 1, null, t1.area) area,
+        t1.icon_file_id iconFileId,
+        t1.icon_url iconUrl,
+        t1.thumb_icon_url thumbIconUrl,
+
+        t1.nick_name nickName,
+        t1.signature,
+
+        t2.level
+
+        from tb_user t1
+        left join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        left join user_settings t3 on t3.user_id = t1.user_id
+        where t1.user_id = #{userId}
+    </select>
+
+    <!--获取用户背景-->
+    <select id="getUserBackgroundByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        url backgroundUrl
+        from tb_user_resource
+        where user_id = #{userId} and resource_type = 0
+    </select>
+</mapper>

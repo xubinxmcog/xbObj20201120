@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.BusinessPayMsgMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.BusinessPayMsg">
+    <id column="id" property="id" />
+    <result column="user_id" property="userId" />
+    <result column="re_user_name" property="reUserName" />
+    <result column="open_id" property="openId" />
+    <result column="partner_trade_no" property="partnerTradeNo" />
+    <result column="amount" property="amount" />
+    <result column="desc" property="desc" />
+    <result column="result_code" property="resultCode" />
+    <result column="err_code"  property="errCode" />
+    <result column="err_code_des" property="errCodeDes" />
+    <result column="payment_no" property="paymentNo" />
+    <result column="payment_time" property="paymentTime" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, re_user_name, open_id, partner_trade_no, amount, `desc`, result_code, 
+    err_code, err_code_des, payment_no, payment_time, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from business_pay_msg
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.BusinessPayMsg" useGeneratedKeys="true">
+    insert into business_pay_msg (user_id, re_user_name, open_id, 
+      partner_trade_no, amount, `desc`, 
+      result_code, err_code, err_code_des, 
+      payment_no, payment_time)
+    values (#{userId}, #{reUserName}, #{openId},
+      #{partnerTradeNo}, #{amount,jdbcType=VARCHAR}, #{desc},
+      #{resultCode}, #{errCode}, #{errCodeDes},
+      #{paymentNo}, #{paymentTime})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.BusinessPayMsg">
+    update business_pay_msg
+    <set>
+      <if test="userId != null">
+        user_id = #{userId},
+      </if>
+      <if test="reUserName != null">
+        re_user_name = #{reUserName},
+      </if>
+      <if test="openId != null">
+        open_id = #{openId},
+      </if>
+      <if test="partnerTradeNo != null">
+        partner_trade_no = #{partnerTradeNo},
+      </if>
+      <if test="amount != null">
+        amount = #{amount},
+      </if>
+      <if test="desc != null">
+        `desc` = #{desc},
+      </if>
+      <if test="resultCode != null">
+        result_code = #{resultCode},
+      </if>
+      <if test="errCode != null">
+        err_code = #{errCode},
+      </if>
+      <if test="errCodeDes != null">
+        err_code_des = #{errCodeDes},
+      </if>
+      <if test="paymentNo != null">
+        payment_no = #{paymentNo},
+      </if>
+      <if test="paymentTime != null">
+        payment_time = #{paymentTime},
+      </if>
+    </set>
+    where partner_trade_no = #{partnerTradeNo} and result_code <![CDATA[<>]]> 'SUCCESS'
+  </update>
+
+    <select id="selectByOpenId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from business_pay_msg
+        where partner_trade_no = #{partnerTradeNo}
+    </select>
+    
+    <select id="getByOrderIdMoney" resultType="java.util.Map">
+        select
+          id,
+          user_id userId,
+          get_money getMoney,
+          order_status orderStatus
+        from
+          tb_money_get
+        where
+          order_id = #{orderId}
+    </select>
+    
+    <update id="upMoneyGet">
+        update tb_money_get
+        set
+          order_status = #{orderStatus}
+        where
+         order_id = #{orderId}
+    </update>
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.TeensModelMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.teens.pojo.TeensModel">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="teens_pwd" property="teensPwd"/>
+        <result column="salt" property="salt"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, teens_pwd, salt, `status`, create_time, update_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+    <include refid="Base_Column_List"/>
+        from tb_teens_model
+        where user_id = #{userId}
+    </select>
+
+    <select id="getSalt" resultType="java.lang.String">
+        SELECT
+          salt as salt
+        FROM
+          tb_teens_model
+        WHERE
+          user_id = #{id}
+  </select>
+
+    <select id="isPasswordRight" resultType="java.lang.Boolean">
+        SELECT
+          COUNT(1)
+        FROM
+          tb_teens_model
+        WHERE
+          teens_pwd = #{teensPwd}
+        AND salt = #{salt}
+  </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from tb_teens_model
+        where id = #{id}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.teens.pojo.TeensModel"
+            useGeneratedKeys="true">
+        insert into tb_teens_model (
+          user_id,
+          teens_pwd,
+          salt,
+          `status`,
+          create_time,
+          update_time
+          )
+        values (
+          #{userId},
+          #{teensPwd},
+          #{salt},
+          1,
+          NOW(),
+          NOW()
+          )
+    </insert>
+    <update id="update" parameterType="com.enuos.live.teens.pojo.TeensModel">
+        update tb_teens_model
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="teensPwd != null">
+                teens_pwd = #{teensPwd},
+            </if>
+            <if test="salt != null">
+                salt = #{salt},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            update_time = NOW()
+        </set>
+        where user_id = #{userId}
+    </update>
+    <delete id="delTeen" parameterType="long">
+        DELETE FROM tb_teens_model WHERE user_id = #{userId}
+    </delete>
+</mapper>

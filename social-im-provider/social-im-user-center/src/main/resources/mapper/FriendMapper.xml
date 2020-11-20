@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.FriendMapper">
+
+    <!--两个用户的关系-->
+    <select id="relation" parameterType="com.enuos.live.pojo.Friend" resultType="java.util.Map">
+        select t1.abIsExists, t1.abIsDel, t2.baIsExists, t2.baIsDel, t3.worth bWorth from(
+            select
+            count(1) abIsExists,
+            is_del abIsDel
+            from tb_user_friend
+            where user_id = #{userId} and friend_id = #{friendId}) t1
+        inner join (
+            select
+            count(1) baIsExists,
+            is_del baIsDel
+            from tb_user_friend
+            where user_id = #{friendId} and friend_id = #{userId}) t2
+        on 1 = 1
+        inner join
+            tb_user_account_attach t3
+        on 1 = 1 and t3.user_id = #{friendId}
+    </select>
+
+    <!--保存好友关系-->
+    <insert id="saveRelation" parameterType="com.enuos.live.pojo.Friend" useGeneratedKeys="true">
+        insert into tb_user_friend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            friend_id,
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{friendId},
+            <if test="remark != null">
+                #{remark},
+            </if>
+        </trim>
+    </insert>
+
+    <!--是否拉黑-->
+    <select id="isBlack" parameterType="com.enuos.live.pojo.Friend" resultType="java.lang.Integer">
+        select count(1) from tb_user_blacklist where user_id = #{friendId} and to_user_id = #{userId} and rating = 0
+    </select>
+
+    <!--更新好友关系-->
+    <update id="updateRelation" parameterType="com.enuos.live.pojo.Friend">
+        update tb_user_friend
+        set is_del = #{isDel}
+        where user_id = #{userId} and friend_id = #{friendId}
+    </update>
+
+    <!--获取好友列表-->
+    <select id="getFriendList" parameterType="com.enuos.live.pojo.Friend" resultType="java.util.Map">
+        select
+        t1.friend_id userId,
+        t1.remark,
+
+        t2.nick_name nickName,
+        t2.sex,
+        t2.thumb_icon_url thumbIconUrl,
+
+        t3.level
+        from tb_user_friend t1
+        inner join tb_user t2 on t2.user_id = t1.friend_id
+        inner join tb_user_account_attach t3 on t3.user_id = t1.friend_id
+        <where>
+            and t1.is_del = 0
+            and t1.user_id = #{userId}
+            <if test="nickName != null and nickName != ''">
+                and (t2.nick_name like concat('%', #{nickName}, '%') or t1.remark like concat('%', #{nickName}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <!--修改备注-->
+    <update id="updateFriend" parameterType="com.enuos.live.pojo.Friend">
+        update tb_user_friend
+        <set>
+            remark = #{remark}
+        </set>
+        <where>
+            and user_id = #{userId}
+            and friend_id = #{friendId}
+        </where>
+    </update>
+    
+    <!--获取好友人数-->
+    <select id="getFriendNum" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.vip,
+        count(t2.id) friendNum
+        from tb_user_account_attach t1
+        left join tb_user_friend t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        inner join tb_user t3 on t3.user_id = t2.friend_id and t3.is_del = 0
+        where t1.user_id = #{userId}
+    </select>
+</mapper>

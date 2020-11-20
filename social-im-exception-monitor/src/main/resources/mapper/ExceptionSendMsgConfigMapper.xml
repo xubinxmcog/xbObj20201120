@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.ExceptionSendMsgConfigMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.ExceptionSendMsgConfig">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="to_name" jdbcType="VARCHAR" property="toName" />
+    <result column="e_mail" jdbcType="VARCHAR" property="eMail" />
+    <result column="e_type" jdbcType="TINYINT" property="eType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="up_time" jdbcType="TIMESTAMP" property="upTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, to_name, e_mail, e_type, create_time, up_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from exception_send_msg_config
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from exception_send_msg_config
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.ExceptionSendMsgConfig" useGeneratedKeys="true">
+    insert into exception_send_msg_config (to_name, e_mail, e_type, 
+      create_time, up_time)
+    values (#{toName,jdbcType=VARCHAR}, #{eMail,jdbcType=VARCHAR}, #{eType,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.ExceptionSendMsgConfig">
+    update exception_send_msg_config
+    <set>
+      <if test="toName != null">
+        to_name = #{toName,jdbcType=VARCHAR},
+      </if>
+      <if test="eMail != null">
+        e_mail = #{eMail,jdbcType=VARCHAR},
+      </if>
+      <if test="eType != null">
+        e_type = #{eType,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="upTime != null">
+        up_time = #{upTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectUserEmail" resultType="java.lang.String">
+    select
+    e_mail eMail
+    from exception_send_msg_config
+    <where>
+      e_type = 0
+      <if test="eType != null">
+        or e_type = #{eType}
+      </if>
+    </where>
+  </select>
+</mapper>

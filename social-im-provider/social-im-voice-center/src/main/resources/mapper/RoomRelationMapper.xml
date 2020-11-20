@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RoomRelationMapper">
+
+    <!--获取房间和用户的关系-->
+    <select id="getRelation" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select relation from tb_voice_room_relation where from_id = #{fromId} and to_id = #{toId}
+    </select>
+
+    <!--保存-->
+    <insert id="save" parameterType="com.enuos.live.pojo.RelationPO">
+        insert into tb_voice_room_relation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            from_id,
+            to_id,
+            <if test="relation != null">
+                relation
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{fromId},
+            #{toId},
+            <if test="relation != null">
+                #{relation}
+            </if>
+        </trim>
+    </insert>
+
+    <!--删除-->
+    <delete id="delete" parameterType="com.enuos.live.pojo.RelationPO">
+        delete from tb_voice_room_relation where from_id = #{fromId} and to_id = #{toId} and relation = #{relation}
+    </delete>
+
+</mapper>

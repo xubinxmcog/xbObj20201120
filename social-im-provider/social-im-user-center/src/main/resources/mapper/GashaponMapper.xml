@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.GashaponMapper">
+
+    <!--扭蛋数-->
+    <select id="getNum" parameterType="java.lang.Long" resultType="java.util.Map">
+        select gashapon from tb_user_account_attach where user_id = #{userId}
+    </select>
+
+    <!--列表-->
+    <select id="getLotteryList" resultType="java.util.Map">
+        select
+        concat(t1.task_code, '_', t1.task_start_time) code,
+        t1.type,
+        t1.end_time endTime,
+        (t1.end_time - #{time}) countdown,
+
+        t2.background_url backgroundUrl,
+        t2.join_count joinCountLine,
+        t2.expend,
+
+        t3.number,
+        t3.life,
+        
+        t4.name rewardName,
+        t4.category_id categoryId,
+        t4.description,
+        t4.url,
+
+        if(t5.join_count is null, 0, t5.join_count) joinCount,
+
+        (select count(distinct user_id) from tb_gashapon_record where code = concat(#{prefix}, t1.task_code, '_', t1.task_start_time)) joinNum
+
+        from tb_gashapon t1
+        left join tb_task t2 on t2.code = t1.task_code and t2.category = 6
+        left join tb_task_reward t3 on t3.task_code = t1.task_code
+        left join tb_reward t4 on t4.code = t3.reward_code
+        left join tb_gashapon_record t5 on t5.code = concat(#{prefix}, t1.task_code, '_', t1.task_start_time) and t5.user_id = #{userId}
+        <where>
+            and #{time} <![CDATA[>=]]> t1.start_time and #{time} <![CDATA[<]]> t1.end_time
+        </where>
+        order by t2.type, t2.sort
+    </select>
+
+    <!--获取扭蛋活动相关设置信息-->
+    <select id="getSettingsByCode" resultType="java.util.Map">
+        select
+        t1.expend,
+        t1.join_count joinCountLine,
+        t1.start_time taskStartTime,
+        t1.end_time taskEndTime,
+
+        t2.start_time startTime,
+        t2.end_time endTime
+
+        from tb_task t1
+        left join tb_gashapon t2 on t1.code = t2.task_code and t2.type = 0 and t2.task_start_time = #{suffix}
+        where t1.code = #{code}
+    </select>
+
+    <!--是否参加-->
+    <select id="isJoin" resultType="java.util.Map">
+        select
+        user_id userId,
+        code,
+        join_count joinCount,
+        result
+        from tb_gashapon_record
+        where user_id = #{userId} and code = #{code}
+    </select>
+
+    <!--保存记录-->
+    <insert id="saveGashaponRecord" useGeneratedKeys="true">
+        insert into tb_gashapon_record (user_id, code, join_count, result, create_time) values (#{userId}, #{code}, #{joinCount}, #{result}, #{createTime})
+    </insert>
+
+    <!--更新记录-->
+    <update id="updateGashaponRecord">
+        update tb_gashapon_record
+        set join_count = #{joinCount}
+        where user_id = #{userId} and code = #{code}
+    </update>
+
+    <!--获取开奖结果-->
+    <select id="getResult" resultType="java.lang.Integer">
+        select result from tb_gashapon_record where user_id = #{userId} and code = #{code}
+    </select>
+
+    <!--兑换列表-->
+    <select id="getExchangeList" resultType="java.util.Map">
+        select
+        t1.code,
+        t1.background_url backgroundUrl,
+        t1.join_count joinCountLine,
+        t1.expend,
+        
+        t2.life,
+        t2.number,
+
+        t3.name rewardName,
+        t3.category_id categoryId,
+        t3.description,
+        t3.url,
+
+        ifnull(t4.join_count, 0) joinCount
+
+        from tb_task t1
+        left join tb_task_reward t2 on t2.task_code = t1.code
+        left join tb_reward t3 on t3.code = t2.reward_code
+        left join tb_gashapon_record t4 on t4.code = concat(#{prefix}, t1.code) and t4.user_id = #{userId}
+        where
+        t1.category = 7
+        order by t1.type, t1.sort
+    </select>
+
+    <!--获取参与次数上限-->
+    <select id="getSettingsForExchange" parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        join_count joinCountLine,
+        expend
+        from tb_task
+        where code = #{code}
+    </select>
+
+    <!--获取奖励-->
+    <select id="getReward" parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        t1.number,
+        t1.life,
+        t2.code rewardCode,
+        t2.category_id categoryId,
+        t2.name rewardName
+        from tb_task_reward t1
+        left join tb_reward t2 on t2.code = t1.reward_code
+        where
+        t1.task_code = #{code}
+    </select>
+
+    <!--中奖记录-->
+    <select id="lotteryRecordPage" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.result,
+        date_format(t1.create_time, '%Y-%m-%d %H:%i') createTime,
+        t3.number,
+        t4.end_time endTime,
+        t5.name rewardName,
+        t5.url
+        from tb_gashapon_record t1
+        inner join tb_task t2 on t2.code = split_str(t1.code, '_', 2) and t2.category = 6
+        left join tb_task_reward t3 on t3.task_code = t2.code
+        left join tb_gashapon t4 on t4.task_code = t3.task_code and t4.task_start_time = split_str(t1.code, '_', 3) and t4.type = 0
+        left join tb_reward t5 on t5.code = t3.reward_code
+        where t1.user_id = #{userId}
+        order by t1.create_time desc
+    </select>
+
+    <!--兑换记录-->
+    <select id="exchangeRecordPage" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        date_format(t1.create_time, '%Y-%m-%d %H:%i') createTime,
+        t3.number,
+        t4.name rewardName,
+        t4.url
+        from tb_gashapon_record t1
+        inner join tb_task t2 on t2.code = split_str(t1.code, '_', 2) and t2.category = 7
+        left join tb_task_reward t3 on t2.code = t3.task_code
+        left join tb_reward t4 on t4.code = t3.reward_code
+        where t1.user_id = #{userId}
+        order by t1.create_time desc
+    </select>
+</mapper>

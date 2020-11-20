@@ -1,0 +1,189 @@
+//你说我猜
+package Platform.ModelF30061;
+option java_package = "com.enuos.live.proto.f30061msg";
+option java_outer_classname = "F30061";
+
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别 1-男 2-女
+  required int32 deviPosition = 5; //玩家座位「例如：1」
+  required int32 state = 6; //玩家状态 0-未准备 1-已准备 2-已离开
+  optional string iconFrame = 7; // 头像框
+  optional int32 startTime = 8; //开始时间「默认：15(s)」
+}
+
+//进入游戏 0 
+message F30061S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败 2-失效
+  repeated PlayerInfo seatPlayer = 2; //玩家信息
+}
+
+//玩家准备 1 
+message F300611C2S {
+  required int32 isReady = 1; //准备状态 0-准备 1-取消
+}
+message F300611S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  required int32 isReady = 2; //准备状态 0-准备 1-取消
+  optional int64 userID = 3; //玩家ID
+  optional int32 gameTime = 4; //开始倒计时「默认：10(s)」
+}
+
+//开始游戏
+message F300612S2C {
+  required int64 nextUserID = 1; //操作玩家ID
+  required int32 times = 2; //操作时间
+  repeated string wordList = 3; //玩家选词
+  required int32 lastChangeNum = 4; //剩余换词次数
+}
+
+//玩家选词
+message F300613C2S {
+  required string words = 1; //玩家选词
+}
+//选词描述玩家和可以回答的玩家
+message F300613S2C {
+  required int32 result = 1; //选词结果码
+  required int64 userID = 2; //开始表述玩家ID
+  required string wordHint = 3; //词语提示
+  repeated int64 answerUserID = 4; //可以猜词的UserID
+  required int32 describeTimes = 5; //描述时间
+  required int32 wordNum = 6; //字数
+  optional string words=7;//玩家选词
+}
+
+//4.按下描述
+//5.抬起描述按钮
+//6.玩家描述
+message F300616C2S {
+  required string word = 1; //输入答案
+}
+//6.描述结果
+message F300616S2C{
+  required int32 describeResult=1;//玩家描述结果 0.成功 1.失败
+  required int32 score=2;//玩家得分
+  required int64 userID=3;//描述玩家ID
+  required int32 allScore=4;//玩家总分
+}
+
+// 个人信息
+message F300617S2C {
+  required string nick = 1; //玩家昵称
+  required string describeWord = 2; //词语
+  required string icon = 3; //玩家头像
+  required int32 sex = 4; //玩家性别
+  required int64 userID=5;//描述玩家ID
+}
+
+// 送花返回
+message F300618S2C {
+  required string icon = 1; //玩家头像
+  required string nick = 2; //玩家昵称
+}
+
+//游戏结算 9
+message F300619S2C {
+  repeated SettlementPlayerInf settlementInf = 1; //玩家结算信息
+}
+message SettlementPlayerInf {
+  required string nick = 1; //玩家昵称
+  required string icon = 2; //玩家头像
+  required int32 sex = 3; //玩家性别
+  required int32 expNumber = 4; //玩家经验
+  optional int32 isDouble=5;//默认是0  0.不加倍  1.加倍
+}
+
+//观战信息 10
+message F3006110S2C {
+  required PlayerInfo nowUser = 1; //当前玩家
+  required bool isCanAction = 2; //是否可以操作「例如：true」
+  required int32 nowStatus = 3; //当前状态 0-坐下 1-站起
+  repeated string watchUser = 4; //观战玩家
+}
+
+//站起&坐下 11
+message F3006111C2S {
+  required int32 isStand = 1; //玩家操作 0-站起 1-坐下
+}
+message F3006111S2C {
+  required int32 stand = 1; //玩家操作 0-站起 1-坐下
+  required int32 result = 2; //结果码 0-成功 1-失败
+  optional int32 seatNo = 3; //座位编号「例如：4」
+  optional PlayerInfo joinInfo = 4; //玩家信息
+}
+
+//清除玩家 12
+message F3006112S2C {
+  repeated int64 userID = 1; // 玩家ID列表 
+}
+
+//断线重连 13
+message F3006113S2C {
+  optional int32 gameTime = 1; // 游戏时间
+  repeated PlayerInfo breakLineInfo = 2; //玩家信息
+  optional F300612S2C selectWords = 3; // 选词信息
+  optional F300613S2C startSpeak = 4; // 开始描述
+  repeated F300616S2C speakInfo = 5; // 得分信息
+  optional F300617S2C PlayerInfo = 6; // 玩家信息
+}
+
+//换词操作 14
+message F3006114S2C {
+  repeated string wordList = 1; //玩家选词
+  required int32 lastChangeNum = 2; //剩余换词次数
+}
+
+//描述信息 15 
+message F3006115S2C {
+  required int64 speakId=1; //说话玩家
+  required int64 wordsId = 2; //描述玩家
+  required string icon = 3; //玩家头像
+  required string nick = 4; //玩家昵称
+  required bool isTrue = 5; //是否正确
+  required string hideMessage = 6; //隐藏消息[正确]
+  required string showMessage = 7; //正常消息[描述玩家可见]
+  required string filterMessage = 8; //过滤消息[不正确.除描述玩家.均可见]
+}
+
+//词汇提示 16
+message F3006116S2C{
+  required int32 wordNum = 1; //字数
+  required string hintWord= 2; //提示词
+}
+
+//倒计显示 17
+message F3006117S2C{
+  required int32 times=1; //倒计时
+}
+
+//退出游戏 18
+message F3006118S2C {
+  required int32 result = 1; //退出结果码 0-成功 1-失败
+  optional int64 userID = 2; //退出玩家ID
+}
+
+//选择位置 19
+message F3006119C2S {
+  required int32 seatNo = 1; //座位号
+}
+message F3006119S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  required int64 userID = 2; //玩家ID
+  optional int32 seatNo = 3; //座位编号「例如：4」
+  optional PlayerInfo joinInfo = 4; //玩家信息
+}
+
+// 聊天内容
+message F3006120C2S {
+  required string message = 1; // 消息内容  
+}
+message F3006120S2C {
+  required int32 type = 1; //消息类型 0「法官」 1「玩家」
+  optional string icon = 2; //玩家头像「例如：http://pic1.zhimg.com/50/v2-fbe356c74816b9b3cfcf80ff1758fbd4_hd.jpg」
+  optional string nick = 3; //玩家昵称「例如：Lake😀」
+  required string message = 4; // 消息内容 
+  required int64 userID=5; //玩家UserID
+}

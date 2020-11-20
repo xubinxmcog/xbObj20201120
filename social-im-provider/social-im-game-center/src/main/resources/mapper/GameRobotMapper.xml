@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GameRobotMapper">
+
+  <!--获得机器人-->
+  <select id="getRandomGameRobot" resultType="java.util.Map">
+    SELECT robot_id     AS robotId,
+           robot_sex    AS robotSex,
+           robot_avatar AS robotAvatar,
+           robot_name   AS robotName
+      FROM game_robot
+     WHERE id >= ((SELECT MAX(id) FROM game_robot) - (SELECT MIN(id) FROM game_robot)) * RAND() + (SELECT MIN(id) FROM game_robot)
+       AND robot_active = 1 LIMIT #{number,jdbcType=INTEGER}
+  </select>
+
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ChatMessageMapper">
+
+  <!--新增聊天记录-->
+  <insert id="newChatMessage" parameterType="com.enuos.live.pojo.ChatMessage"
+    useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO chat_message
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="targetId != null">
+        target_id,
+      </if>
+      <if test="message != null">
+        message,
+      </if>
+      <if test="messageId != null and messageId != ''">
+        message_id,
+      </if>
+      <if test="messageType != null">
+        message_type,
+      </if>
+      <if test="messageRead != null">
+        message_read,
+      </if>
+      <if test="messageAction != null">
+        message_action,
+      </if>
+      <if test="messageEmojiUrl != null">
+        message_emoji_url,
+      </if>
+      <if test="messageEmojiName != null">
+        message_emoji_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="targetId != null">
+        #{targetId,jdbcType=BIGINT},
+      </if>
+      <if test="message != null">
+        #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="messageId != null and messageId != ''">
+        #{messageId,jdbcType=VARCHAR},
+      </if>
+      <if test="messageType != null">
+        #{messageType,jdbcType=INTEGER},
+      </if>
+      <if test="messageRead != null">
+        #{messageRead,jdbcType=INTEGER},
+      </if>
+      <if test="messageAction != null">
+        #{messageAction,jdbcType=INTEGER},
+      </if>
+      <if test="messageEmojiUrl != null">
+        #{messageEmojiUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="messageEmojiName != null">
+        #{messageEmojiName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateMessageAction" parameterType="java.lang.Long">
+    UPDATE chat_message
+       SET message_action = 1
+     WHERE id = #{recordId,jdbcType=BIGINT}
+  </update>
+
+  <!--获得聊天记录-->
+  <select id="getChatMessageList" parameterType="java.util.Map" resultType="java.util.Map">
+    SELECT a.*
+      FROM (
+         ( SELECT id                 AS recordId,
+                  user_id            AS userId,
+                  message            AS message,
+                  message_id         AS messageId,
+                  message_type       AS messageType,
+                  message_action     AS isAction,
+                  message_emoji_url  AS emojiUrl,
+                  message_emoji_name AS emojiName,
+                  create_time        AS createTime
+             FROM chat_message
+            <where>
+              <if test="userId != null">
+                AND user_id = #{userId,jdbcType=BIGINT}
+              </if>
+              <if test="targetId != null">
+                AND target_id = #{targetId,jdbcType=BIGINT}
+              </if>
+              <if test="targetId != null">
+                AND message_type <![CDATA[ < ]]> 8
+              </if>
+              <if test="indexTime != null and indexTime != '' ">
+                AND create_time >= #{indexTime,jdbcType=VARCHAR}
+              </if>
+            </where>
+         ) UNION ALL
+         ( SELECT id                 AS recordId,
+                  user_id            AS userId,
+                  message            AS message,
+                  message_id         AS messageId,
+                  message_type       AS messageType,
+                  message_action     AS isAction,
+                  message_emoji_url  AS emojiUrl,
+                  message_emoji_name AS emojiName,
+                  create_time        AS createTime
+             FROM chat_message
+            <where>
+              <if test="targetId != null">
+                AND user_id = #{targetId,jdbcType=BIGINT}
+              </if>
+              <if test="userId != null">
+                AND target_id = #{userId,jdbcType=BIGINT}
+              </if>
+              <if test="userId != null">
+                AND message_type <![CDATA[ < ]]> 8
+              </if>
+              <if test="indexTime != null and indexTime != '' ">
+                AND create_time >= #{indexTime,jdbcType=VARCHAR}
+              </if>
+            </where>
+         )
+           ) AS a
+     ORDER BY a.createTime DESC
+  </select>
+
+</mapper>

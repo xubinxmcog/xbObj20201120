@@ -1,0 +1,102 @@
+//斗兽棋
+package Platform.ModelF30011;
+option java_package = "com.enuos.live.proto.f30011msg";
+option java_outer_classname = "F30011";
+
+//玩家进入 0
+message F30011S2C {
+  required int32 result = 1; //结果码 0 成功 1 房间已失效 2 获取数据失败，请重新匹配
+  repeated PlayerInfo player = 2; //玩家信息
+}
+
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别
+  required int32 red = 5; //1红方 2.蓝方
+  repeated MPosition mPosition = 6; // 棋子位置
+  optional GameStyle gameStyle = 7; //游戏风格 
+  optional string iconFrame = 8; // 头像框
+}
+
+//游戏风格
+message GameStyle {
+  repeated ChessStyle chessStyle = 1; //棋子风格
+}
+
+//棋子风格
+message ChessStyle {
+  required int32 beastId = 1; //动物ID
+  required string sheetNumber = 2; //图片编号
+}
+
+//开始游戏 1
+message F300111S2C {
+  required int64 actionUserId = 1; //操作玩家
+  required int32 actionTime = 2; //玩家操作时间
+}
+
+//玩家移动 2
+message F300112C2S {
+  required MPosition initPosition = 1; //初始坐标
+  required MPosition movePosition = 2; //结束坐标
+  required int32 initBeastId = 3; //初始移动兽ID
+  optional int32 moveBeastId = 4; //移动到兽ID
+}
+
+//棋子数据
+message MPosition {
+  required int32 positionX = 1; //玩家X轴坐标
+  required int32 positionY = 2; //玩家Y轴坐标
+  optional int32 beastId = 3; //兽ID
+  optional int32 isnull = 4; //0 空 1 未翻起 2已翻起
+}
+
+//移动返回 2
+message F300112S2C {
+  optional MPosition initPosition = 1; //初始坐标
+  optional MPosition movePosition = 2; //结束坐标
+  required int32 isMove = 3; //0.不可移动 1.移动 2.击杀 3.被击杀 4 同归于尽
+  required int32 initBeastId = 4; //初始移动兽ID
+  optional int32 moveBeastId = 5; //移动到兽ID
+  optional int64 actionUserId = 6; //当前操作玩家
+  optional int64 nextUserID = 7; //下次玩家操作ID
+  optional int32 actionTime = 8; //玩家操作时间
+}
+
+//翻转位置 3
+message F300113C2S {
+  required MPosition downPosition = 1; //点击翻转
+}
+message F300113S2C {
+  optional int64 actionUserId = 1; //当前操作玩家
+  optional MPosition downPosition = 2; //点击翻转位置
+  optional int32 beastId = 3; //翻转兽ID
+  optional int64 nextUserID = 4; //下次玩家操作ID
+  optional int32 actionTime = 5; //玩家操作时间
+  required int32 status = 6; //操作状态码 0.正常操作  1.操作失败
+}
+
+//游戏结算 4
+message F300114S2C {
+  required int64 userID = 1; //胜利玩家ID
+  required int32 addExp = 2; //增加经验
+  required int32 addGlod = 3; // 增加金币
+  optional int32 isDouble=4;//默认是0  0.不加倍  1.加倍
+}
+
+//玩家认输 5--> 返回结算
+message F300115S2C {
+  required int32 result = 1; //玩家认输结算
+}
+
+//断线
+message F300116S2C {
+  repeated PlayerInfo breakLineInfo = 1; //短线玩家消息
+  required int64 actionUserId = 2; //操作玩家
+  required int32 actionTime = 3; //玩家操作时间
+}
+
+// 7 结算之后点击确定 给服务器发消息 服务器给App端发消息关闭游戏

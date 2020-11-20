@@ -1,0 +1,10 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: dev
+
+#日志
+logging:
+  level:
+    com.enuos.live.mapper: DEBUG
+  config: classpath:logback-spring.xml

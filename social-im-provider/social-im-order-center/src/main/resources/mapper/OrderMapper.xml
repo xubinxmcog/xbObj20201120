@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.OrderMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.OrderMsg">
+        <id column="order_id" property="orderId"/>
+        <result column="order_sn" property="orderSn"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_cnt" property="productCnt"/>
+        <result column="product_quota" property="productQuota"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="rmb_method" property="rmbMethod"/>
+        <result column="trade_type" property="tradeType"/>
+        <result column="order_money" property="orderMoney"/>
+        <result column="district_money" property="districtMoney"/>
+        <result column="payment_money" property="paymentMoney"/>
+        <result column="create_time" property="createTime"/>
+        <result column="pay_time" property="payTime"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="is_handle" property="isHandle"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    order_id, order_sn, user_id, product_type, product_id, product_code, product_name,
+    product_cnt, product_quota, payment_method, rmb_method,trade_type, order_money, district_money, payment_money,
+    create_time, pay_time, order_status,is_handle
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_msg
+        <where>
+            <if test="orderSn != null">
+                order_sn = #{orderSn}
+            </if>
+            <if test="orderId != null">
+                AND order_id = #{orderId}
+            </if>
+            <if test="orderStatus != null">
+                AND order_status = #{orderStatus}
+            </if>
+            <if test="rmbMethod != null">
+                AND rmb_method = #{rmbMethod}
+            </if>
+            <if test="createTime != null">
+                AND create_time <![CDATA[ < ]]> #{createTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOrderStatus2" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_msg
+        <where>
+            order_status = 2
+            <if test="createTime != null">
+                and create_time <![CDATA[ < ]]> #{createTime}
+            </if>
+            and rmb_method in(1,2)
+            limit 100
+        </where>
+    </select>
+    <insert id="insert" keyColumn="order_id" keyProperty="orderId" parameterType="com.enuos.live.pojo.OrderMsg"
+            useGeneratedKeys="true">
+    insert into order_msg (order_sn, user_id, product_type,
+      product_id, product_code, product_name, 
+      product_cnt, product_quota, payment_method,
+      rmb_method, trade_type,order_money, district_money,
+      payment_money, create_time, pay_time, order_status,is_handle
+      )
+    values (#{orderSn}, #{userId}, #{productType},
+      #{productId}, #{productCode}, #{productName},
+      #{productCnt}, #{productQuota}, #{paymentMethod},
+      #{rmbMethod}, #{tradeType}, #{orderMoney}, #{districtMoney},
+      #{paymentMoney}, NOW(), #{payTime}, #{orderStatus},0
+      )
+  </insert>
+    <update id="update" parameterType="com.enuos.live.pojo.OrderMsg">
+        update order_msg
+        <set>
+            <if test="tradeType != null">
+                trade_type = #{tradeType},
+            </if>
+            <if test="rmbMethod != null">
+                rmb_method = #{rmbMethod,jdbcType=TINYINT},
+            </if>
+            <if test="paymentMoney != null">
+                payment_money = #{paymentMoney},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderStatus != null">
+                order_status = #{orderStatus,jdbcType=TINYINT},
+            </if>
+            <if test="isHandle != null">
+                is_handle = #{isHandle,jdbcType=TINYINT},
+            </if>
+        </set>
+        <where>
+            <if test="orderSn != null">
+                order_sn = #{orderSn,jdbcType=BIGINT}
+            </if>
+            <if test="orderId != null">
+                AND order_id = #{orderId,jdbcType=BIGINT}
+            </if>
+            <if test="orderMoney != null">
+                AND order_money = #{orderMoney}
+            </if>
+            AND order_status = 2
+        </where>
+    </update>
+
+    <update id="updateHandle">
+        update order_msg
+        set
+            is_handle = #{isHandle}
+        where
+            order_sn = #{orderSn}
+    </update>
+</mapper>

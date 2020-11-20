@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserMusicListMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.UserMusicList">
+    <id column="id" property="id" />
+    <result column="user_id" property="userId" />
+    <result column="music_id" property="musicId" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+
+  <resultMap id="BaseUserMusicMap" type="com.enuos.live.pojo.UserMusic">
+    <id column="music_id" property="musicId"/>
+    <result column="user_id" property="userId"/>
+    <result column="user_name" property="userName"/>
+    <result column="music_name" property="musicName"/>
+    <result column="music_singer" property="musicSinger"/>
+    <result column="music_album" property="musicAlbum"/>
+    <result column="music_url" property="musicUrl"/>
+    <result column="music_cover" property="musicCover"/>
+    <result column="is_status" property="isStatus"/>
+    <result column="create_time" property="createTime"/>
+    <result column="modified_time" property="modifiedTime"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_id, music_id, crtate_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_music_list
+    where id = #{id}
+  </select>
+
+  <select id="selectDoesItExist" resultType="java.lang.Integer">
+    select
+    count(1)
+    from user_music_list
+    where
+      user_id = #{userId}
+      and music_id = #{musicId}
+  </select>
+
+  <select id="getUserMusics" parameterType="com.enuos.live.dto.UserMusicDTO" resultMap="BaseUserMusicMap">
+    SELECT
+    userlist.id,
+    mu.music_id,
+    userlist.user_id,
+    mu.user_name,
+    mu.music_name,
+    mu.music_singer,
+    mu.music_album,
+    mu.music_url,
+    mu.music_cover,
+    mu.is_status,
+    userlist.create_time
+    FROM
+    user_music_list userlist
+    LEFT JOIN user_music mu ON userlist.music_id = mu.music_id
+    WHERE
+        userlist.user_id = #{userId}
+        AND mu.is_status = 1 AND mu.audit_status = 1
+        ORDER BY userlist.create_time desc
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_music_list
+    where id = #{id}
+  </delete>
+
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.UserMusicList" useGeneratedKeys="true">
+    insert into user_music_list (user_id, music_id, create_time
+      )
+    values (#{userId}, #{musicId}, NOW()
+      )
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.UserMusicList">
+    update user_music_list
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="musicId != null">
+        music_id = #{musicId,jdbcType=BIGINT},
+      </if>
+      <if test="crtateTime != null">
+        crtate_time = #{crtateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.EmoticonMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.Emoticon">
+    <id column="em_id" property="emId" />
+    <result column="em_name" property="emName" />
+    <result column="em_price" property="emPrice" />
+    <result column="price_type" property="priceType" />
+    <result column="em_url" property="emUrl" />
+    <result column="move_anim_to_left" property="moveAnimToLeft" />
+    <result column="end_anim_to_left" property="endAnimToLeft" />
+    <result column="move_anim_to_right" property="moveAnimToRight" />
+    <result column="end_anim_to_right" property="endAnimToRight" />
+    <result column="static_to_left" property="staticToLeft" />
+    <result column="static_to_right" property="staticToRight" />
+    <result column="create_time" property="createTime" />
+    <result column="modified_time" property="modifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    em_id, em_name, em_price, price_type, em_url,
+    move_anim_to_left, end_anim_to_left, move_anim_to_right, end_anim_to_right,
+    static_to_left, static_to_right,
+    create_time, modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_emoticon
+    where em_id = #{emId}
+  </select>
+  <select id="getEmoticonList" resultMap="BaseResultMap">
+    select
+      em_id, em_name, em_price, price_type, em_url,
+      move_anim_to_left, end_anim_to_left, move_anim_to_right, end_anim_to_right,
+      static_to_left, static_to_right
+    from tb_emoticon
+  </select>
+</mapper>

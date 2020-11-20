@@ -1,0 +1,59 @@
+// Platform.Model + classname >>>> java方式
+package Platform.ModelF20000;
+// 生成文件位置 >>>> java方式
+option java_package = "com.enuos.live.proto.f20000msg";
+// 生成class名称 >>>> java方式
+option java_outer_classname = "F20000";
+// 连接服务 >>>> 通讯协议 >>>> 消息号(唯一KEY) 20000
+// 协议定义格式:
+// enum 可以包含一个用户自定义的枚举类型uint32
+// message 可以包含一个用户自定义的消息类型
+// #########################################################
+// #                                                       #
+// #             F + 消息号 + 子消息号 + S2C/C2S             #
+// #                                                       #
+// #########################################################
+// 限定修饰符包含 required(必须)\optional(可选)\repeated(数组)等自行了解
+// 限定修饰符 | 数据类型 | 字段名称 | = | 字段编码值 |
+// remark:
+// F >>>> 协议标记(区分协议)
+// 消息号 >>>> 功能KEY 例如: 20000/20001/20011
+// 子消息号 >>>> 操作编号 例如: 1/2/3/4/5
+// S2C >>>> Server to Client
+// C2S >>>> Client to Server
+
+// 登录服务 子消息号 1
+message F200001C2S {
+  required string thumbIconURL = 1; //用户头像
+  required string nickName = 2; //用户昵称
+  required int32 sex = 3; //用户性别
+  required int32 level = 4; //用户等级
+}
+message F200001S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+}
+
+// 关闭游戏页面 子消息号 2
+
+// 切换麦克风状态 子消息号 3
+message F200003S2C {
+  required int32 type = 1; //1-打开麦克风 0-关闭麦克风
+}
+
+// 游戏邀请 子消息号 4
+message F200004S2C {
+  required int64 gameCode = 1; //游戏编号
+  required int64 roomId = 2; //房间ID
+}
+
+// 关闭加载页 子消息号 5
+
+// 切换扬声器状态 子消息号 6
+message F200006S2C {
+  required int32 type = 1; //1-打开扬声器 0-关闭扬声器
+}
+
+// 房间解散消息 子消息 7
+message F200007S2C {
+  required string msg = 1; // 提示信息
+}

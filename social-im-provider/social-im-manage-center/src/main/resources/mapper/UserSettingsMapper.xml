@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserSettingsMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.UserSettings">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="receive_notification" property="notReceiveNotice"/>
+        <result column="chat_notice" property="chatNotice"/>
+        <result column="system_notice" property="systemNotice"/>
+        <result column="room_notice" property="roomNotice"/>
+        <result column="sound" property="sound"/>
+        <result column="shock" property="shock"/>
+        <result column="position" property="position"/>
+        <result column="position" property="position"/>
+        <result column="teens_model" property="teensModel"/>
+        <result column="friend_recommend" property="friendRecommend"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, receive_notification, chat_notice, system_notice, room_notice, sound, 
+    shock, `position`, friend_recommend,teens_model, modified_time
+  </sql>
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user_settings
+        where user_id = #{userId,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_settings
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.UserSettings"
+            useGeneratedKeys="true">
+    insert into user_settings (user_id, receive_notification, chat_notice, 
+      system_notice, room_notice, sound, 
+      shock, `position`, friend_recommend, 
+      modified_time)
+    values (#{userId,jdbcType=BIGINT}, #{notReceiveNotice,jdbcType=TINYINT}, #{chatNotice,jdbcType=TINYINT},
+      #{systemNotice,jdbcType=TINYINT}, #{roomNotice,jdbcType=TINYINT}, #{sound,jdbcType=TINYINT}, 
+      #{shock,jdbcType=TINYINT}, #{position,jdbcType=TINYINT}, #{friendRecommend,jdbcType=TINYINT}, 
+      #{modifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+    <update id="updateByUserIdSelective" parameterType="com.enuos.live.pojo.UserSettings">
+        update user_settings
+        <set>
+            <if test="notReceiveNotice != null">
+                receive_notification = #{notReceiveNotice},
+            </if>
+            <if test="chatNotice != null">
+                chat_notice = #{chatNotice},
+            </if>
+            <if test="systemNotice != null">
+                system_notice = #{systemNotice},
+            </if>
+            <if test="roomNotice != null">
+                room_notice = #{roomNotice},
+            </if>
+            <if test="sound != null">
+                sound = #{sound},
+            </if>
+            <if test="shock != null">
+                shock = #{shock},
+            </if>
+            <if test="position != null">
+                `position` = #{position},
+            </if>
+            <if test="friendRecommend != null">
+                friend_recommend = #{friendRecommend},
+            </if>
+            <if test="teensModel != null">
+                teens_model = #{teensModel},
+            </if>
+            modified_time = NOW()
+        </set>
+        where user_id = #{userId}
+    </update>
+</mapper>

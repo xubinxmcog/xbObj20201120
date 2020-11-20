@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GamePlayerMapper">
+
+  <insert id="insertPlayer" parameterType="com.enuos.live.pojo.GamePlayer" keyProperty="id"
+    useGeneratedKeys="true">
+      INSERT INTO game_player (
+        room_id,
+        game_code,
+        user_id
+      ) VALUES (
+        #{roomId,jdbcType=BIGINT},
+        #{gameCode,jdbcType=BIGINT},
+        #{userId,jdbcType=BIGINT}
+      )
+    </insert>
+
+  <delete id="deletePlayers" parameterType="java.lang.Long">
+    DELETE FROM game_player
+     WHERE room_id = #{roomId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deletePlayer" parameterType="java.lang.Long">
+    DELETE FROM game_player
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+</mapper>

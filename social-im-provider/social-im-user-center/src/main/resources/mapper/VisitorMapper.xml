@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.VisitorMapper">
+
+    <select id="getVisitor" resultType="java.util.Map">
+        select
+        id,
+        user_id userId,
+        visitor_id visitorId,
+        visit_time visitTime
+        from tb_user_visitor
+        where user_id = #{userId} and visitor_id = #{visitorId} and to_days(visit_time) = to_days(now())
+    </select>
+
+    <!--保存访客记录-->
+    <insert id="save" parameterType="java.util.Map" useGeneratedKeys="true">
+        insert into tb_user_visitor(user_id, visitor_id) values (#{userId}, #{visitorId})
+    </insert>
+
+    <!--更新访问时间-->
+    <update id="updateVisitTime" parameterType="java.lang.Integer">
+        update tb_user_visitor set visit_time = now() where id = #{id}
+    </update>
+
+    <!--会员信息-->
+    <select id="getMember" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        user_id userId,
+        vip,
+        date_format(expiration_time, '%Y-%m-%d %T') expirationTime
+        from tb_user_account_attach
+        where user_id = #{userId}
+    </select>
+
+    <!--vip专享访客记录-->
+    <select id="list" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.visitor_id userId,
+        date_format(t1.visit_time, '%Y-%m-%d %H:%i') visitTime,
+
+        t2.thumb_icon_url thumbIconUrl,
+        t2.nick_name nickName,
+        t2.sex,
+
+        t3.vip,
+        t3.level,
+        date_format(t3.expiration_time, '%Y-%m-%d %T') expirationTime
+        from tb_user_visitor t1
+        left join tb_user t2 on t2.user_id = t1.visitor_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.visitor_id
+        where t1.user_id = #{userId}
+        order by t1.visit_time desc
+    </select>
+</mapper>

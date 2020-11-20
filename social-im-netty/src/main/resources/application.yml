@@ -1,0 +1,13 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: test
+
+#Im Server
+social:
+  port: 8899
+
+logging:
+  level:
+    com.enuos.live.mapper: DEBUG
+  config: classpath:logback-spring.xml

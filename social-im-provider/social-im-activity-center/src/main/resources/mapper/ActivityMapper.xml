@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ActivityMapper">
+
+    <!--活动列表-->
+    <select id="getList" resultType="java.util.Map">
+        select
+        title,
+        code,
+        icon_url iconUrl,
+        start_time startTime,
+        end_time endTime,
+        concat(replace(start_time, '-', '.'), '-', replace(end_time, '-', '.')) activityTime,
+        to_finish_path toFinishPath
+        from tb_task
+        where category = 10
+        and type = 1
+        order by sort;
+    </select>
+
+    <!--活动主体-->
+    <select id="getActivityByCode" parameterType="java.lang.String" resultType="com.enuos.live.pojo.Activity">
+        select
+        code,
+        title,
+        background_url backgroundUrl,
+        start_time startTime,
+        end_time endTime
+        from tb_task
+        where code = #{code}
+    </select>
+
+    <!--活动领奖记录-->
+    <select id="getRecordList" resultType="java.lang.String">
+        select code from tb_task_reward_record
+        where user_id = #{userId}
+        <if test="codeList.size() > 0">
+            and code in
+            <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+    </select>
+
+    <!--活动进度-->
+    <select id="getProgressList" resultType="java.util.Map">
+        select code, progress from tb_task_follow
+        where user_id = #{userId}
+        <if test="codeList.size() > 0">
+            and code in
+            <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+    </select>
+
+    <!--获取奖励-->
+    <select id="getRewardByCode" parameterType="java.lang.String" resultType="java.util.Map">
+        select number from tb_task_reward where task_code = #{code}
+    </select>
+
+    <!--获取奖励-->
+    <select id="getRewardListByCodeAndSuffix" resultType="java.util.Map">
+        select
+        t1.reward_code rewardCode,
+        t1.life,
+        t1.number,
+        t2.category_id categoryId
+        from tb_task_reward t1
+        left join tb_reward t2 on t2.code = t1.reward_code
+        where t1.task_code = #{code} and t1.suffix = #{suffix}
+    </select>
+</mapper>

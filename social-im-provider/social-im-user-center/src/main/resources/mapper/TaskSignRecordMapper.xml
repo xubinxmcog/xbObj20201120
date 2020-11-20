@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.TaskSignRecordMapper">
+
+    <!--获取签到记录-->
+    <select id="getSignRecordList" resultType="java.util.Map">
+        select
+        date_format(sign_time, '%Y-%m-%d') signTime,
+        sign_type signType
+        from tb_task_sign_record
+        <where>
+            and user_id = #{userId}
+            and date_format(sign_time, '%Y-%m-%d') between #{begin} and #{end}
+        </where>
+    </select>
+
+    <!--获取最近的签到记录-->
+    <select id="isExists" parameterType="com.enuos.live.pojo.TaskSign" resultType="java.lang.Integer">
+        select
+        1
+        from tb_task_sign_record
+        <where>
+            and user_id = #{userId}
+            and code = #{code}
+            and date_format(sign_time, '%Y-%m-%d') = date_format(#{signTime}, '%Y-%m-%d')
+        </where>
+        limit 1
+    </select>
+
+    <!--保存签到的记录-->
+    <insert id="saveSignRecord" parameterType="com.enuos.live.pojo.TaskSign" useGeneratedKeys="true">
+        insert into tb_task_sign_record (
+        user_id,
+        code,
+        <if test="signType != null">
+            sign_type,
+        </if>
+        sign_time
+        ) values (
+        #{userId},
+        #{code},
+        <if test="signType != null">
+            #{signType},
+        </if>
+        #{signTime}
+        )
+    </insert>
+</mapper>

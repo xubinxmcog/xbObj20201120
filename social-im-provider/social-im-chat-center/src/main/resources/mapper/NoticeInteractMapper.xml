@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.NoticeInteractMapper">
+
+  <!--更新用户未读信息状态-->
+  <update id="updateUnreadNotice" parameterType="java.lang.Long">
+    UPDATE notice_interact
+       SET notice_read = 1
+     WHERE receiver_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <!--新增互动通知-->
+  <insert id="saveInteractNotice" parameterType="com.enuos.live.pojo.NoticeInteract"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO notice_interact
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="sponsorId != null">
+        sponsor_id,
+      </if>
+      <if test="receiverId != null">
+        receiver_id,
+      </if>
+      <if test="storyId != null">
+        story_id,
+      </if>
+      <if test="attachId != null">
+        attach_id,
+      </if>
+      <if test="noticeSource != null">
+        notice_source,
+      </if>
+    </trim>
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+      <if test="sponsorId != null">
+        #{sponsorId,jdbcType=BIGINT},
+      </if>
+      <if test="receiverId != null">
+        #{receiverId,jdbcType=BIGINT},
+      </if>
+      <if test="storyId != null">
+        #{storyId,jdbcType=INTEGER},
+      </if>
+      <if test="attachId != null">
+        #{attachId,jdbcType=INTEGER},
+      </if>
+      <if test="noticeSource != null">
+        #{noticeSource,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <!--新增互动通知-->
+  <insert id="saveInteractNoticeList" parameterType="java.util.List" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO notice_interact (
+      sponsor_id,
+      receiver_id,
+      story_id,
+      notice_source
+    ) VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.sponsorId},
+      #{item.receiverId},
+      #{item.storyId},
+      #{item.noticeSource})
+    </foreach>
+  </insert>
+
+  <!--删除互动通知根据通知ID-->
+  <delete id="deleteInteractNoticeById" parameterType="java.lang.Long">
+    DELETE FROM notice_interact
+     WHERE id = #{noticeId,jdbcType=BIGINT}
+  </delete>
+
+  <!--获得未读数量-->
+  <select id="unreadInteractNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    SELECT COUNT(id)
+      FROM notice_interact
+     WHERE receiver_id = #{userId,jdbcType=BIGINT}
+       AND  notice_read = 0
+  </select>
+
+  <!--获取最后一条消息的发起人ID-->
+  <select id="getLastInteractUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+    SELECT sponsor_id    AS userId,
+           notice_source AS noticeSource
+      FROM notice_interact
+     WHERE receiver_id = #{userId,jdbcType=BIGINT}
+     ORDER BY create_time DESC LIMIT 1
+  </select>
+
+  <!--获得互动通知列表-->
+  <select id="interactNoticeList" resultType="java.util.Map" parameterType="java.lang.Long">
+    SELECT id            AS noticeId,
+           sponsor_id    AS userId,
+           notice_source AS noticeSource,
+           story_id      AS postId,
+           attach_id     AS attachId,
+           create_time   AS lastTime
+      FROM notice_interact
+     WHERE receiver_id = #{userId,jdbcType=BIGINT}
+     ORDER BY create_time DESC
+  </select>
+</mapper>

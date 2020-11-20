@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.RoomSeatMapper">
+
+    <!--座位-->
+    <insert id="save" useGeneratedKeys="true">
+        insert into tb_voice_room_seat(room_id, seat_id)
+        values
+        <foreach collection="ids" item="id" separator=",">
+            (#{roomId}, #{id})
+        </foreach>
+    </insert>
+
+    <!--更新-->
+    <update id="update" parameterType="com.enuos.live.pojo.SeatPO">
+        update tb_voice_room_seat
+        <set>
+            <choose>
+                <when test="userId != null">
+                    user_id = #{userId},
+                </when>
+                <otherwise>
+                    user_id = 0,
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="nickName != null and nickName != ''">
+                    nick_name = #{nickName},
+                </when>
+                <otherwise>
+                    nick_name = '',
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="thumbIconUrl != null and thumbIconUrl != ''">
+                    thumb_icon_url = #{thumbIconUrl},
+                </when>
+                <otherwise>
+                    thumb_icon_url = '',
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="sex != null and sex != ''">
+                    sex = #{sex},
+                </when>
+                <otherwise>
+                    sex = 0,
+                </otherwise>
+            </choose>
+            <if test="isLock != null">
+                is_lock = #{isLock}
+            </if>
+        </set>
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="roomId != null">
+                and room_id = #{roomId}
+            </if>
+            <if test="seatId != null">
+                and seat_id = #{seatId}
+            </if>
+        </where>
+    </update>
+
+    <!--更新麦-->
+    <update id="updateMic" parameterType="com.enuos.live.pojo.SeatPO">
+        update tb_voice_room_seat
+        <set>
+            <if test="mic != null">
+                mic = #{mic}
+            </if>
+        </set>
+        <where>
+            and room_id = #{roomId}
+            and seat_id = #{seatId}
+        </where>
+    </update>
+
+    <!--清空座位-->
+    <update id="clean" parameterType="java.lang.Long">
+        update tb_voice_room_seat
+        <set>
+            user_id = 0,
+            thumb_icon_url = '',
+            nick_name = '',
+            sex = 0
+        </set>
+        <where>
+            and room_id = #{roomId}
+            and seat_id <![CDATA[<>]]>  0
+        </where>
+    </update>
+
+    <!--清空一个座位-->
+    <update id="cleanAny">
+        update tb_voice_room_seat
+        <set>
+            user_id = 0,
+            thumb_icon_url = '',
+            nick_name = '',
+            sex = 0
+        </set>
+        <where>
+            and room_id = #{roomId}
+            and user_id = #{userId}
+            and <![CDATA[ seat_id <> 0 ]]>
+        </where>
+    </update>
+
+    <!--删除-->
+    <delete id="delete">
+        delete from tb_voice_room_seat
+        <where>
+            and room_id = #{array[0]}
+            <if test="array.length > 1">
+                and user_id = #{array[1]}
+            </if>
+        </where>
+    </delete>
+
+    <!--是否在座位上-->
+    <select id="isOnSeat" resultType="java.lang.Integer">
+        select 1 from tb_voice_room_seat where room_id = #{roomId} and user_id = #{userId} limit 1
+    </select>
+
+    <!--座位是否锁定-->
+    <select id="isLock" resultType="java.lang.Integer">
+        select is_lock from tb_voice_room_seat where room_id = #{roomId} and seat_id = #{seatId}
+    </select>
+
+    <!--获取房间座位列表-->
+    <select id="getRoomSeatList" resultType="com.enuos.live.pojo.SeatVO">
+        SELECT
+	      t1.seat_id seatId,
+          t1.user_id userId,
+          t3.nick_name nickName,
+          t3.thumb_icon_url thumbIconUrl,
+          if(t3.if_time <![CDATA[ > ]]> now(), t3.icon_frame, '') iconFrame,
+          t3.sex,
+          t1.is_lock isLock,
+          t1.mic isBanMic,
+          if( t2.role IS NULL, 0, t2.role ) role
+        FROM
+	      tb_voice_room_seat t1
+	    LEFT JOIN tb_voice_room_role t2 ON t1.room_id = t2.room_id AND t1.user_id = t2.user_id
+	    LEFT JOIN tb_user t3 ON  t1.user_id = t3.user_id
+         where
+          t1.room_id = #{roomId}
+    </select>
+
+    <!--获取麦上用户-->
+    <select id="getRoomSeatUsers" resultType="java.util.Map">
+        select
+            t1.user_id userId,
+            t2.nick_name nickName,
+            t2.thumb_icon_url thumbIconUrl,
+            t2.sex
+        from tb_voice_room_seat t1
+        left join tb_user t2 on t2.user_id = t1.user_id
+        where
+          t1.room_id = #{roomId}
+          and t1.user_id <![CDATA[ <>0 ]]>
+    </select>
+
+    <!--座位上是否有人-->
+    <select id="isSeatEmpty" resultType="java.lang.Integer">
+        select user_id from tb_voice_room_seat where room_id = #{roomId} and seat_id = #{seatId}
+    </select>
+
+</mapper>

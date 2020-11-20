@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsNestMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsNestConfig">
+    <id column="id" property="id" />
+    <result column="nest_id" property="nestId" />
+    <result column="nest_name" property="nestName" />
+    <result column="lock_value" property="lockValue" />
+    <result column="lock_type" property="lockType" />
+    <result column="indate_time" property="indateTime" />
+    <result column="modified_time" property="modifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, nest_name, lock_value, lock_type, indate_time, modified_time
+  </sql>
+
+  <select id="selectByIdNestConfig" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from pets_nest_config
+    where
+        id = #{id}
+  </select>
+
+  <resultMap id="BaseResultUnlockMap" type="com.enuos.live.pojo.PetsNestUnlock">
+    <id column="id" property="id" />
+    <result column="user_id" property="userId" />
+    <result column="nest_id" property="nestId" />
+    <result column="pets_id" property="petsId" />
+    <result column="is_unlock" property="isUnlock" />
+    <result column="indate_time" property="indateTime" />
+    <result column="modified_time" property="modifiedTime" />
+  </resultMap>
+
+  <sql id="BaseColumnUnlock">
+    id, user_id, nest_id, pets_id, is_unlock, indate_time, modified_time
+  </sql>
+
+  <select id="selectByIdNestUnlock" resultMap="BaseResultUnlockMap">
+    select
+    <include refid="BaseColumnUnlock"/>
+    from pets_nest_unlock
+    where
+    user_id = #{userId}
+    and nest_id = #{nestId}
+  </select>
+
+    <insert id="insertNestUnlock" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsNestUnlock" useGeneratedKeys="true">
+      insert into pets_nest_unlock(user_id, nest_id, pets_id, is_unlock)
+      values (#{userId}, #{nestId}, #{petsId}, #{isUnlock})
+    </insert>
+
+    <!--判断小窝是否解锁-->
+    <select id="getIsNestUnlock" resultType="java.lang.Integer">
+        select 1
+        from pets_nest_unlock
+        where
+        user_id = #{userId}
+        and nest_id = #{nestId}
+        limit 1
+    </select>
+
+    <!--判断宠物是否在窝内-->
+    <select id="getIsNestPets" resultType="java.lang.Integer">
+        SELECT
+            1
+        FROM
+            pets_nest_unlock
+        WHERE
+            user_id = #{userId}
+            AND pets_id = #{petsId}
+            LIMIT 1
+    </select>
+
+    <!--获取用户的一个空窝-->
+    <select id="getUserNullNest" resultMap="BaseResultUnlockMap">
+        SELECT
+        <include refid="BaseColumnUnlock"/>
+        FROM
+            pets_nest_unlock
+        WHERE
+            user_id = #{userId}
+            AND is_unlock = 1
+            AND pets_id IS NULL
+        ORDER BY
+            nest_id ASC
+            LIMIT 1
+    </select>
+
+    <!--更新用户小窝-->
+    <update id="updatePetsNestUnlock" parameterType="com.enuos.live.pojo.PetsNestUnlock">
+        update pets_nest_unlock
+        <set>
+            <if test="petsId != null">
+                pets_id = #{petsId},
+            </if>
+            <if test="isUnlock != null">
+                is_unlock = #{isUnlock}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--清空一个小窝的宠物-->
+    <update id="updateCleanOneNest">
+        update pets_nest_unlock
+        set
+        pets_id = null
+        where
+        user_id = #{userId}
+        and nest_id = #{nestId}
+    </update>
+
+</mapper>

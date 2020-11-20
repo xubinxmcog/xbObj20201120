@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>social-im-provider</artifactId>
+    <groupId>com.enuos.live</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- 工程名称描述 -->
+  <artifactId>social-im-game-center</artifactId>
+  <description>social-im-game-center</description>
+
+  <!-- 打包方式 -->
+  <packaging>jar</packaging>
+
+  <!-- 在 properties下声明相应的版本信息，然后在dependency下引用的时候用 ${} 就可以引入该版本jar包了 -->
+  <properties>
+    <java.version>1.8</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
+    <mybatis.version>2.0.0</mybatis.version>
+    <github.pagehelper.version>1.2.5</github.pagehelper.version>
+    <google.guava.version>20.0</google.guava.version>
+    <alibaba.druid.version>1.1.10</alibaba.druid.version>
+    <alibaba.sentinel.version>2.1.1.RELEASE</alibaba.sentinel.version>
+    <alibaba.nacos.version>2.1.0.RELEASE</alibaba.nacos.version>
+  </properties>
+
+  <!-- 依赖管理 -->
+  <dependencies>
+    <!-- aop -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+    <!-- test -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- sleuth -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-sleuth</artifactId>
+    </dependency>
+    <!-- zipkin -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zipkin</artifactId>
+    </dependency>
+    <!-- feign -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- mysql -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- druid -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid-spring-boot-starter</artifactId>
+      <version>${alibaba.druid.version}</version>
+    </dependency>
+    <!-- mybatis -->
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+      <version>${mybatis.version}</version>
+    </dependency>
+    <!-- page-helper -->
+    <dependency>
+      <groupId>com.github.pagehelper</groupId>
+      <artifactId>pagehelper-spring-boot-starter</artifactId>
+      <version>${github.pagehelper.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>mybatis-spring-boot-starter</artifactId>
+          <groupId>org.mybatis.spring.boot</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${google.guava.version}</version>
+    </dependency>
+    <!-- common -->
+    <dependency>
+      <groupId>com.enuos.live</groupId>
+      <artifactId>social-im-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>fastjson</artifactId>
+          <groupId>com.alibaba</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- springboot -->
+    <!--<dependency>-->
+      <!--<groupId>org.springframework.boot</groupId>-->
+      <!--<artifactId>spring-boot-starter-web</artifactId>-->
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.springframework.boot</groupId>-->
+          <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    <!--</dependency>-->
+    <!-- undertow -->
+    <!--<dependency>-->
+      <!--<groupId>org.springframework.boot</groupId>-->
+      <!--<artifactId>spring-boot-starter-undertow</artifactId>-->
+    <!--</dependency>-->
+
+    <!-- naCos -->
+    <!--<dependency>-->
+      <!--<groupId>com.alibaba.cloud</groupId>-->
+      <!--<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>-->
+      <!--<version>${alibaba.nacos.version}</version>-->
+    <!--</dependency>-->
+    <!-- sentinel -->
+    <!--<dependency>-->
+      <!--<groupId>com.alibaba.cloud</groupId>-->
+      <!--<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>-->
+      <!--<version>${alibaba.sentinel.version}</version>-->
+    <!--</dependency>-->
+
+    <!--eureka-->
+    <!-- hystrix依赖，主要是用  @HystrixCommand -->
+    <!--<dependency>-->
+      <!--<groupId>org.springframework.cloud</groupId>-->
+      <!--<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.springframework.cloud</groupId>-->
+      <!--<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.springframework.cloud</groupId>-->
+      <!--<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>-->
+    <!--</dependency>-->
+  </dependencies>
+
+  <!-- 多环境配置 -->
+  <profiles>
+    <profile>
+      <!-- 开发&测试环境 -->
+      <id>dev</id>
+      <properties>
+        <!-- 环境标识，需要与配置文件的名称相对应 -->
+        <activatedProperties>dev</activatedProperties>
+      </properties>
+      <activation>
+        <!-- 默认环境 -->
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    <profile>
+      <!-- 测试环境 -->
+      <id>pre</id>
+      <properties>
+        <!-- 环境标识，需要与配置文件的名称相对应 -->
+        <activatedProperties>pre</activatedProperties>
+      </properties>
+    </profile>
+    <profile>
+      <!-- 测试环境 -->
+      <id>test</id>
+      <properties>
+        <!-- 环境标识，需要与配置文件的名称相对应 -->
+        <activatedProperties>test</activatedProperties>
+      </properties>
+    </profile>
+    <profile>
+      <!-- 生产环境 -->
+      <id>pro</id>
+      <properties>
+        <!-- 环境标识，需要与配置文件的名称相对应 -->
+        <activatedProperties>pro</activatedProperties>
+      </properties>
+    </profile>
+  </profiles>
+
+  <!-- 依赖 jar 包版本管理的管理器 -->
+  <!-- 如果 dependencies 里的 dependency 自己没有声明 version 元素，那么 maven 就此处来找版本声明。 -->
+  <!-- 如果有，就会继承它；如果没有就会报错，告诉你没有版本信息 -->
+  <!-- 优先级：如果 dependencies 里的 dependency 已经声明了版本信息，就不会生效此处的版本信息了 -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- SpringCloud -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- 插件依赖 -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- 注意： 这里必须要添加， 否者各种依赖有问题 -->
+  <repositories>
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/milestone</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+</project>

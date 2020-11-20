@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.GroupMemberMapper">
+
+  <!--获得展示用户ID-->
+  <select id="getShowUserIdList" resultType="java.lang.Long" parameterType="java.lang.Long">
+    SELECT user_id
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+     ORDER BY flag_authority DESC, create_time ASC LIMIT 9
+  </select>
+
+  <!--添加-->
+  <insert id="saveGroupUserList" parameterType="java.util.List" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO group_member (
+      group_id,
+      user_id,
+      flag_authority,
+      chat_status,
+      unread_num
+    ) VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.groupId},
+      #{item.userId},
+      #{item.flagAuthority},
+      #{item.chatStatus},
+      #{item.unreadNum})
+    </foreach>
+  </insert>
+
+  <!--获得群聊用户-->
+  <select id="getGroupUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+    SELECT user_id
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </select>
+
+  <!--删除群聊成员-->
+  <delete id="deleteGroupUserAll" parameterType="java.lang.Long">
+    DELETE FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="leaveJoinGroupChat" parameterType="java.lang.Long">
+    DELETE FROM group_member
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+  <update id="updateUserChatStatusAll" parameterType="java.lang.Long">
+    UPDATE group_member
+       SET chat_status = 0
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <!--删除群成员-->
+  <delete id="deleteGroupUserList">
+    DELETE FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id IN
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </delete>
+
+  <!--删除成员-->
+  <delete id="deleteGroupUser">
+    DELETE FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+  <!--更新群聊用户信息-->
+  <update id="updateGroupUserInfo" parameterType="com.enuos.live.pojo.GroupMember">
+    UPDATE group_member
+    <set>
+      <if test="flagTop != null">
+        flag_top = #{flagTop,jdbcType=INTEGER},
+      </if>
+      <if test="flagDelete != null">
+        flag_delete = #{flagDelete,jdbcType=INTEGER},
+      </if>
+      <if test="flagAuthority != null">
+        flag_authority = #{flagAuthority,jdbcType=INTEGER},
+      </if>
+      <if test="chatStatus != null">
+        chat_status = #{chatStatus,jdbcType=INTEGER},
+      </if>
+      <if test="notDisturb != null">
+        not_disturb = #{notDisturb,jdbcType=INTEGER},
+      </if>
+      <if test="unreadNum != null">
+        unread_num = #{unreadNum,jdbcType=INTEGER},
+      </if>
+    </set>
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <!--获得群用户信息-->
+  <select id="getGroupUserInfo" resultType="com.enuos.live.pojo.GroupMember">
+    SELECT group_id       AS gourpId,
+           user_id        AS userId,
+           flag_top       AS flagTop,
+           flag_delete    AS flagDelete,
+           flag_authority AS flagAuthority,
+           chat_status    AS chatStatus,
+           not_disturb    AS notDisturb,
+           unread_num     AS unreadNum
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <!--更新用户未读数量-->
+  <update id="updateUserGroupUnReadNum">
+    UPDATE group_member
+       SET unread_num = 0
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateUserGroupUnReadNumAdd">
+    UPDATE group_member
+       SET flag_delete = 0,
+           unread_num = unread_num + 1
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id IN
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </update>
+
+  <update id="updateUserGroupUnReadNumEmpty">
+    UPDATE group_member
+       SET flag_delete = 0,
+           unread_num = 0
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id IN
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </update>
+
+  <!--更新群聊末尾信息-->
+  <update id="updateGroupLastMessage" parameterType="com.enuos.live.pojo.GroupMember">
+    UPDATE group_member
+       SET message_id = #{messageId,jdbcType=BIGINT},
+           message_time = #{messageTime,jdbcType=TIMESTAMP}
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </update>
+
+  <update id="emptyResidualMessage">
+    UPDATE group_member
+       SET message_id = 0
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND user_id = #{userId,jdbcType=BIGINT}
+  </update>
+
+  <!--获得管理员列表-->
+  <select id="getGroupUserAdminList" parameterType="java.lang.Long" resultType="java.lang.Long">
+    SELECT user_id
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND flag_authority = 1
+     ORDER BY update_time
+  </select>
+
+  <!--获得管理员列表-->
+  <select id="getGroupUserAllList" parameterType="java.lang.Long" resultType="java.lang.Long">
+    SELECT user_id
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </select>
+
+  <select id="userJoinGroupId" parameterType="java.lang.Long" resultType="java.lang.Long">
+    SELECT group_id
+      FROM group_member
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <!--获得群成员列表-->
+  <select id="getGroupUserList" parameterType="java.lang.Long" resultType="java.util.Map">
+    SELECT user_id userId, flag_authority flagAuthority
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+  </select>
+
+  <!--获得管理员人数-->
+  <select id="getGroupChatAdminNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    SELECT COUNT(user_id)
+      FROM group_member
+     WHERE group_id = #{groupId,jdbcType=BIGINT}
+       AND flag_authority = 1
+  </select>
+
+  <!--获得未读数量-->
+  <select id="getUserUnreadNum" resultType="java.lang.Integer" parameterType="java.lang.Long">
+    SELECT SUM(unread_num)
+      FROM group_member
+     WHERE user_id = #{userId,jdbcType=BIGINT}
+       AND not_disturb = 0
+       AND flag_delete = 0
+  </select>
+
+</mapper>

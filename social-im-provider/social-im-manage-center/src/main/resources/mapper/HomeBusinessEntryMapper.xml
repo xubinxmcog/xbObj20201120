@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.HomeBusinessEntryMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.HomeBusinessEntry">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="icon_url" jdbcType="VARCHAR" property="iconUrl" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="link_url" jdbcType="VARCHAR" property="linkUrl" />
+    <result column="is_status" jdbcType="TINYINT" property="isStatus" />
+    <result column="indate_time" jdbcType="TIMESTAMP" property="indateTime" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, icon_url, `name`, link_url, is_status, indate_time, modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from home_business_entry
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="getHomeBusinessEntry" resultMap="BaseResultMap">
+        select
+        id, icon_url, `name`, link_url
+        from home_business_entry
+        where
+        is_status = 1
+    </select>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.HomeBusinessEntry" useGeneratedKeys="true">
+    insert into home_business_entry (icon_url, `name`, link_url, 
+      is_status, indate_time, modified_time
+      )
+    values (#{iconUrl,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{linkUrl,jdbcType=VARCHAR}, 
+      #{isStatus,jdbcType=TINYINT}, #{indateTime,jdbcType=TIMESTAMP}, #{modifiedTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.HomeBusinessEntry">
+    update home_business_entry
+    <set>
+      <if test="iconUrl != null">
+        icon_url = #{iconUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="linkUrl != null">
+        link_url = #{linkUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isStatus != null">
+        is_status = #{isStatus,jdbcType=TINYINT},
+      </if>
+      <if test="indateTime != null">
+        indate_time = #{indateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifiedTime != null">
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,40 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: dev
+  jackson:
+    default-property-inclusion: non_null
+
+mybatis:
+  #注意：一定要对应mapper映射xml文件的所在路径
+  mapper-locations: classpath:mapper/*.xml
+  #注意：对应实体类的路径
+  type-aliases-package: com.enuos.live.pojo
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    use-generated-keys: true
+    lazyLoadingEnabled: true
+    multipleResultSetsEnabled: true
+    mapUnderscoreToCamelCase: true
+
+pagehelper:
+  helper-dialect: mysql
+  #启用合理化，如果pageNum < 1 会查询第一页，如果 pageNum > pages 会查询最后一页
+  reasonable: true
+  support-methods-arguments: true
+  page-size-zero: true
+  params: count=countSql
+
+logging:
+  level:
+    com.enuos.live.mapper: DEBUG
+  config: classpath:logback-spring.xml
+
+# 图片检测阈值, 值越高，表示图片越有可能违规
+aliyun:
+  ossRate: 90.0
+

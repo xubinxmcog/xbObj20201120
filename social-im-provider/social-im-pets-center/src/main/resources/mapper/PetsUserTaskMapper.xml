@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsUserTaskMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsUserTask">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="task_id" jdbcType="INTEGER" property="taskId" />
+    <result column="finish_value" jdbcType="INTEGER" property="finishValue" />
+    <result column="indate_time" jdbcType="TIMESTAMP" property="indateTime" />
+    <result column="is_receive" jdbcType="TINYINT" property="isReceive" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, task_id, finish_value, indate_time, is_receive, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from pets_user_task
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from pets_user_task
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <!--删除过期任务-->
+  <delete id="deleteExpireTask" >
+    DELETE FROM pets_user_task
+    WHERE task_id IN (SELECT id FROM pets_task_config WHERE task_type = 1 OR end_time <![CDATA[ < ]]> NOW())
+  </delete>
+
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsUserTask" useGeneratedKeys="true">
+    insert into pets_user_task (user_id, task_id, finish_value, 
+      indate_time, is_receive, update_time
+      )
+    values (#{userId,jdbcType=BIGINT}, #{taskId,jdbcType=INTEGER}, #{finishValue,jdbcType=INTEGER}, 
+      #{indateTime,jdbcType=TIMESTAMP}, #{isReceive,jdbcType=TINYINT}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <insert id="insertNotExists" parameterType="com.enuos.live.pojo.PetsUserTask" useGeneratedKeys="true">
+    INSERT INTO pets_user_task (user_id, task_id, finish_value)
+    SELECT #{userId}, #{taskId}, #{finishValue} FROM DUAL
+    WHERE NOT EXISTS (SELECT user_id, task_id FROM pets_user_task WHERE user_id = #{userId} AND task_id = #{taskId})
+  </insert>
+
+    <!--更新任务完成进度-->
+  <update id="updateFinishValue">
+    UPDATE pets_user_task SET finish_value = finish_value + 1 WHERE user_id = #{userId} AND task_id = #{taskId}
+  </update>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsUserTask">
+    update pets_user_task
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="taskId != null">
+        task_id = #{taskId,jdbcType=INTEGER},
+      </if>
+      <if test="finishValue != null">
+        finish_value = #{finishValue,jdbcType=INTEGER},
+      </if>
+      <if test="indateTime != null">
+        indate_time = #{indateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isReceive != null">
+        is_receive = #{isReceive,jdbcType=TINYINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateIsReceive">
+    update pets_user_task
+    set
+      is_receive = 1
+    where id = #{id}
+  </update>
+
+    <!--获取任务是否完成-->
+  <select id="getPetsTaskType" resultType="java.lang.Integer">
+      SELECT
+      (SELECT target_value from pets_task_config WHERE id = #{id})
+      <![CDATA[<= ]]>
+      if(
+          (select finish_value from pets_user_task where user_id = #{userId} and task_id = #{id}) is null,
+           0, (select finish_value from pets_user_task where user_id = #{userId} and task_id = #{id})
+      )
+   </select>
+
+  <resultMap id="PetsTaskDTOMap" type="com.enuos.live.dto.PetsTaskDTO">
+    <id column="id" property="id" />
+    <result column="task_name" property="taskName"/>
+    <result column="target_value" property="targetValue"/>
+    <result column="task_type" property="taskType"/>
+    <result column="describe" property="describe"/>
+    <result column="task_pic" property="taskPic"/>
+    <result column="reward_id" property="rewardId"/>
+    <result column="finishValue" property="finishValue"/>
+    <result column="isFinish" property="isFinish"/>
+    <result column="is_receive" property="isReceive"/>
+    <collection property="rewards" ofType="com.enuos.live.dto.PetsRewardDTO">
+      <result column="product_code" property="productCode"/>
+      <result column="num" property="num"/>
+      <result column="product_name" property="productName"/>
+      <result column="pic_url" property="picUrl"/>
+    </collection>
+  </resultMap>
+  <!--获取任务列表-->
+  <select id="getTaskList" resultMap="PetsTaskDTOMap">
+    SELECT
+      t1.id,
+      t1.task_name,
+      t1.target_value,
+      t1.task_type,
+      t1.`describe`,
+      t1.task_pic,
+      t1.reward_id,
+      IF(t2.finish_value IS NULL, 0, t2.finish_value ) finishValue,
+      IF(t1.target_value <![CDATA[ <= ]]> t2.finish_value, 1, 0 ) isFinish,
+      t2.is_receive,
+      t3.product_code,
+      t3.num,
+      t4.product_name,
+      t4.pic_url
+    FROM
+      pets_task_config t1
+      LEFT JOIN pets_task_reward t3 ON t3.reward_id = t1.reward_id
+      LEFT JOIN pets_product_info t4 ON t4.product_code = t3.product_code
+      LEFT JOIN pets_user_task t2 ON t2.task_id = t1.id
+      AND t2.user_id = #{userId}
+    WHERE
+      t1.is_status = 1
+      AND (( t1.begin_time <![CDATA[ < ]]> NOW() AND t1.end_time > NOW()) OR t1.end_time IS NULL )
+  </select>
+
+  <!--根据任务ID获取用户已完成的任务-->
+  <select id="getUserDoneTask" resultType="java.util.Map">
+    SELECT
+      t1.id,
+      t2.id utId,
+      t3.product_code productCode,
+      t3.num,
+      t4.product_name productName,
+      t4.id productId,
+      t4.category_id categoryId,
+      t5.category_code categoryCode,
+      t5.using_pro usingPro
+    FROM
+      pets_task_config t1
+      LEFT JOIN pets_task_reward t3 ON t3.reward_id = t1.reward_id
+      LEFT JOIN pets_user_task t2 ON t2.task_id = t1.id AND t2.is_receive = 0
+      LEFT JOIN pets_product_info t4 ON t3.product_code = t4.product_code
+      LEFT JOIN pets_product_category t5 ON t5.id = t4.category_id
+      AND t2.user_id = #{userId}
+    WHERE
+      t1.id = #{id}
+      AND (t1.target_value <![CDATA[ <= ]]> t2.finish_value)
+  </select>
+</mapper>

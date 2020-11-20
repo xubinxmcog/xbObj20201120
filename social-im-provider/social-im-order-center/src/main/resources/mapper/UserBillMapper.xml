@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserBillMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.UserBill">
+    <id column="bill_id" property="billId" />
+    <result column="user_id" property="userId" />
+    <result column="product_name" property="productName" />
+    <result column="price" property="price" />
+    <result column="price_type" property="priceType" />
+    <result column="status" property="status" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    bill_id, user_id, product_name, price, price_type, `status`, create_time
+  </sql>
+  <insert id="insert" keyColumn="bill_id" keyProperty="billId" parameterType="com.enuos.live.pojo.UserBill" useGeneratedKeys="true">
+    insert into user_bill (user_id, product_name, price, 
+      price_type, `status`, create_time
+      )
+    values (#{userId}, #{productName}, #{price},
+      #{priceType}, #{status}, NOW()
+      )
+  </insert>
+</mapper>

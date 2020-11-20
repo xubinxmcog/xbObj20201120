@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.QuestionnaireMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.Questionnaire">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="sex" jdbcType="TINYINT" property="sex" />
+    <result column="age" jdbcType="TINYINT" property="age" />
+    <result column="profession" jdbcType="VARCHAR" property="profession" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="satisfaction" jdbcType="TINYINT" property="satisfaction" />
+    <result column="performance" jdbcType="TINYINT" property="performance" />
+    <result column="power_consumption" jdbcType="TINYINT" property="powerConsumption" />
+    <result column="flow_consumption" jdbcType="TINYINT" property="flowConsumption" />
+    <result column="loading_speed" jdbcType="TINYINT" property="loadingSpeed" />
+    <result column="network_delay" jdbcType="TINYINT" property="networkDelay" />
+    <result column="bug" jdbcType="TINYINT" property="bug" />
+    <result column="bug_condition" jdbcType="VARCHAR" property="bugCondition" />
+    <result column="beautiful" jdbcType="TINYINT" property="beautiful" />
+    <result column="fluency" jdbcType="TINYINT" property="fluency" />
+    <result column="satisfy" jdbcType="TINYINT" property="satisfy" />
+    <result column="rich" jdbcType="TINYINT" property="rich" />
+    <result column="find_friends" jdbcType="TINYINT" property="findFriends" />
+    <result column="atmosphere" jdbcType="TINYINT" property="atmosphere" />
+    <result column="activity" jdbcType="TINYINT" property="activity" />
+    <result column="activity_notice" jdbcType="TINYINT" property="activityNotice" />
+    <result column="activity_rich" jdbcType="TINYINT" property="activityRich" />
+    <result column="activity_interesting" jdbcType="TINYINT" property="activityInteresting" />
+    <result column="activity_participate" jdbcType="TINYINT" property="activityParticipate" />
+    <result column="activity_attractive" jdbcType="TINYINT" property="activityAttractive" />
+    <result column="like_features" jdbcType="VARCHAR" property="likeFeatures" />
+    <result column="recommend" jdbcType="TINYINT" property="recommend" />
+    <result column="similar_products" jdbcType="VARCHAR" property="similarProducts" />
+    <result column="use_time" jdbcType="TINYINT" property="useTime" />
+    <result column="suggest" jdbcType="VARCHAR" property="suggest" />
+    <result column="qq" jdbcType="VARCHAR" property="qq" />
+    <result column="tel" jdbcType="VARCHAR" property="tel" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, sex, age, profession, `source`, satisfaction, performance, power_consumption, 
+    flow_consumption, loading_speed, network_delay, bug, bug_condition, beautiful, fluency, 
+    satisfy, rich, find_friends, atmosphere, activity, activity_notice, activity_rich, 
+    activity_interesting, activity_participate, activity_attractive, like_features, recommend, 
+    similar_products, use_time, suggest, qq, tel, email, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from questionnaire
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from questionnaire
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.Questionnaire" useGeneratedKeys="true">
+    insert into questionnaire (user_id, sex, age,
+      profession, `source`, satisfaction, 
+      performance, power_consumption, flow_consumption, 
+      loading_speed, network_delay, bug, 
+      bug_condition, beautiful, fluency, 
+      satisfy, rich, find_friends, 
+      atmosphere, activity, activity_notice, 
+      activity_rich, activity_interesting, activity_participate, 
+      activity_attractive, like_features, recommend, 
+      similar_products, use_time, suggest, 
+      qq, tel, email, create_time
+      )
+    values (#{userId}, #{sex}, #{age},
+      #{profession}, #{source}, #{satisfaction},
+      #{performance}, #{powerConsumption}, #{flowConsumption},
+      #{loadingSpeed}, #{networkDelay}, #{bug},
+      #{bugCondition}, #{beautiful}, #{fluency},
+      #{satisfy}, #{rich}, #{findFriends},
+      #{atmosphere}, #{activity}, #{activityNotice},
+      #{activityRich}, #{activityInteresting}, #{activityParticipate},
+      #{activityAttractive}, #{likeFeatures}, #{recommend},
+      #{similarProducts}, #{useTime}, #{suggest},
+      #{qq}, #{tel}, #{email}, NOW()
+      )
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.Questionnaire">
+    update questionnaire
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="age != null">
+        age = #{age,jdbcType=TINYINT},
+      </if>
+      <if test="profession != null">
+        profession = #{profession,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        `source` = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="satisfaction != null">
+        satisfaction = #{satisfaction,jdbcType=TINYINT},
+      </if>
+      <if test="performance != null">
+        performance = #{performance,jdbcType=TINYINT},
+      </if>
+      <if test="powerConsumption != null">
+        power_consumption = #{powerConsumption,jdbcType=TINYINT},
+      </if>
+      <if test="flowConsumption != null">
+        flow_consumption = #{flowConsumption,jdbcType=TINYINT},
+      </if>
+      <if test="loadingSpeed != null">
+        loading_speed = #{loadingSpeed,jdbcType=TINYINT},
+      </if>
+      <if test="networkDelay != null">
+        network_delay = #{networkDelay,jdbcType=TINYINT},
+      </if>
+      <if test="bug != null">
+        bug = #{bug,jdbcType=TINYINT},
+      </if>
+      <if test="bugCondition != null">
+        bug_condition = #{bugCondition,jdbcType=VARCHAR},
+      </if>
+      <if test="beautiful != null">
+        beautiful = #{beautiful,jdbcType=TINYINT},
+      </if>
+      <if test="fluency != null">
+        fluency = #{fluency,jdbcType=TINYINT},
+      </if>
+      <if test="satisfy != null">
+        satisfy = #{satisfy,jdbcType=TINYINT},
+      </if>
+      <if test="rich != null">
+        rich = #{rich,jdbcType=TINYINT},
+      </if>
+      <if test="findFriends != null">
+        find_friends = #{findFriends,jdbcType=TINYINT},
+      </if>
+      <if test="atmosphere != null">
+        atmosphere = #{atmosphere,jdbcType=TINYINT},
+      </if>
+      <if test="activity != null">
+        activity = #{activity,jdbcType=TINYINT},
+      </if>
+      <if test="activityNotice != null">
+        activity_notice = #{activityNotice,jdbcType=TINYINT},
+      </if>
+      <if test="activityRich != null">
+        activity_rich = #{activityRich,jdbcType=TINYINT},
+      </if>
+      <if test="activityInteresting != null">
+        activity_interesting = #{activityInteresting,jdbcType=TINYINT},
+      </if>
+      <if test="activityParticipate != null">
+        activity_participate = #{activityParticipate,jdbcType=TINYINT},
+      </if>
+      <if test="activityAttractive != null">
+        activity_attractive = #{activityAttractive,jdbcType=TINYINT},
+      </if>
+      <if test="likeFeatures != null">
+        like_features = #{likeFeatures,jdbcType=VARCHAR},
+      </if>
+      <if test="recommend != null">
+        recommend = #{recommend,jdbcType=TINYINT},
+      </if>
+      <if test="similarProducts != null">
+        similar_products = #{similarProducts,jdbcType=VARCHAR},
+      </if>
+      <if test="useTime != null">
+        use_time = #{useTime,jdbcType=TINYINT},
+      </if>
+      <if test="suggest != null">
+        suggest = #{suggest,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null">
+        qq = #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        tel = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

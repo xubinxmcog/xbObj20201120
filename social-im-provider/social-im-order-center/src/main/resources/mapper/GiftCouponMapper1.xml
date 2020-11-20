@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GiftCouponMapper1">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.GiftCoupon1">
+    <id column="coupon_id" property="couponId" />
+    <result column="user_id" property="userId" />
+    <result column="gift_coupon_id" property="giftCouponId" />
+    <result column="life" property="life" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    coupon_id, user_id, gift_coupon_id, life, create_time
+  </sql>
+  <insert id="insert" keyColumn="coupon_id" keyProperty="couponId" parameterType="com.enuos.live.pojo.GiftCoupon1" useGeneratedKeys="true">
+    insert into gift_coupon (user_id, gift_coupon_id, life,
+      create_time)
+    values (#{userId}, #{giftCouponId}, #{life},
+      NOW())
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.GiftCoupon1">
+    update gift_coupon
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="giftCouponId != null">
+        gift_coupon_id = #{giftCouponId,jdbcType=BIGINT},
+      </if>
+      <if test="life != null">
+        life = #{life,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where coupon_id = #{couponId,jdbcType=BIGINT}
+  </update>
+</mapper>

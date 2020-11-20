@@ -1,0 +1,135 @@
+package modelF30111;
+
+//进入游戏 0 -
+message F30111S2C {
+  required int32 result = 1;//准备结果 0「成功」 1「失败」
+  repeated PlayerInfo seatPlayer = 2; //玩家信息
+  optional int32 startTime = 3; //开始时间「默认：10(s)」
+}
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称「例如：Lake😀」
+  required int64 userID = 2; //玩家ID「例如：1234567890」
+  required string url = 3; //玩家头像「例如：http://pic1.zhimg.com/50/v2-fbe356c74816b9b3cfcf80ff1758fbd4_hd.jpg」
+  required int32 sex = 4; //玩家性别 1「男」 2「女」
+  required int32 deviPosition = 5; //玩家座位「例如：1」1.东 2.西 3.南 4.北
+  required int32 state = 6;//玩家状态 0「未准备」 1「已准备」 2「游戏中」 
+  repeated int32 handCards=7;//玩家手牌区
+  repeated int32 playCards=8;//玩家出牌区
+  required int32 moCardInfo=9;//玩家摸牌区
+  repeated ActionCards pengCards=10;//玩家碰杠区
+  repeated int32 huaCards=11;//玩家补花区
+  repeated int32 huCards=12;//胡牌区
+}
+//操作牌数组
+message ActionCards{
+  repeated int32 cardIDs=1;//牌ID
+}
+
+//玩家准备 1 -> 2 / -> 20
+message F301111C2S {
+  required int32 isReady = 1;//准备状态 0「准备」 1「取消」
+}
+
+message F301111S2C {
+  required int32 result = 1;//准备结果 0「成功」 1「失败」
+  required int32 isReady = 2;//准备状态 0「准备」 1「取消」
+  optional int64 userID = 3; //玩家ID「例如：1234567890」
+}
+
+//游戏开始 发牌 换三张
+message F301112S2C{
+   repeated FaCardInfo faCards=1;//玩家发牌
+   required int32 lastAllCardNum=2;//牌堆剩余牌数
+}
+//玩家信息
+message FaCardInfo{
+  required int64 userID=1;//玩家ID「例如：1234567890」
+  repeated int32 handCards=2;//玩家手牌
+  repeated int32 hintCards=3;//玩家提示换三张牌ID
+  optional int32 moCards=4;//玩家摸牌区
+}
+//换三张
+message F301113C2S{
+  repeated int32 carId=1;//选牌ID
+}
+
+message F301113S2C{
+  required int32 result=1;//换三张结果码  0.成功选取 1.选牌失败
+  required int64 actionUserID=2;//操作玩家ID
+}
+
+//玩家定缺
+message F301114C2S{
+  required int32 lackHua=1;//玩家定缺  1.万 2.筒 3.条
+}
+//结果码
+message F301114S2C{
+  required int32 result=1;//定缺结果
+  required int32 lackHua=2;//玩家定缺  1.万 2.筒 3.条
+  required int64 userID=3;//玩家ID
+}
+//定缺完成 开始游戏
+message F301115S2C{
+  repeated LackInfos lackInfo=1;//玩家定缺
+  required int64 actionUserID=2;//操作玩家ID
+}
+//定缺信息
+message LackInfos{
+  required int64 userID=1;//定缺玩家ID
+  required int32 lackHua=2;//玩家定缺  1.万 2.筒 3.条
+}
+//玩家出牌
+message F301116C2S{
+  required int32 cardIds=1;//玩家出牌
+}
+//玩家出牌结果
+message F301116S2C{
+  required int32 result=1;//出牌结果码
+  required int32 cardIds=2;//玩家出牌
+  required int64 actionUserID=3;//操作玩家ID
+  repeated PlayPlayerInfos cardInfos=4;//玩家牌信息
+  required int64 nextUserId=5;//下次操作玩家ID
+  required int32 lastAllCardNum=6;//牌堆剩余牌数
+
+}
+//玩家变更信息
+message PlayPlayerInfos{
+  required int64 userID=1;//玩家ID「例如：1234567890」
+  repeated int32 handCardIds=2;//玩家手牌
+  repeated int32 playCards=3;//玩家出牌区
+  //玩家出牌之后其他玩家有操作
+  repeated int32 actions=4;//玩家可操作  1.碰 2.杠 3.胡 4.过     胡 > 杠、碰
+  repeated ActionCards pengCards=5;//玩家碰杠区
+  optional int32 moCardId=6;//摸牌玩家ID
+  optional int32 winCoin=7;//玩家输赢金币
+  optional int32 allCoin=8;//玩家总金币
+  repeated WinCardInfo winCards=9;//玩家听牌提示
+  optional int32 huType=10;//胡牌类型  1.地胡  2.天胡  3.清幺九 4.清七对 5.清金沟沟 6.将金沟沟 7.清龙七对 8.十八罗汉 9.清十八罗汉
+}
+message WinCardInfo{
+  required int32 cardIds=1;//玩家牌ID
+  required int32 bests=2;//赢的倍数
+  required int32 lastCardNum=3;//剩余牌的数量
+}
+//玩家操作
+message F301117C2S{
+  required int32 action=1;//玩家操作 1.碰 2.杠 3.胡
+}
+// 胡 碰 杠操作
+message F301117S2C{
+  required int64 actionUserID=1;//操作玩家ID
+  required int32 action=2;//玩家操作 1.碰 2.杠 3.胡
+  repeated PlayPlayerInfos cardInfos=3;//玩家牌信息
+  required int64 nextUserId=4;//下次操作玩家ID
+}
+
+//退出
+message F301118S2C{
+  required int64 userID=1;//退出玩家ID
+}
+
+
+
+
+

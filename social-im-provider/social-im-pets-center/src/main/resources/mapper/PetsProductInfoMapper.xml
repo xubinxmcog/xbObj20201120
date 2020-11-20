@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.PetsProductInfoMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.PetsProductInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="product_code" jdbcType="VARCHAR" property="productCode" />
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="pic_url" jdbcType="VARCHAR" property="picUrl" />
+    <result column="publish_status" jdbcType="TINYINT" property="publishStatus" />
+    <result column="audit_status" jdbcType="TINYINT" property="auditStatus" />
+    <result column="sort" jdbcType="BIGINT" property="sort" />
+    <result column="attribute" jdbcType="OTHER" property="attribute" />
+    <result column="descript" jdbcType="VARCHAR" property="descript" />
+    <result column="indate_time" jdbcType="TIMESTAMP" property="indateTime" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, category_id, product_code, product_name, pic_url, publish_status, audit_status, 
+    sort, `attribute`, descript, indate_time, modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from pets_product_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from pets_product_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.PetsProductInfo" useGeneratedKeys="true">
+    insert into pets_product_info (category_id, product_code, product_name, 
+      pic_url, publish_status, audit_status, 
+      sort, `attribute`, descript, 
+      indate_time, modified_time)
+    values (#{categoryId,jdbcType=INTEGER}, #{productCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, 
+      #{picUrl,jdbcType=VARCHAR}, #{publishStatus,jdbcType=TINYINT}, #{auditStatus,jdbcType=TINYINT}, 
+      #{sort,jdbcType=BIGINT}, #{attribute,jdbcType=OTHER}, #{descript,jdbcType=VARCHAR}, 
+      #{indateTime,jdbcType=TIMESTAMP}, #{modifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.PetsProductInfo">
+    update pets_product_info
+    <set>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="productCode != null">
+        product_code = #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null">
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="picUrl != null">
+        pic_url = #{picUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="publishStatus != null">
+        publish_status = #{publishStatus,jdbcType=TINYINT},
+      </if>
+      <if test="auditStatus != null">
+        audit_status = #{auditStatus,jdbcType=TINYINT},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="attribute != null">
+        `attribute` = #{attribute,jdbcType=OTHER},
+      </if>
+      <if test="descript != null">
+        descript = #{descript,jdbcType=VARCHAR},
+      </if>
+      <if test="indateTime != null">
+        indate_time = #{indateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifiedTime != null">
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <resultMap id="ProductInfoBaseResultMap" type="com.enuos.live.dto.PetsShopDTO">
+    <id column="id" property="productId"/>
+    <result column="category_id" property="categoryId"/>
+    <result column="product_code" property="productCode"/>
+    <result column="product_name" property="productName"/>
+    <result column="pic_url" property="picUrl"/>
+    <result column="sort" property="sort"/>
+    <result column="attribute" property="attribute"/>
+    <result column="descript" property="descript"/>
+    <collection property="prices" ofType="com.enuos.live.pojo.PetsProductPrice">
+      <result column="priceId" property="priceId"/>
+      <result column="product_id" property="productId"/>
+      <result column="time_limit" property="timeLimit"/>
+      <result column="pay_type1" property="payType1"/>
+      <result column="price1" property="price1"/>
+      <result column="pay_type2" property="payType2"/>
+      <result column="priceDescribe" property="describe"/>
+      <result column="price2" property="price2"/>
+    </collection>
+    <collection property="effectQuality" ofType="com.enuos.live.pojo.PetsDressUpQualityConfig">
+      <result column="quality_id" property="qualityId"/>
+      <result column="quality_name" property="qualityName"/>
+      <result column="effect_gold" property="effectGold"/>
+      <result column="effect_beFull" property="effectBeFull"/>
+      <result column="effect_mood" property="effectMood"/>
+      <result column="effect_food" property="effectFood"/>
+      <result column="effect_toys" property="effectToys"/>
+    </collection>
+  </resultMap>
+
+  <select id="findCategoryPetsProductInfo" resultMap="ProductInfoBaseResultMap">
+    select
+      t1.id,
+      t1.category_id,
+      t1.product_code,
+      t1.product_name,
+      t1.pic_url,
+      t1.sort,
+      t1.`attribute`,
+      t1.descript,
+
+      t2.id priceId,
+      t2.time_limit,
+      t2.pay_type1,
+      t2.price1,
+      t2.pay_type2,
+      t2.price2,
+      t2.`describe` priceDescribe,
+
+      t3.quality_id,
+      t3.quality_name,
+      t3.effect_gold,
+      t3.effect_beFull,
+      t3.effect_mood,
+      t3.effect_food,
+      t3.effect_toys
+
+    from pets_product_info t1
+    left join pets_product_price t2 on t1.id = t2.product_id
+    left join pets_dress_up_quality_config t3 on t3.product_code = t1.product_code
+    where
+      t1.category_id = #{categoryId}
+      and t1.publish_status = 1
+      and t1.audit_status = 1
+    order by t1.sort asc
+
+  </select>
+
+  <resultMap id="findPricesMap" type="com.enuos.live.pojo.PetsProductPrice">
+    <result column="id" property="priceId"/>
+    <result column="product_id" property="productId"/>
+    <result column="time_limit" property="timeLimit"/>
+    <result column="pay_type1" property="payType1"/>
+    <result column="price1" property="price1"/>
+    <result column="pay_type2" property="payType2"/>
+    <result column="describe" property="describe"/>
+    <result column="price2" property="price2"/>
+  </resultMap>
+  <select id="findPrices" resultMap="findPricesMap">
+        select id, time_limit, pay_type1, price1, pay_type2, price2,`describe`
+        FROM pets_product_price
+        where
+        product_id = #{id}
+        and `status`=1
+    </select>
+
+  <!--商品信息详情-->
+  <select id="getPetsProductPayInfo" resultType="com.enuos.live.pojo.PetsProductPayInfo">
+        SELECT
+            t1.id AS productId,
+            t1.product_code AS productCode,
+            t1.product_name AS productName,
+            t1.category_id AS categoryId,
+
+            t2.time_limit AS timeLimit,
+            t2.pay_type1 AS payType1,
+            t2.price1,
+            t2.pay_type2 AS payType2,
+            t2.price2,
+
+            t3.using_pro AS usingPro
+        FROM
+            pets_product_info t1
+            LEFT JOIN pets_product_price t2 ON t2.product_id = t1.id
+            LEFT JOIN pets_product_category t3 ON t3.id = t1.category_id
+        WHERE
+            t1.id = #{productId}
+            AND t2.id = #{priceId}
+            AND t1.audit_status = 1
+            AND t1.publish_status = 1
+    </select>
+
+</mapper>

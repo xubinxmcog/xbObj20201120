@@ -1,0 +1,130 @@
+// Platform.Model + classname >>>> java方式
+package Platform.ModelF20001;
+// 生成文件位置 >>>> java方式
+option java_package = "com.enuos.live.proto.f20001msg";
+// 生成class名称 >>>> java方式
+option java_outer_classname = "F20001";
+// 游戏匹配 >>>> 通讯协议 >>>> 消息号(唯一KEY) 20001
+// 协议定义格式:
+// enum 可以包含一个用户自定义的枚举类型uint32
+// message 可以包含一个用户自定义的消息类型
+// #########################################################
+// #                                                       #
+// #             F + 消息号 + 子消息号 + S2C/C2S             #
+// #                                                       #
+// #########################################################
+// 限定修饰符包含 required(必须)\optional(可选)\repeated(数组)等自行了解
+// 限定修饰符 | 数据类型 | 字段名称 | = | 字段编码值 |
+// remark:
+// F >>>> 协议标记(区分协议)
+// 消息号 >>>> 功能KEY 例如: 20001/20011
+// 子消息号 >>>> 操作编号 例如: 1/2/3/4/5
+// S2C >>>> Server to Client
+// C2S >>>> Client to Server
+
+// 玩家信息
+message ESMatchPlayer {
+  required int64 userId = 1; //用户ID
+  required string thumbIconURL = 2; //用户头像
+  required string nickName = 3; //用户昵称
+  required int32 sex = 4; //用户性别 1-男 2-女
+  required int32 level = 5; //用户等级
+}
+
+// 双人匹配 子消息号 0
+message F200010C2S {
+  required int64 gameCode = 1; //游戏编号 例如：30001/30011/30031/30071
+}
+message F200010S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  required int64 roomId = 2; //房间ID
+  repeated ESMatchPlayer matchPlayer = 3; //匹配玩家信息
+}
+
+// 取消匹配 子消息号 1
+message F200011C2S {
+  required int64 gameCode = 1; //游戏编号
+}
+
+// 飞行棋 子消息号 2
+message F200012C2S {
+  required int64 gameCode = 1; //游戏编号
+  required int32 numberMatch = 2; //匹配人数 0-{2人} 1-{4人}
+}
+message F200012S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  optional int64 roomId = 2; //房间ID
+  optional int32 numberMatch = 3; //匹配人数 0-{2人} 1-{4人}
+  repeated ESMatchPlayer matchPlayer = 4; //匹配玩家信息
+}
+
+// 谁是卧底 子消息号 3
+message F200013C2S {
+  required int64 gameCode = 1; //游戏编号
+  required int32 numberMatch = 2; //匹配人数 0-{4-6人} 1-{7-8人}
+  required int32 meetMode = 3; //交流方式 0-文字 1-语音
+}
+message F200013S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  optional int64 roomId = 2; //房间ID
+}
+
+// 狼人杀 子消息号 4
+message F200014C2S {
+  required int64 gameCode = 1; //游戏编号
+  required int32 numberMatch = 2; //匹配人数 0-{6人} 1-{9人} 2-{12人}
+  required int32 screening = 3; //场次 1-普通场 2-进阶场
+}
+message F200014S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  optional int64 roomId = 2; //房间ID
+}
+
+// 你画我猜/你说我猜 子消息号 5
+message F200015C2S {
+  required int64 gameCode = 1; //游戏编号 例如：30041/30061
+}
+message F200015S2C {
+  required int64 roomId = 1; //房间ID 
+  required string gameLink = 2; //游戏链接
+}
+
+// 快速开始 子消息号 6
+message F200016C2S {
+  required int64 gameCode = 1; //游戏编号
+}
+message F200016S2C {
+  required int64 roomId = 1; //房间ID 
+  optional string error = 2; //金币不足提示
+}
+
+// 一起优诺/炸弹猫  子消息号 7  
+message F200017C2S {
+  required int64 gameCode = 1; //游戏编号
+}
+message F200017S2C {
+  optional string error = 1; //金币不足提示
+  required int64 roomId = 2; //房间ID
+}
+
+// 七乐麻将 子消息号 8  
+message F200018C2S {
+  required int64 gameCode = 1; //游戏编号
+  required int32 gameMode = 2; //游戏方式 0-血战到底 1-血流到底
+  required int32 screening = 3; //房间场次 1-雀士场 2-雀杰场 3-雀豪场 4-雀圣场
+}
+message F200018S2C {
+  required int32 result = 1; //结果码 0-成功 1-失败
+  optional int64 roomId = 2; //房间ID
+}
+
+// 七乐地主 子消息号 9
+message F200019C2S {
+  required int64 gameCode = 1; //游戏编号
+  required int32 gameMode = 2; //游戏方式 0-经典 1-癞子
+  required int32 screening = 3; //房间场次 1-初级场 2-中级场 3-高级场 4-王者场
+}
+message F200019S2C {
+  optional string error = 1; //金币不足提示
+  required int64 roomId = 2; //房间ID
+}

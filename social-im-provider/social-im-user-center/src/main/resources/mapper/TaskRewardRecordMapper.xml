@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.TaskRewardRecordMapper">
+
+    <!--获取领奖记录-->
+    <select id="getRecordByCode" resultType="java.lang.String">
+        select
+        code
+        from tb_task_reward_record
+        where user_id = #{userId} and code like concat(#{code}, '_%')
+    </select>
+
+    <!--获取领奖记录-->
+    <select id="getRecordByCodeList" resultType="java.lang.String">
+        select
+        code
+        from tb_task_reward_record
+        where user_id = #{userId}
+        and code in
+        <foreach collection="codeList" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+    <!--获取领奖记录-->
+    <select id="getRecordByPrefix" resultType="java.lang.String">
+        select
+        code
+        from tb_task_reward_record
+        where user_id = #{userId}
+        and code like concat(#{prefix}, '%')
+    </select>
+
+    <!--获取数量-->
+    <select id="getRecordNumByPrefix" resultType="java.util.Map">
+        select count(1) num from tb_task_reward_record where user_id = #{userId} and code like concat(#{prefix}, '%')
+    </select>
+
+    <!--保存领奖记录-->
+    <insert id="save" useGeneratedKeys="true">
+        insert into tb_task_reward_record(
+        user_id, code
+        ) values (
+        #{userId}, #{code}
+        )
+    </insert>
+
+    <!--是否领奖-->
+    <select id="isExists" resultType="java.lang.Integer">
+        select 1 from tb_task_reward_record where user_id = #{userId} and code = #{code} limit 1
+    </select>
+</mapper>

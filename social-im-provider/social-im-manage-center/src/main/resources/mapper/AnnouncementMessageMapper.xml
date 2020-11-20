@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.AnnouncementMessageMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.AnnouncementMessage">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="release_range" jdbcType="INTEGER" property="releaseRange"/>
+        <result column="range_id" jdbcType="INTEGER" property="rangeId"/>
+        <result column="edit_id" jdbcType="BIGINT" property="editId"/>
+        <result column="edit_name" jdbcType="VARCHAR" property="editName"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="crate_time" jdbcType="TIMESTAMP" property="crateTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, content, release_range, range_id, edit_id, edit_name, `status`, crate_time, update_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_announcement_message
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByRangeId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_announcement_message
+        where range_id = #{rangeId,jdbcType=INTEGER}
+        order by update_time desc limit 1
+    </select>
+    <select id="selectByRangeIdCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(1) from tb_announcement_message where range_id = #{rangeId,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_announcement_message
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.AnnouncementMessage"
+            useGeneratedKeys="true">
+        insert into tb_announcement_message (
+            content,
+            release_range,
+            range_id,
+            edit_id,
+            edit_name,
+            `status`,
+            crate_time,
+            update_time
+          )values (
+              #{content,jdbcType=VARCHAR},
+              #{releaseRange,jdbcType=INTEGER},
+              #{rangeId,jdbcType=INTEGER},
+              #{editId,jdbcType=INTEGER},
+              #{editName,jdbcType=VARCHAR},
+              1,
+              NOW(),
+              NOW()
+          )
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.AnnouncementMessage">
+        update tb_announcement_message
+        <set>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="releaseRange != null">
+                release_range = #{releaseRange,jdbcType=INTEGER},
+            </if>
+            <if test="rangeId != null">
+                range_id = #{rangeId,jdbcType=INTEGER},
+            </if>
+            <if test="editId != null">
+                edit_id = #{editId,jdbcType=INTEGER},
+            </if>
+            <if test="editName != null">
+                edit_name = #{editName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                `status` = #{status,jdbcType=INTEGER},
+            </if>
+                update_time = NOW()
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

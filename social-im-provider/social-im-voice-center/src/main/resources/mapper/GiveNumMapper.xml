@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.GiveNumMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.GiveNum">
+    <id column="id" property="id" />
+    <result column="num" property="num" />
+    <result column="describe" property="describe" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, num, `describe`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from give_num
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectGiveNumList" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from give_num limit 5
+  </select>
+
+  <select id="selectGiftGiveNumList" resultType="java.util.Map">
+    select
+      t2.id,
+      t2.num,
+      t2.`describe`
+    from gift_give_num t1
+    left join give_num t2 on t1.give_id = t2.id
+    where t1.gift_id = #{giftId}
+  </select>
+
+</mapper>

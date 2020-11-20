@@ -1,0 +1,36 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: dev
+
+mybatis:
+  #注意：一定要对应mapper映射xml文件的所在路径
+  mapper-locations: classpath:mapper/*.xml
+  #注意：对应实体类的路径
+  type-aliases-package: com.enuos.live.pojo
+  #对应实体属性自动转为驼峰命名，对返回map无效
+  configuration:
+    map-underscore-to-camel-case: true
+
+pagehelper:
+  helper-dialect: mysql
+  #启用合理化，如果pageNum < 1 会查询第一页，如果 pageNum > pages 会查询最后一页
+  reasonable: true
+  support-methods-arguments: true
+  page-size-zero: true
+  params: count=countSql
+
+
+### 调度中心部署跟地址 [选填]：如调度中心集群部署存在多个地址则用逗号分隔。执行器将会使用该地址进行"执行器心跳注册"和"任务结果回调"；为空则关闭自动注册；
+xxl:
+  job:
+    admin:
+      addresses: http://127.0.0.1:8083/xxl-job-admin
+    accessToken:
+    executor:
+      appname: social-im-job-center-sample
+      address:
+      ip:
+      port: 9998
+      logpath: /data/applogs/xxl-job/jobhandler
+      logretentiondays: 30

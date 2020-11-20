@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.QiuRiMapper">
+    
+    <!--丹枫迎秋-->
+    <resultMap id="qiuri" type="com.enuos.live.pojo.QiuRi">
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="backgroundUrl" property="backgroundUrl" jdbcType="VARCHAR"/>
+        <result column="startTime" property="startTime" jdbcType="VARCHAR"/>
+        <result column="endTime" property="endTime" jdbcType="VARCHAR"/>
+        <collection property="taskList" ofType="com.enuos.live.pojo.QiuRiTask">
+            <result column="taskCode" property="code" jdbcType="VARCHAR"/>
+            <result column="taskTitle" property="title" jdbcType="VARCHAR"/>
+            <result column="toFinishPath" property="toFinishPath" jdbcType="VARCHAR"/>
+            <result column="rewardCode" property="rewardCode" jdbcType="VARCHAR"/>
+            <result column="number" property="number" jdbcType="VARCHAR"/>
+            <result column="url" property="url" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    
+    <!--丹枫迎秋活动日常-->
+    <select id="getQiuRiByCode" parameterType="java.lang.String" resultMap="qiuri">
+        select
+        t1.code,
+        t1.title,
+        t1.background_url backgroundUrl,
+        t1.start_time startTime,
+        t1.end_time endTime,
+        
+        concat(t2.code, '_', t3.suffix) taskCode,
+        t2.title taskTitle,
+        t2.to_finish_path toFinishPath,
+        t3.reward_code rewardCode,
+        t3.number,
+        t4.url
+        from tb_task t1
+        left join tb_task t2 on t2.code like concat(t1.code, '%') and t2.type = 2
+        left join tb_task_reward t3 on t3.task_code = t2.code
+        left join tb_reward t4 on t4.code = t3.reward_code
+        where t1.code = #{code}
+    </select>
+    
+    
+</mapper>

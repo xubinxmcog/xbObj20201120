@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.UserMusicMapper">
+    <resultMap id="BaseResultMap" type="com.enuos.live.pojo.UserMusic">
+        <id column="music_id" property="musicId"/>
+        <result column="user_id" property="userId"/>
+        <result column="is_add" property="isAdd"/>
+        <result column="user_name" property="userName"/>
+        <result column="music_name" property="musicName"/>
+        <result column="music_singer" property="musicSinger"/>
+        <result column="music_album" property="musicAlbum"/>
+        <result column="music_url" property="musicUrl"/>
+        <result column="music_cover" property="musicCover"/>
+        <result column="music_type" property="musicType"/>
+        <result column="is_status" property="isStatus"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    music_id, user_id, user_name, music_name, music_singer, music_album, music_url, music_cover,
+    music_type, is_status, create_time, modified_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user_music
+        where music_id = #{musicId} and is_status = 1
+    </select>
+
+    <select id="getMusics" parameterType="com.enuos.live.dto.UserMusicDTO" resultMap="BaseResultMap">
+        SELECT
+        mu.music_id,
+        if((select count(1) from user_music_list userlist where userlist.user_id = #{userId} and userlist.music_id =
+        mu.music_id) > 0,1,0) as is_add,
+        mu.user_name,
+        mu.music_name,
+        mu.music_singer,
+        mu.music_album,
+        mu.music_url,
+        mu.music_cover,
+        mu.music_type,
+        mu.audit_status,
+        mu.is_status,
+        mu.create_time,
+        mu.modified_time
+        FROM
+        user_music mu
+        <where>
+            <if test="musicName != null">
+                mu.music_name like CONCAT('%', #{musicName}, '%') and
+            </if>
+            <if test="musicSinger != null">
+                mu.music_singer like CONCAT('%', #{musicSinger}, '%') and
+            </if>
+            <if test="musicAlbum != null">
+                mu.music_album like CONCAT('%', #{musicAlbum}, '%') and
+            </if>
+            <if test="musicType != null">
+                mu.music_type = #{musicType} and
+            </if>
+            <if test="auditStatus != null">
+                mu.audit_status = #{auditStatus} and
+            </if>
+            mu.is_status = 1
+        </where>
+    </select>
+
+    <select id="isExist" resultType="java.lang.Integer">
+        select 1 from user_music
+        where music_name LIKE CONCAT('%', #{musicName}, '%')
+        and is_status = 1 limit 1
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_music
+    where music_id = #{musicId}
+  </delete>
+    <insert id="insert" keyColumn="music_id" keyProperty="musicId" parameterType="com.enuos.live.pojo.UserMusic"
+            useGeneratedKeys="true">
+    insert into user_music (user_id, music_name, music_singer, 
+      music_album, music_url, music_cover, music_type,
+      is_status, audit_status, create_time, modified_time
+      )
+    values (#{userId}, #{musicName}, #{musicSinger},
+      #{musicAlbum}, #{musicUrl}, #{musicCover}, #{musicType}, 1,
+      0, NOW(), NOW()
+      )
+  </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.UserMusic">
+        update user_music
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="musicName != null">
+                music_name = #{musicName},
+            </if>
+            <if test="musicSinger != null">
+                music_singer = #{musicSinger},
+            </if>
+            <if test="musicAlbum != null">
+                music_album = #{musicAlbum},
+            </if>
+            <if test="musicUrl != null">
+                music_url = #{musicUrl},
+            </if>
+            <if test="musicCover != null">
+                music_cover = #{musicCover},
+            </if>
+            <if test="musicType != null">
+                music_type = #{musicType},
+            </if>
+            <if test="isStatus != null">
+                is_status = #{isStatus},
+            </if>
+            <if test="auditStatus != null">
+                audit_status = #{auditStatus},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            modified_time = NOW()
+        </set>
+        where music_id = #{musicId}
+    </update>
+
+    <update id="updateIsStatus">
+        update user_music
+        set
+            is_status = 0,
+            modified_time = NOW()
+        where music_id = #{musicId}
+    </update>
+
+</mapper>

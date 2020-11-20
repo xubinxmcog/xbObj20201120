@@ -1,0 +1,101 @@
+//五子棋
+package Platform.ModelF30001;
+option java_package = "com.enuos.live.proto.f30001msg";
+option java_outer_classname = "F30001";
+
+//进入游戏
+message F30001S2C {
+  required int32 result = 1; //结果码 0 成功 1 房间已失效 2 获取数据失败，请重新匹配
+  repeated PlayerInfo player = 2; //玩家信息
+}
+
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别
+  optional string iconFrame = 5; // 头像框
+  required int32 identity = 6; // 1-黑色◉ 2-白色○
+  repeated DPosition dPosition = 7; //棋子位置
+  optional GameStyle gameStyle = 8; //游戏装饰 
+}
+
+//游戏风格
+message GameStyle {
+  required string chessUrl = 1; // 棋子地址
+}
+
+//开始游戏
+message F300011S2C {
+  required int64 actionUserId = 1; //操作玩家
+  required int32 actionTime = 2; //玩家操作时间
+}
+
+//玩家放置
+message F300012C2S {
+  required DPosition dposiion = 1; //玩家放置位置
+}
+
+//棋子数据
+message DPosition {
+  required int32 positionX = 1; //玩家放置X轴坐标
+  required int32 positionY = 2; //玩家放置Y轴坐标
+  required int32 color = 3; //棋子颜色
+}
+
+//放置结果
+message F300012S2C {
+  required int32 result = 1; //结果码
+  optional DPosition dposition = 2; //玩家放置位置
+  optional int64 actionUserId = 3; //当前操作玩家
+  optional int64 nextUserID = 4; //下次玩家操作ID
+  optional int32 actionTime = 5; //玩家操作时间
+}
+
+//游戏结算
+message F300013S2C {
+  required int64 userID = 1; // 胜利玩家ID
+  required int32 addExp = 2; // 增加经验
+  required int32 addGlod = 3; // 增加金币
+  repeated DPosition posiList = 4; // 胜利玩家放置棋的位置
+  optional int32 isDouble=5;//默认是0  0.不加倍  1.加倍
+}
+
+//申请悔棋 4
+message F300014S2C {
+  required int64 userID = 1; //玩家ID
+  required int32 result = 2; //结果码
+}
+
+//悔棋确认 5
+message F300015C2S {
+  required int32 isAgree = 1; //是否同意
+}
+
+//玩家悔棋
+message F300015S2C {
+  required int32 result = 1; //结果码
+  repeated DPosition breakPosition = 2; //悔棋位置
+  required int64 nextUserID = 3; //下次玩家操作ID
+  required int32 actionTime = 4; //玩家操作时间
+}
+
+//玩家退出 6
+message F300016S2C {
+  required int32 result = 1; //退出结果码
+  required int64 userID = 2; //退出玩家ID
+}
+
+//玩家认输
+message F300017S2C {
+  required int32 result = 1; //玩家认输结果
+}
+
+//玩家断线
+message F300018S2C {
+  repeated PlayerInfo breakLineInfo = 1; //短线玩家消息
+  required int64 actionUserId = 2; //操作玩家
+  required int32 actionTime = 3; //玩家操作时间
+}
+

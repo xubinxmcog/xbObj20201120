@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.ProductPicInfoMapper">
+    <resultMap type="com.enuos.live.pojo.ProductPicInfo" id="ProductPicInfoResult">
+        <id property="id" column="id"/>
+        <result property="productId" column="product_id"/>
+        <result property="picDesc" column="pic_desc"/>
+        <result property="picUrl" column="pic_url"/>
+        <result property="picName" column="pic_name"/>
+        <result property="picNewName" column="pic_new_name"/>
+        <result property="picType" column="pic_type"/>
+        <result property="isMaster" column="is_master"/>
+        <result property="picOrder" column="pic_order"/>
+        <result property="picStatus" column="pic_status"/>
+        <result property="modifiedTime" column="modified_time"/>
+    </resultMap>
+    <sql id="commonSelect">
+        id, product_id, pic_desc, pic_url, pic_name,pic_new_name, pic_type,
+        is_master, pic_order, pic_status, modified_time
+    </sql>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.enuos.live.pojo.ProductPicInfo">
+        insert into product_pic_info(
+        product_id,
+        pic_desc,
+        pic_url,
+        pic_name,
+        pic_new_name,
+        pic_type,
+        is_master,
+        pic_order,
+        pic_status,
+        modified_time
+        ) values (
+        #{productId},
+        #{picDesc},
+        #{picUrl},
+        #{picName},
+        #{picNewName},
+        #{picType},
+        #{isMaster},
+        #{picOrder},
+        1,
+        NOW()
+        )
+    </insert>
+    <update id="update">
+        update product_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productId != null and productId != 0">product_id = #{productId},</if>
+            <if test="picDesc != null">pic_desc = #{picDesc},</if>
+            <if test="picUrl != null">pic_url = #{picUrl},</if>
+            <if test="isMaster != null">is_master = #{isMaster},</if>
+            <if test="picOrder != null">category_status = #{picOrder},</if>
+            <if test="picStatus != null">pic_status = #{picStatus}</if>
+            modified_time = NOW()
+        </trim>
+        where id =#{id}
+    </update>
+
+    <select id="getProductPicInfo" resultMap="ProductPicInfoResult" parameterType="java.util.Map">
+        select
+        <include refid="commonSelect"/>
+        from product_pic_info
+        <where>
+            <if test="id != null and id != 0">
+                id = #{id}
+            </if>
+            <if test="productId != null and productId != 0">
+                product_id = #{productId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

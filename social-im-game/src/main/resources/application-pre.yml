@@ -1,0 +1,143 @@
+#server
+server:
+  port: 9100
+  undertow:
+    #是否分配的直接内存(NIO直接分配的堆外内存)
+    direct-buffers: true
+    #设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+    #不要设置过大，如果过大，启动项目会报错：打开文件数过多
+    io-threads: 16
+    #阻塞任务线程池, 当执行类似servlet请求阻塞IO操作, undertow会从这个线程池中取得线程
+    #它的值设置取决于系统线程执行任务的阻塞系数，默认值是IO线程数*8
+    worker-threads: 256
+    #以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
+    #每块buffer的空间大小,越小的空间被利用越充分，不要设置太大，以免影响其他应用，合适即可
+    buffer-size: 1024
+
+#spring
+spring:
+  application:
+    name: GAME-SERVER
+  security:
+    user:
+      name: nanjing7le
+      password: enuos2020
+
+  #链路追踪
+  zipkin:
+    base-url: http://localhost:9771
+    sender:
+      type: web
+  #数据采样
+  sleuth:
+    sampler:
+      #100%采样
+      probability: 1.0
+
+  #nacos注册中心
+  cloud:
+    nacos:
+      discovery:
+        #注册地址
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        #dashboard
+        dashboard: localhost:8080
+        port: 8719
+
+  #文件上传
+  servlet:
+    multipart:
+      enabled: true
+      #单个文件的大小
+      max-file-size: 100MB
+      #单次请求的文件的总大小
+      max-request-size: 100MB
+
+  #redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 20000
+    lettuce:
+      pool:
+        #最大连接数
+        max-active: 1024
+        #最大阻塞等待时间(负数表示没限制)
+        max-wait: 20000
+        #最大空闲
+        max-idle: 200
+        #最小空闲
+        min-idle: 10
+
+#feign
+feign:
+  sentinel:
+    #流量监控
+    enabled: true
+  httpclient:
+    #是否启用httpclient
+    enabled: false
+    #请求连接超时时间（毫秒）
+    connection-timeout: 3000
+  okhttp:
+    #是否启用http-ok（性能比httpclient高）
+    enabled: true
+#  hystrix:
+#    #是否启用hystrix
+#    enabled: true
+
+#Hystrix
+#hystrix:
+#  #这样将会自动配置一个 Hystrix 并发策略插件的 hook，这个 hook 会将 SecurityContext 从主线程传输到 Hystrix 的命令。
+#  #因为 Hystrix 不允许注册多个 Hystrix 策略，所以可以声明 HystrixConcurrencyStrategy
+#  #为一个 Spring bean 来实现扩展。Spring Cloud 会在 Spring 的上下文中查找你的实现，并将其包装在自己的插件中。
+#  shareSecurityContext: true
+#  command:
+#    default:
+#      circuitBreaker:
+#        #当在配置时间窗口内达到此数量的失败后，进行短路。默认20个
+#        requestVolumeThreshold: 3
+#        #触发短路的时间值，当该值设为5000时，则当触发 circuit break 后的5000毫秒内都会拒绝request
+#        #也就是5000毫秒后才会关闭circuit。默认5000
+#        sleepWindowInMilliseconds: 15000
+#        #强制打开熔断器，如果打开这个开关，那么拒绝所有request，默认false
+#        forceOpen: false
+#        #强制关闭熔断器 如果这个开关打开，circuit将一直关闭且忽略，默认false
+#        forceClosed: false
+#      execution:
+#        isolation:
+#          thread:
+#            #熔断器超时时间，默认：1000/毫秒
+#            timeoutInMilliseconds: 10000
+#          timeout:
+#            #是否开启超时(默认开启)
+#            enabled: true
+
+#eureka
+#eureka:
+#  instance:
+#    # 使用 ip 代替实例名
+#    prefer-ip-address: true
+#    # 实例的主机名
+#    hostname: ${spring.cloud.client.ip-address}
+#    # 实例的 ID 规则
+#    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+#  client:
+#    #是否注册到注册中心
+#    register-with-eureka: true
+#    #是否从注册中心获取注册信息
+#    fetch-registry: true
+#    #查询服务和注册服务与注册中心交互的地址，多个地址用,分割
+#    service-url:
+#      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@localhost:7010/eureka/
+
+#upload url
+upload:
+  url: http://localhost:7100
+
+#参数加解密
+data:
+  is-cipher: true

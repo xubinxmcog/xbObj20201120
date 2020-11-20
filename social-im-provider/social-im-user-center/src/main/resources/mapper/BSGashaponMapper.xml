@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.BSGashaponMapper">
+
+    <!--是否可用-->
+    <select id="isExists" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from tb_task where code = #{code}
+    </select>
+
+    <!--保存扭蛋任务-->
+    <insert id="save" parameterType="com.enuos.live.pojo.BSGashapon" useGeneratedKeys="true">
+        insert into tb_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="description != null">
+                description,
+            </if>
+            <if test="iconUrl != null">
+                icon_url,
+            </if>
+            <if test="backgroundUrl != null">
+                background_url,
+            </if>
+            <if test="toFinishPath != null">
+                to_finish_path,
+            </if>
+            <if test="sort != null">
+                sort,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            title,
+            code,
+            source,
+            category,
+            start_time,
+            end_time,
+            space,
+            space_unit,
+            expend,
+            join_count
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="iconUrl != null">
+                #{iconUrl},
+            </if>
+
+            <if test="backgroundUrl != null">
+                #{backgroundUrl},
+            </if>
+
+            <if test="toFinishPath != null">
+                #{toFinishPath},
+            </if>
+
+            <if test="sort != null">
+                #{sort},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            #{title},
+            #{code},
+            #{source},
+            #{category},
+            #{startTime},
+            #{endTime},
+            #{space},
+            #{spaceUnit},
+            #{expend},
+            #{joinCount}
+        </trim>
+    </insert>
+
+    <!--初始化扭蛋子任务-->
+    <insert id="initGashapon" parameterType="java.util.List" useGeneratedKeys="true">
+        insert into tb_gashapon (type, task_code, task_start_time, start_time, end_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.type}, #{item.task_code}, #{item.task_start_time}, #{item.start_time}, #{item.end_time})
+        </foreach>
+    </insert>
+
+    <!--设置定时-->
+    <insert id="initJob" parameterType="com.enuos.live.pojo.BSGashapon" useGeneratedKeys="true">
+        insert into tb_job(task_code, cron) values (#{code}, #{job.cron})
+    </insert>
+
+    <!--设置奖励-->
+    <insert id="initReward" parameterType="com.enuos.live.pojo.BSGashapon" useGeneratedKeys="true">
+        insert into tb_task_reward (task_code, reward_code, number, suffix) values
+        <foreach collection="rewardList" item="item" open="(" separator="," close=")">
+            #{code}, #{item.rewardCode}, #{item.number}, #{item.suffix}
+        </foreach>
+    </insert>
+</mapper>

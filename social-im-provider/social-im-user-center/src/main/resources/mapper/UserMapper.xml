@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.UserMapper">
+
+    <!--结果集-->
+    <resultMap id="stranger" type="com.enuos.live.pojo.Stranger">
+        <result column="userId" property="userId" jdbcType="BIGINT"/>
+        <result column="iconUrl" property="iconUrl" jdbcType="VARCHAR"/>
+        <result column="thumbIconUrl" property="thumbIconUrl" jdbcType="VARCHAR"/>
+        <result column="nickName" property="nickName" jdbcType="VARCHAR"/>
+        <result column="signature" property="signature" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="TINYINT"/>
+        <result column="area" property="area" jdbcType="VARCHAR"/>
+        <result column="isDel" property="isDel" jdbcType="INTEGER"/>
+        <result column="iconFrame" property="iconFrame" jdbcType="VARCHAR"/>
+        <result column="isFriend" property="isFriend" jdbcType="TINYINT"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="vip" property="vip" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="charm" property="charm" jdbcType="BIGINT"/>
+        <result column="vipIconUrl" property="vipIconUrl" jdbcType="VARCHAR"/>
+        <result column="isPullBlack" property="isPullBlack" jdbcType="INTEGER"/>
+        <collection property="backgroundList" ofType="com.enuos.live.pojo.Background">
+            <result column="backgroundUrl" property="backgroundUrl" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!--用户A获取用户B，是否好友[单向好友关系]-->
+    <select id="getStranger" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.sex,
+        t1.nick_name nickName,
+        t1.icon_url iconUrl,
+        t1.thumb_icon_url thumbIconUrl,
+
+        if(t3.id is null, 0, 1) isFriend,
+        t3.remark,
+
+        t4.level
+
+        from tb_user t1
+        inner join tb_user_account t2 on t2.user_id = t1.user_id and t2.is_del = 0
+        left join tb_user_friend t3 on t3.friend_id = t1.user_id and t3.is_del = 0 and t3.user_id = #{userId}
+        left join tb_user_account_attach t4 on t4.user_id = t1.user_id
+        <where>
+            and t1.is_del = 0
+            and t1.user_id = #{toUserId}
+        </where>
+    </select>
+
+    <!--用户A获取用户B详情-->
+    <select id="getStrangerDetail" resultMap="stranger">
+        select
+        t1.user_id userId,
+        t1.icon_url iconUrl,
+        t1.thumb_icon_url thumbIconUrl,
+        t1.nick_name nickName,
+        t1.signature,
+        t1.sex,
+        if(t7.position = 1, null, t1.area) area,
+        t1.is_del isDel,
+        if(t1.if_time <![CDATA[ > ]]> now(), t1.icon_frame, '') iconFrame,
+
+        if(t2.id is null, 0, 1) isFriend,
+        t2.remark,
+
+        t3.vip,
+        t3.level,
+        t3.charm,
+
+        t4.url vipIconUrl,
+
+        t5.url backgroundUrl,
+
+        if(t6.id is null, 0, 1) isPullBlack
+
+        from tb_user t1
+        left join tb_user_friend t2 on t2.friend_id = t1.user_id and t2.is_del = 0 and t2.user_id = #{userId}
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        left join tb_code_config t4 on t4.code = t3.vip and t4.code_type = 4
+        left join tb_user_resource t5 on t5.user_id = t1.user_id and t5.resource_type = 0
+        left join tb_user_blacklist t6 on t6.to_user_id = t1.user_id and t6.user_id = #{userId} and t6.rating = 0
+        left join user_settings t7 on t7.user_id = t1.user_id
+        where t1.user_id = #{toUserId}
+        order by t5.create_time, t5.id
+    </select>
+
+    <!--保存用户信息-->
+    <insert id="saveUser" parameterType="com.enuos.live.pojo.User" useGeneratedKeys="true">
+        insert into tb_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            sex,
+            birth,
+            nick_name,
+            icon_url,
+            thumb_icon_url,
+            <if test="area != null">
+                area,
+            </if>
+            <if test="iconFileId != null">
+                icon_file_id,
+            </if>
+            <if test="signature != null">
+                signature
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{sex},
+            #{birth},
+            #{nickName},
+            #{iconUrl},
+            #{thumbIconUrl},
+            <if test="area != null">
+                #{area},
+            </if>
+            <if test="iconFileId != null">
+                #{iconFileId},
+            </if>
+            <if test="signature != null">
+                #{signature}
+            </if>
+        </trim>
+    </insert>
+
+    <!--获取用户信息-->
+    <select id="getUserBaseByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.sex,
+        date_format(t1.birth, '%Y-%m-%d') birth,
+        if(t3.position = 1, null, t1.area) area,
+        t1.icon_file_id iconFileId,
+        t1.icon_url iconUrl,
+        t1.thumb_icon_url thumbIconUrl,
+
+        t1.nick_name nickName,
+        t1.signature,
+
+        t2.level,
+        t2.worth,
+        t2.vip,
+        date_format(expiration_time, '%Y-%m-%d %T') expirationTime
+
+        from tb_user t1
+        inner join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        left join user_settings t3 on t3.user_id = t1.user_id
+        where t1.is_del = 0 and t1.user_id = #{userId}
+    </select>
+
+    <!--获取主页综合信息-->
+    <select id="getUser" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.is_del,
+        t1.sex,
+        if(t4.position = 1, null, t1.area) area,
+        t1.nick_name nickName,
+        t1.icon_url iconUrl,
+        t1.thumb_icon_url thumbIconUrl,
+        if(t1.if_time <![CDATA[ > ]]> now(), t1.icon_frame, '') iconFrame,
+
+        t2.diamond,
+        t2.gold,
+        t2.level,
+        t2.experience,
+        t2.charm,
+        t2.vip,
+        date_format(t2.expiration_time, '%Y-%m-%d %T') expirationTime,
+
+        t3.threshold experienceLine,
+        t3.url levelIconUrl
+
+        from tb_user t1
+        left join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        left join tb_code_config t3 on t3.code = t2.level and t3.code_type = 1
+        left join user_settings t4 on t4.user_id = t1.user_id
+        where t1.user_id = #{userId} and t1.is_del = 0
+    </select>
+
+    <!--更新-->
+    <update id="updateUserBase" parameterType="com.enuos.live.pojo.User">
+        update tb_user
+        <set>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="birth != null">
+                birth = #{birth},
+            </if>
+            <if test="area != null">
+                area = #{area},
+            </if>
+            <if test="iconFileId != null">
+                icon_file_id = #{iconFileId},
+            </if>
+            <if test="iconUrl != null and iconUrl != ''">
+                icon_url = #{iconUrl},
+            </if>
+            <if test="thumbIconUrl != null and thumbIconUrl != ''">
+                thumb_icon_url = #{thumbIconUrl},
+            </if>
+            <if test="nickName != null and nickName != ''">
+                nick_name = #{nickName},
+            </if>
+            <if test="signature != null">
+                signature = #{signature},
+            </if>
+            update_time = now()
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!--修改身价-->
+    <update id="updateUserWorth" parameterType="com.enuos.live.pojo.User">
+        update tb_user_account_attach
+        set worth = #{worth}
+        where user_id = #{userId}
+    </update>
+
+    <!--批量保存用户背景-->
+    <insert id="batchSaveBackground" parameterType="com.enuos.live.pojo.User" useGeneratedKeys="true">
+        insert into tb_user_resource(user_id, url)
+        values
+        <foreach collection="backgroundList" item="bg" separator=",">
+            (#{userId}, #{bg.backgroundUrl})
+        </foreach>
+    </insert>
+
+    <!--获取用户背景-->
+    <select id="getUserBackgroundByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        url backgroundUrl
+        from tb_user_resource
+        where user_id = #{userId} and resource_type = 0
+    </select>
+
+    <!--删除背景-->
+    <delete id="deleteBackgroundByUserId" parameterType="java.lang.Long">
+        delete from tb_user_resource where resource_type = 0 and user_id = #{userId}
+    </delete>
+    
+    <!--获取主页称号-->
+    <select id="getTitle" resultType="java.util.Map">
+        select
+        t1.title_code titleCode,
+        t2.pic_url titleUrl
+        from tb_user_title t1
+        left join product_info t2 on t2.product_code = t1.title_code
+        where
+        t1.user_id = #{toUserId}
+        and t1.expire_time <![CDATA[>]]> now()
+        order by t1.id desc
+    </select>
+
+    <!--获取附近的人-->
+    <select id="nearbyList" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.nick_name nickName,
+        t1.thumb_icon_url thumbIconUrl,
+        t1.sex
+        from tb_user t1
+        <where>
+            and t1.is_del = 0
+            and t1.user_id in
+            <foreach collection="geoResultList" item="geo" open="(" close=")" separator=",">
+                #{geo.content.name}
+            </foreach>
+            and not exists (
+                select 1 from tb_user_friend where friend_id = t1.user_id and user_id = #{userId}
+            )
+            and not exists (
+                select 1 from user_settings where user_id = t1.user_id and friend_recommend = 1
+            )
+        </where>
+    </select>
+
+    <!--黑名单/屏蔽列表-->
+    <select id="blacklist" resultType="java.util.HashMap">
+        select
+        t1.to_user_id userId,
+
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        t2.sex,
+
+        t3.level
+        from tb_user_blacklist t1
+        left join tb_user t2 on t2.user_id = t1.to_user_id
+        left join tb_user_account_attach t3 on t3.user_id = t1.to_user_id
+        <where>
+            and t1.user_id = #{userId}
+            and t1.rating = #{rating}
+        </where>
+    </select>
+
+    <!--黑名单/屏蔽取消-->
+    <delete id="deleteBlacklist">
+        delete from tb_user_blacklist
+        where user_id = #{userId} and to_user_id = #{toUserId} and rating = #{rating}
+    </delete>
+
+    <!--获取身价阈值-->
+    <select id="getWorthThreshold" resultType="java.util.Map">
+        select threshold worth
+        from tb_code_config
+        where code_type = 5
+        order by code
+    </select>
+
+    <!--获取修改性别的设置阈值-->
+    <select id="getSexThreshold" resultType="java.lang.Long">
+        select threshold
+        from tb_code_config
+        where code_type = 6
+    </select>
+
+
+    <!--[OPEN]获取用户基本信息-->
+
+    <!--[OPEN]官网后台充值，输入userId，获取用户信息以校验-->
+    <select id="getUserForRecharge" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        user_id userId,
+        nick_name nickName,
+        thumb_icon_url thumbIconUrl
+        from tb_user
+        where user_id = #{userId}
+    </select>
+
+    <select id="getUserBase" resultType="java.util.Map">
+        select
+        t1.user_id friendId,
+        t1.nick_name nickName,
+        t1.icon_url iconUrl,
+        t1.sex,
+        t1.is_del isDel,
+
+        ifnull(t2.remark, '') remark,
+
+        t3.level
+
+        from tb_user t1
+        left join tb_user_friend t2 on t2.friend_id = t1.user_id and t2.user_id = #{userId}
+        left join tb_user_account_attach t3 on t3.user_id = t1.user_id
+        where
+        t1.user_id = #{friendId}
+    </select>
+
+    <!--[OPEN]关系-->
+    <select id="isRelation" resultType="java.lang.Integer">
+        select count(1) from ${table}
+        <where>
+            <if test="table == 'tb_user_friend'">
+                and user_id = #{userId} and friend_id = #{toUserId} and is_del = 0
+            </if>
+            <if test="table == 'tb_user_blacklist'">
+                and user_id = #{userId} and to_user_id = #{toUserId} and rating = 0
+            </if>
+        </where>
+    </select>
+
+    <!--[OPEN]获取用户昵称，性别，头像，账号等级-->
+    <select id="getUserList" parameterType="java.util.List" resultType="java.util.Map">
+        select
+        t1.user_id userId,
+        t1.nick_name nickName,
+        t1.icon_url iconUrl,
+        t1.sex,
+        t2.level
+        from tb_user t1
+        left join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        <where>
+            and t1.user_id in
+            <foreach collection="list" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+        </where>
+    </select>
+
+    <!--获取头像框，聊天框-->
+    <select id="getUserFrame" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+        user_id userId,
+        nick_name alias,
+        thumb_icon_url iconUrl,
+        if(if_time <![CDATA[ > ]]> now(), icon_frame, '') iconFrame,
+        if(cf_time <![CDATA[ > ]]> now(), chat_frame, '') chatFrame,
+        if(cf_time <![CDATA[ > ]]> now(), chat_frame_attribute, '') chatFrameAttribute
+        from tb_user
+        where is_del = 0 and user_id = #{userId}
+    </select>
+
+    <!--[OPEN]获取用户昵称，性别，头像，账号等级,VIP等级-->
+    <select id="getUserMsg" resultType="java.util.Map">
+        SELECT
+            t1.user_id userId,
+            t1.nick_name nickName,
+            t1.icon_url iconUrl,
+            t1.sex,
+            t2.level,
+            t2.vip,
+            DATE_FORMAT( t2.expiration_time, '%Y-%m-%d %H:%m:%s' ) expirationTime,
+            IF(t2.expiration_time > NOW(), 1, 0) isMember
+        FROM
+            tb_user t1
+            LEFT JOIN tb_user_account_attach t2 ON t2.user_id = t1.user_id
+        WHERE
+          t1.user_id = #{userId}
+    </select>
+
+    <!--[OPEN]获取昵称的字符串以','拼接-->
+    <select id="getNickName" parameterType="java.util.List" resultType="java.lang.String">
+        select
+        group_concat(nick_name)
+        from tb_user
+        where user_id in
+        <foreach collection="list" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+
+    <!--[OPEN]获取用户ID-->
+    <select id="getUserIdList" parameterType="java.lang.Integer" resultType="java.lang.Long">
+        select
+        t1.user_id
+        from tb_user_account t1
+        inner join tb_user_account_attach t2 on t2.user_id = t1.user_id
+        <where>
+            and t1.is_del = 0
+            and t1.status = 0
+            <if test="isMember == 0">
+                and t2.expiration_time <![CDATA[<=]]> now()
+            </if>
+            <if test="isMember == 1">
+                and t2.expiration_time <![CDATA[>]]> now()
+            </if>
+        </where>
+    </select>
+
+    <!--查询魅力真爱榜-->
+    <select id="getCharmRanking" resultType="java.util.Map">
+        SELECT
+            t1.give_user_id as giveUserId,
+            sum(t1.charm_value) as charmValue,
+            t2.nick_name as nickName,
+            t2.thumb_icon_url thumbIconUrl,
+            t2.sex,
+            t3.`level`
+        FROM
+            user_charm t1
+            LEFT JOIN tb_user t2 ON t1.give_user_id = t2.user_id
+            LEFT JOIN tb_user_account_attach t3 ON t1.give_user_id = t3.user_id
+        WHERE
+            t1.user_id = #{userId}
+            GROUP BY t1.give_user_id
+            ORDER BY charmValue DESC
+            LIMIT #{limit}
+    </select>
+
+    <!--查询魅力礼物榜-->
+    <select id="getGiftRanking" resultType="java.util.Map">
+        SELECT
+            t1.give_user_id as giveUserId,
+            t1.charm_value as charmValue,
+            t1.gift_num as giftNum,
+            DATE_FORMAT(t1.create_time,'%Y-%m-%d %H:%i') as createTime,
+            t2.gift_name as giftName,
+            t2.gift_url as giftUrl,
+            t3.nick_name as nickName,
+            t3.thumb_icon_url thumbIconUrl,
+            t3.sex,
+            t4.`level`
+        FROM
+            user_charm t1
+            LEFT JOIN gift t2 ON t1.gift_id = t2.gift_id
+            LEFT JOIN tb_user t3 ON t1.give_user_id = t3.user_id
+            LEFT JOIN tb_user_account_attach t4 ON t1.give_user_id = t4.user_id
+        WHERE
+            t1.user_id = #{userId}
+            ORDER BY t1.create_time DESC
+            LIMIT #{limit}
+    </select>
+
+    <!--魅力,守护排行榜-->
+    <select id="getCharmDedicate" resultType="java.util.Map">
+      select
+        t1.${column} userId,
+        sum(t1.charm_value) totalValue,
+        t2.nick_name as nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        DATE_FORMAT(t1.create_time,'%Y-%m-%d') as createTime
+      from user_charm t1
+      LEFT JOIN tb_user t2 ON t1.${column} = t2.user_id
+      where t1.create_time BETWEEN #{startTime} and #{endTime} group by userId
+      ORDER BY totalValue desc
+      limit #{limit}
+    </select>
+
+    <!--荣誉室-->
+    <select id="getCharmHonor" resultType="java.util.Map">
+      select
+        t1.user_id userId,
+        t1.charm_value totalValue,
+		t1.`type`,
+        t2.nick_name nickName,
+        t2.thumb_icon_url thumbIconUrl,
+        DATE_FORMAT(t1.create_time,'%m/%d') as createTime
+      from user_charm_honor t1
+      LEFT JOIN tb_user t2 ON t1.user_id = t2.user_id
+      where `type` = #{type}
+      ORDER BY createTime desc
+      limit #{limit}
+    </select>
+
+
+    <!--获取钻石金币-->
+    <select id="getCurrency" parameterType="java.lang.Long" resultType="java.util.Map">
+        select diamond, gold from tb_user_account_attach where user_id = #{userId}
+    </select>
+
+    <!--获取性别-->
+    <select id="getSex" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select sex from tb_user where user_id = #{userId}
+    </select>
+</mapper>

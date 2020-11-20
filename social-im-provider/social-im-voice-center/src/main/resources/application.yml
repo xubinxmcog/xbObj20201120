@@ -1,0 +1,40 @@
+#配置读取的环境
+spring:
+  profiles:
+    active: dev
+  jackson:
+    default-property-inclusion: non_null
+
+mybatis:
+  #注意：一定要对应mapper映射xml文件的所在路径
+  mapper-locations: classpath:mapper/*.xml
+  #注意：对应实体类的路径
+  type-aliases-package: com.enuos.live.pojo
+
+pagehelper:
+  helper-dialect: mysql
+  #启用合理化，如果pageNum < 1 会查询第一页，如果 pageNum > pages 会查询最后一页
+  reasonable: true
+  support-methods-arguments: true
+  page-size-zero: true
+  params: count=countSql
+
+# 阿里云音视频通信
+aliyun:
+  gslb: https://rgslb.rtc.aliyuncs.com
+  appId: f2of5r2z
+  appKey: cdd54e45b8882494edc8ef376f42fe45
+  accessKeyId: LTAI4GHHGHDEkPYDNkEkC5mM
+  #streamURL: rtmp://pili-publish.enuos.net/7lestore/ceshi_7le/
+  # pullUrl: rtmp://pili-live-rtmp.enuos.net/7lestore/ceshi_7le/
+  # 推流
+  streamURL: rtmp://pili-publish.enuos.club/new7estore/
+  # 拉流
+  pullUrl: rtmp://pili-live-rtmp.enuos.club/new7estore/
+  accessSecret: VlFixZTRAlcZALIEXl9spEFVMwu7y9
+
+# 喜马拉雅
+ximalaya:
+  app_key: 08e0a3a3c971205a092a698d916479fb
+  app_secret: 88b96ad608ef97663bed18aab9e6f818
+  url_prefix: https://api.ximalaya.com/

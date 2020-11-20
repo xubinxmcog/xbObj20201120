@@ -1,0 +1,178 @@
+// 语音房操作 消息号 20002
+package Platform.ModelC20002;
+option java_package = "com.enuos.live.proto.c20002msg";
+option java_outer_classname = "C20002";
+
+// 伴奏播放状态
+message C200020c2s {
+    required int64 roomId = 1; // 房间号
+    required int64 status = 2; // 1-播放 0-停止
+    required string musicName = 3; // 音乐名字
+    required string userIconURL = 4; // 用户头像
+}
+
+message C200020s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 status = 2; // 0-播放 1-停止
+    required string musicName = 3; // 音乐名字
+    required string userIconURL = 4; // 用户头像
+}
+
+// 红包
+message C200021c2s {
+    required int64 roomId = 1; // 房间号
+    required int64 rpId = 2; // 红包ID
+    required int64 sendUserId = 3; // 发红包人ID
+    required string sendNickName = 4; // 发红包人昵称
+    required string sendIconURL = 5; // 发红包人头像
+}
+
+message C200021s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 rpId = 2; // 红包ID
+    required int64 sendUserId = 3; // 发红包人ID
+    required string sendNickName = 4; // 发红包人昵称
+    required string sendIconURL = 5; // 发红包人头像
+}
+
+// 送礼物
+message C200022s2c {
+    required int64 roomId = 1; // 房间号
+    required int64 fromUserId = 2; // 送礼人ID
+    required string fromIconURL = 3; // 送礼人头像
+    required string fromNickName = 4; // 送礼人昵称
+    required int64 toUserId = 5; // 收礼人ID
+    required string toNickName = 6; // 收礼人昵称
+    required int64 toSex = 7; // 收礼人性别
+    required string giftURL = 8; // 礼物图片
+    required int64 giftNum = 9; // 数量
+    optional string dynamicPicture = 10; // 礼物动画
+}
+
+message C200022c2s { //All
+    required int64 roomId = 1; // 房间号
+    required int64 fromUserId = 2; // 送礼人ID
+    required string fromIconURL = 3; // 送礼人头像
+    required string fromNickName = 4; // 送礼人昵称
+    required int64 toUserId = 5; // 收礼人ID
+    required string toNickName = 6; // 收礼人昵称
+    required int64 toSex = 7; // 收礼人性别
+    required string giftURL = 8; // 礼物图片
+    required int64 giftNum = 9; // 数量
+    optional string dynamicPicture = 10; // 礼物动画
+}
+
+// 表情
+message C200023c2s {
+    required int64 roomId = 1; // 房间号
+    required int64 userId = 2; // 用户ID
+    required int64 faceType = 3; // 表情类型
+    optional int64 resultIndex = 4; // 结果序号(骰子,摇号)
+}
+
+message C200023s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 userId = 2; // 用户ID
+    required int64 faceType = 3; // 表情类型
+    optional int64 resultIndex = 4; // 结果序号(骰子,摇号)
+}
+
+// 互动表情
+message C200024c2s {
+    required int64 roomId = 1; // 房间号
+    required int64 fromUserId = 2; // 发送用户ID
+    required int64 toUserId = 3; // 接收用户ID
+    required string faceName = 4; // 表情名
+    required string moveAnimToLeft = 5; // 向左动画
+    required string endAnimToLeft = 6; // 左结束动画
+    optional string moveAnimToRight = 7; // 向右动画
+    optional string endAnimToRight = 8; // 右结束动画
+    optional string staticToLeft = 9; // 向左静态图
+    optional string staticToRight = 10; // 向右静态图
+}
+
+message C200024s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 fromUserId = 2; // 发送用户ID
+    required int64 toUserId = 3; // 接收用户ID
+    required string faceName = 4; // 表情名
+    required string moveAnimToLeft = 5; // 向左动画
+    required string endAnimToLeft = 6; // 左结束动画
+    optional string moveAnimToRight = 7; // 向右动画
+    optional string endAnimToRight = 8; // 右结束动画
+	optional string staticToLeft = 9; // 向左静态图
+    optional string staticToRight = 10; // 向右静态图
+
+}
+
+// 抽奖结果
+message C200025c2s {
+    required int64 roomId = 1; // 房间号
+    repeated ESRoomUserInfo winning  = 2; // 中奖列表
+    repeated ESRoomUserInfo target  = 3; // 参与用户列表
+}
+
+message C200025s2c { //All
+    required int64 roomId = 1; // 房间号
+    repeated ESRoomUserInfo winning  = 2; // 中奖列表
+    repeated ESRoomUserInfo target  = 3; // 参与用户列表
+}
+
+// 重回房间
+message C200026c2s {
+    required int64 roomId = 1; // 房间号
+}
+
+// 发起PK
+message C200027c2s {
+    required int64 roomId = 1; // 房间号
+    repeated ESRoomUserInfo target  = 2; // 用户列表
+    required int32 type = 3; // PK类型 1-魅力 2-人气
+    required int32 time = 4; //PK时间 秒
+}
+
+message C200027s2c { //All
+    required int64 roomId = 1; // 房间号
+    repeated ESRoomUserInfo target  = 2; // 用户列表
+    required int32 type = 3; // PK类型 1-魅力 2-人气
+    required int32 time = 4; //PK时间 秒
+}
+
+// 投票
+message C200028c2s {
+    required int64 roomId = 1; // 房间号
+    required int64 targetUserId  = 2; // 用户列表
+    required int32 type = 3; // PK类型 1-魅力 2-人气
+    required int32 poll = 4; //票数
+}
+
+message C200028s2c { //All
+    required int64 roomId = 1; // 房间号
+    required int64 targetUserId  = 2; // 用户列表
+    required int32 type = 3; // PK类型 1-魅力 2-人气
+    required int32 poll = 4; //票数
+}
+
+// 设置管理员
+message C200029c2s {
+    required int64 roomId = 1; // 房间号
+    required int64 targetUserId  = 2; // 目标用户
+    required string targetNickName = 3; // 目标用户昵称
+    required int32 type = 4; // 1-设置 0-取消
+}
+
+message C200029s2c { //All
+    //插入消息[xx已被设置为管理员] loginUserId=targetUserId 刷新房间信息
+    required int64 roomId = 1; // 房间号
+    required int64 targetUserId  = 2; // 目标用户
+    required string targetNickName = 3; // 目标用户昵称
+    required int32 type = 4; // 1-设置 0-取消
+}
+
+// 房间用户
+message ESRoomUserInfo {
+    required int64 userId = 1;
+    required string nickName = 2;
+    required string thumbIconURL = 3;
+    required int32 sex = 4;
+}

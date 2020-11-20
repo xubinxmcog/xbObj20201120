@@ -1,0 +1,198 @@
+package Platform.ModelC10002;
+option java_package = "com.enuos.live.proto.c10002msg";
+option java_outer_classname = "C10002";
+// 即时通讯 消息号channel 10002
+// enum 可以包含一个用户自定义的枚举类型uint32
+// message 可以包含一个用户自定义的消息类型
+// 定义格式:
+// C + 消息号 + 子消息号 + S2C/C2S
+// 限定修饰符包含 required(必须)\optional(可选)\repeated(数组)等自行了解
+// 限定修饰符 | 数据类型 | 字段名称 | = | 字段编码值 |
+// remark:
+// C >>>> 协议标记(区分协议)
+// 消息号 >>>> 功能KEY 例如: 10001/10002
+// 子消息号 >>>> 操作编号 例如: 1/2/3/4/5
+// S2C >>>> Server to Client
+// C2S >>>> Client to Server
+
+// 用户信息字段·单聊&群聊
+message ESUserInfo {
+  required int64 userId = 1; // 用户ID [例如：123456789]
+  required string alias = 2; // 用户别称 [例如：Lake😀]
+  required string iconURL = 3; // 用户头像 
+  required string iconFrame = 4; // 头像框 
+  required string chatFrame = 5; // 聊天框 
+  optional string chatFrameAttribute = 6; //聊天框属性 json字符串
+}
+
+// 表情信息字段·单聊&群聊 messageType-1
+message ESEmojiInfo {
+  required string emName = 1; // 表情名称
+  required string animURL = 2; // 表情动图
+}
+
+// 图片信息字段·单聊&群聊 messageType-2
+message ESImageInfo {
+  required int32 width = 1; // 图片宽度 [例如：200]
+  required int32 height = 2; // 图片高度 [例如：200]
+  optional bytes imageFile = 3; // 图片文件 [字节数据]
+  optional string imageExt = 4; // 文件格式 [例如：.jpg]
+  optional string imageURL = 5; // 图片原图访问地址 
+  optional string litimg = 6; // 图片缩略图访问地址 
+}
+
+// 语音信息字段·单聊&群聊 messageType-3
+message ESVoiceInfo {
+  required int32 duration = 1; // 持续时间 [例如：20(s)]
+  optional bytes voiceFile = 2; // 语音文件 [字节数据]
+  optional string voiceExt = 3; // 文件格式 [例如：.amr]
+  optional string voiceURL = 4; // 语音访问地址 
+}
+
+// 视频信息字段·单聊&群聊 messageType-4
+message ESVideoInfo {
+  required int32 width = 1; // 视频宽度 [例如：200]
+  required int32 height = 2; // 视频高度 [例如：200]
+  required int32 duration = 3; // 持续时间 [例如：20(s)]
+  optional bytes videoFile = 4; // 视频文件 [字节数据]
+  optional string videoExt = 5; // 文件格式 [例如：.mp4]
+  optional bytes coverFile = 6; // 封面文件 [字节数据]
+  optional string coverExt = 7; // 文件格式 [例如：.jpg]
+  optional string videoURL = 8; // 访问地址 
+  optional string coverURL = 9; // 封面访问地址 
+}
+
+// 邀请信息字段·单聊 messageType-5
+message ESInviteInfo {
+  required int32 sort = 1; // 游戏分类 [0-双人 1-多人]
+  optional int64 roomId = 2; // 房间ID [例如：55599745]
+  required int64 gameCode = 3; // 游戏ID [例如：30001]
+  required string inviteImageURL = 4; // 邀请图片背景 
+  required string inviteTitle = 5; // 邀请标题 [例如：五子棋]
+  optional int32 inviteStatus = 6; // 邀请状态·游戏 [0-正常 1-取消]
+  optional int32 acceptStatus = 7; // 接受状态·游戏 [0-未接受 1-已接受]
+}
+
+// 进入聊天 子消息号child 0
+message C100020c2s {
+  required int32 sort = 1; // 聊天分类 [1-单聊 2-群聊]
+  optional int64 targetId = 2; // 目标id [单聊.例如：123456789]
+  optional int64 groupId = 3; // 群聊id [群聊.例如：958777756]
+}
+message C100020s2c {
+  required int32 result = 1; // 返回结果 [0-成功 1-失败]
+  required int32 sort = 2; // 聊天分类 [1-单聊 2-群聊]
+  optional int32 isBlacklist = 3; // 是否拉黑。单聊 [0-否 1-是]
+  repeated ESUserInfo userInfo = 4; // 用户信息
+  optional int64 targetId = 5; // 目标id [单聊]
+  optional int64 groupId = 6; // 群聊id [群聊]
+}
+
+// 发送消息 子消息号child 1
+message C100021c2s {
+  required int32 sort = 1; // 聊天分类 [1-单聊 2-群聊]
+  optional int64 targetId = 2; // 目标id [单聊.例如：123456789]
+  optional int64 groupId = 3; // 群聊id [群聊.例如：958777756]
+  required int32 messageType = 4; // 消息类型 [0-文本 1-Emoji 2-图片 3-语音 4-视频 5-游戏邀请·单聊]
+  optional string message = 5; // 消息内容 [messageType = 0]
+  required string messageId = 6; //消息的唯一标识符 [IOS/Android 提供]
+  optional ESImageInfo imageInfo = 7; // 图片信息字段 [messageType-2]
+  optional ESVoiceInfo voiceInfo = 8; // 语音信息字段 [messageType-3]
+  optional ESVideoInfo videoInfo = 9; // 视频信息字段 [messageType-4]
+  optional ESEmojiInfo emojiInfo = 10; //表情信息字段 [messageType-1]
+}
+message C100021s2c {
+  required int32 result = 1; // 返回结果 [0-成功 1-失败 2-关闭页面]
+  required int64 recordId = 2; // 记录id [单聊&群聊]
+  required string messageId = 3; //消息的唯一标识符 [IOS/Android 提供]
+}
+
+// 接收消息 子消息号child 2 
+message C100022s2c {
+  required int32 sort = 1; // 聊天分类 [1-单聊 2-群聊]
+  required int64 recordId = 2; // 记录id [单聊&群聊]
+  optional int64 groupId = 3; // 群聊id [群聊.例如：958777756]
+  required int64 userId = 4; // 用户id·单聊&群聊 [信息所有者.例如：123456789]
+  optional ESUserInfo messageOwner = 5; // 用户装饰信息
+  optional string message = 6; // 信息内容 [messageType = 0]
+  required string messageId = 7; // 消息的唯一标识符 [IOS/Android 提供]
+  optional int32 messageSort = 8; // 消息分类·群聊 [0-聊天 1-提示]
+  required int32 messageType = 9; // 消息类型·单聊&群聊 [0-文本 1-Emoji 2-图片 3-语音 4-视频 5-游戏邀请·单聊]
+  optional ESImageInfo imageInfo = 10; // 图片信息字段·单聊&群聊 [messageType-2]
+  optional ESVoiceInfo voiceInfo = 11; // 语音信息字段·单聊&群聊 [messageType-3]
+  optional ESVideoInfo videoInfo = 12; // 视频信息字段·单聊&群聊 [messageType-4]
+  optional ESInviteInfo inviteInfo = 13; // 邀请信息字段·单聊 [messageType-5]
+  optional ESEmojiInfo emojiInfo = 14; //表情信息字段 [messageType-1]
+  required int32 isAction = 15; // 是否操作·标记语音 [0-否 1-是]
+  required string createTime = 16; // 创建时间 [例如：2020-05-13 09:17:23]
+}
+
+// 游戏邀请 子消息号child 3 
+message C100023c2s {
+  required int64 targetId = 1; // 目标id [例如：123456789]
+  required int64 inviteId = 2; // 邀请ID =[游戏ID.例如：30001]
+  required string inviteTitle = 3; // 邀请标题 [例如：斗兽棋]
+  required string inviteImageURL = 4; // 游戏图片访问地址 
+  required string messageId = 5; // 消息的唯一标识符 [IOS/Android 提供]
+}
+message C100023s2c {
+  required int32 result = 1; // 返回结果 [0-成功 1-失败 2-不支持]
+  required int64 recordId = 2; // 记录id [单聊]
+  required string messageId = 3; // 消息的唯一标识符 [IOS/Android 提供]
+}
+
+// 聆听语音 子消息号child 4
+message C100024c2s {
+  required int32 sort = 1; // 聊天分类 [1-单聊 2-群聊]
+  optional int64 targetId = 2; // 目标id [单聊.例如：123456789]
+  optional int64 groupId = 3; // 群聊id [群聊.例如：958777756]
+  required int64 recordId = 4; // [单聊&群聊]
+}
+
+// 接受邀请 子消息号child 5
+message C100025c2s {
+  required int64 recordId = 1; // 记录id [单聊]
+  required int64 userId = 2; // 用户id [信息所有者.例如：123456789]
+  required int64 gameCode = 3; // 游戏id [例如：30001]
+  required string messageId = 4; // 消息的唯一标识符 [IOS/Android 提供]
+}
+message C100025s2c {
+  required int32 result = 1; // 返回结果 [0-成功 1-失败]
+  required int64 gameCode = 2; // 游戏ID [例如：30001]
+  required int64 roomId = 3; // 房间id [例如：955587455]
+  required string messageId = 4; // 消息的唯一标识符 [IOS/Android 提供]
+}
+
+// 接收发送 子消息号child 6
+message C100026s2c {
+  required int64 roomId = 1; // 房间id [例如：955587455]
+  required int64 gameCode = 2; // 游戏ID [例如：30001]
+  required string messageId = 3; // 消息的唯一标识符 [IOS/Android 提供]
+}
+
+// 离开聊天 子消息号child 7
+message C100027c2s {
+  required int32 sort = 1; // 聊天分类 [1-单聊 2-群聊]
+  optional int64 targetId = 2; // 目标id [单聊.例如：123456789]
+  optional int64 groupId = 3; // 群聊id [群聊.例如：958777756]
+}
+
+// 取消约战 子消息号child 8
+message C100028s2c {
+  required int64 targetId = 1; // 目标id [单聊.例如：123456789]
+  repeated int64 recordIdList = 2; // ID列表·单聊 [记录id列表]
+}
+
+// 进入多人 子消息号child 9
+message C100029c2s {
+  required int64 recordId = 1; // 记录id
+}
+message C100029s2c {
+  required int32 result = 1; // 返回结果 [0-成功 1-失败 2-失效]
+  required int64 recordId = 2; // 记录id
+}
+
+// 通知信息·群聊 子消息号child 10
+message C1000210s2c {
+  required string noticeMessage = 1; // 通知信息
+}

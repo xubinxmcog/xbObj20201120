@@ -1,0 +1,233 @@
+//Exploding Kittens(中文名称 炸弹猫) 参考官方网站 https://explodingkittens.com/
+//玩法介绍 https://explodingkittens.com/how-to-play/exploding-kittens
+package Platform.ModelF30291;
+option java_package = "com.enuos.live.proto.f30291msg";
+option java_outer_classname = "F30291";
+
+//玩家信息
+message PlayerInfo {
+  required string nick = 1; //玩家昵称
+  required int64 userID = 2; //玩家ID
+  required string url = 3; //玩家头像
+  required int32 sex = 4; //玩家性别 1-男 2-女
+  required int32 deviPosition = 5; //玩家座位
+  required int32 state = 6; //玩家状态 0-未准备 1-已准备 2-游戏中 3-已出局 4-已离开
+  required int32 coin = 7; //玩家金币
+  optional string urlFrame = 8; // 头像框
+  optional GameSkin gameSkin = 9; //游戏皮肤
+  repeated CardInfos handCard = 10; //手牌信息
+  optional int32 readyTime = 11; //准备时间
+}
+
+//卡牌信息
+message CardInfos {
+  required int32 handCardID = 1; //玩家手牌
+  required int32 cardFunc = 2; //牌功能 1-炸弹 2-拆弹 3-先知 4-占星 5-洗牌 6-抽底 7-跳过 8-转向 9-诅咒 10诅咒*2 11-祈求 12-束缚 13-交换
+}
+
+//游戏皮肤
+message GameSkin {
+  required string cardBack = 1; //卡背
+}
+
+//房间信息 <== 0
+message F30291S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  repeated PlayerInfo seatPlayer = 2; //玩家信息
+}
+
+//玩家准备 ==> 1 
+message F302911C2S {
+  required int32 isReady = 1; //准备状态 0-准备 1-取消
+}
+//准备结果 <== 1
+message F302911S2C {
+  required int32 result = 1; //准备结果 0-成功 1-失败
+  required int32 isReady = 2; //准备状态 0-准备 1-取消
+  optional int64 userID = 3; //玩家ID
+  optional int32 startTime = 4; //开始倒计时
+}
+
+//开始游戏 <== 2
+message F302912S2C {
+  repeated CardInfos handCards = 1; //玩家手牌
+  required int32 direction = 2; // 1-顺时针 2-逆时针
+  required int64 nextUserId = 3; //操作玩家ID
+  required int32 times = 4; //玩家操作时间
+  required int32 bombPro = 5; //炸弹概率
+  required int32 remainingCard = 6; //剩余牌数
+}
+
+//玩家出牌 ==> 3
+message F302913C2S {
+  required CardInfos playCardId = 1; //玩家出牌
+}
+//出牌信息 <== 3
+message F302913S2C {
+  required int32 result = 1; //玩家出牌结果码
+  required CardInfos playCardId = 2; //玩家出牌
+  repeated CardInfos HandCardId = 3; //玩家出牌更新玩家手牌
+  required int64 optionUserID = 4; //操作玩家ID
+  optional int64 beUseUserID = 5; //被使用的玩家UserID
+  optional int64 nextUserId = 6; //下次玩家操作ID
+  required int32 times = 7; //操作时间
+  optional int32 selectNum = 8; //选择数量==>拆弹
+  required int32 direction = 9; // 1-顺时针 2-逆时针
+  optional int32 lastExploding = 10; //炸弹位置
+  repeated CardInfos XzCardId = 11; //使用先知展示最近三张
+  repeated int64 skillUserIds = 12; //可以被使用的IDs
+  optional int32 remainingCurse = 13; //剩余诅咒次数
+  optional int32 rightNowTouchCard = 14; //立刻摸牌
+  required int32 remainingCard = 15; //剩余牌数
+}
+
+//选择玩家 ==> 4
+message F302914C2S {
+  required int64 useUserID = 1; //选择使用技能的玩家UserId
+}
+//执行特效 <== 4
+message F302914S2C {
+  required int32 result = 1; //使用技能的结果码
+  required int64 actionUserId = 2; //操作玩家
+  required int32 skillIndex = 3; //功能 1-炸弹 2-拆弹 3-先知 4-占星 5-洗牌 6-抽底 7-跳过 8-转向 9-诅咒 10诅咒*2 11-祈求 12-束缚 13-交换
+  required int64 beUseUserID = 4; //被使用技能玩家ID
+  repeated CardInfos actionHandCard = 5; //操作玩家手牌信息
+  repeated CardInfos beUseHandCard = 6; //被使用玩家手牌信息
+  optional int64 nextUserId = 7; //下次玩家操作ID
+  optional int32 remainingCurse = 8; //剩余诅咒次数
+  optional int32 times = 9; //操作时间
+  optional int32 rightNowTouchCard = 10; //立刻摸牌
+}
+
+//给予卡牌 ==> 5
+message F302915C2S {
+  required CardInfos giveCardId = 1; //玩家给牌(祈求)
+}
+//给予结果 <== 5 
+message F302915S2C {
+  repeated CardInfos giveHandCardid = 1; //给牌玩家更新玩家手牌
+  repeated CardInfos receiveHandCardid = 2; //接收玩家更新玩家手牌
+  required int64 giveUsrdId = 3; //给牌玩家ID
+  required int64 receiveUserId = 4; //接收玩家ID
+  required int32 times = 5; //操作时间
+  required int64 actionUserId = 6; //当前玩家操作ID
+}
+
+//玩家摸牌 <== 6
+message F302916S2C {
+  repeated CardInfos HandCardId = 1; //玩家摸牌更新玩家手牌
+  required int64 userID = 2; //玩家ID
+  required int32 bombPro = 3; //炸弹概率
+  optional int32 isExplosion = 4; //是否爆炸
+  required int64 nextUserId = 5; //下次玩家操作ID
+  required int32 times = 6; //操作时间
+  optional int32 remainingCurse = 7; //剩余诅咒次数
+  optional int32 rightNowTouchCard = 8; //立刻摸牌
+  required int32 remainingCard = 9; //剩余牌数
+}
+
+//隐藏玩家 <== 7
+message F302917S2C {
+  repeated int64 userID = 1; // 玩家ID列表 
+}
+
+//站起坐下 ==> 8
+message F302918C2S {
+  required int32 isStand = 1; //玩家操作 0-站起 1-坐下
+}
+//操作结果 <== 8
+message F302918S2C {
+  required int32 stand = 1; //玩家操作 0-站起 1-坐下
+  required int32 result = 2; //结果码 0-成功 1-失败
+  optional int32 seatNo = 3; //座位编号
+  optional PlayerInfo joinInfo = 4; //玩家信息
+}
+
+//观众信息 <== 9
+message F302919S2C {
+  required PlayerInfo nowUser = 1; //当前玩家
+  required bool isCanAction = 2; //是否可以操作
+  required int32 nowStatus = 3; //当前状态 0-坐下 1-站起
+  repeated string watchUser = 4; //观战玩家
+}
+
+//玩家退出 ==> 10
+message F3029110S2C {
+  required int64 userID = 1; //退出玩家UserId
+}
+
+//断线重连 <== 11
+message F3029111S2C {
+  repeated PlayerInfo breakLineInfo = 1; //玩家信息
+  optional int64 cursedPlayer = 2; //被诅咒玩家
+  optional int32 remainingCurse = 3; //剩余诅咒次数
+  repeated int64 boundPlayer = 4; //被束缚的玩家
+  optional int64 givingPlayer = 5; //被祈求玩家
+  optional CardInfos desktopCards = 6; //桌面卡牌
+  repeated int64 skillUserIds = 7;//可以被使用的IDs
+  optional int32 selectNum = 8; //选择数量==>拆弹
+  required int64 actionUserId = 9; //当前玩家操作ID
+  required int32 times = 10; //剩余操作时间
+  optional int32 rightNowTouchCard = 11; //立刻摸牌
+  required int32 remainingCard = 12; //剩余牌数
+  required int32 direction = 13; // 1-顺时针 2-逆时针
+  required int32 bombPro = 14; //炸弹概率
+}
+
+//更新金币 <== 12
+message F3029112S2C {
+  required int32 playGold = 1; //玩家金币 
+}
+
+//放置炸弹 ==> 13
+message F3029113C2S {
+  required int32 Select = 1; //玩家选择 1-第1张 2-第2张 3-第3张 4-第4张 5-第5张 6-底牌 7-随机
+}
+message F3029113S2C {
+  required int64 nextUserId = 1; //下次玩家操作ID
+  required int32 times = 2; //操作时间
+  required int32 bombPro = 3; //炸弹概率
+  optional int32 rightNowTouchCard = 4; //立刻摸牌
+  required int32 remainingCard = 5; //剩余牌数
+}
+
+//玩家出局 <== 14
+message F3029114S2C {
+  required int64 finishId = 1; //结束玩家
+  required int32 coin = 2; //玩家金币
+  required int32 exp = 3; //玩家exp
+  required int32 ranking = 4; //玩家名次
+  required string icon = 5; //玩家头像
+  required string nick = 6; //玩家昵称
+  required int32 sex = 7; //玩家性别
+  optional int32 isDouble = 8;//默认是0  0.不加倍  1.加倍
+}
+
+//抽底返回 <== 16
+message F3029116S2C {
+  required int32 result = 1; //结果码
+  required int64 actionUserId = 2; //操作玩家
+  repeated CardInfos HandCardId = 3; //玩家出牌更新玩家手牌
+  optional int32 times = 4; //操作时间
+  required int32 bombPro = 5; //炸弹概率
+  optional int32 isExplosion = 6; //是否爆炸
+  required int64 nextUserId = 7; //下次玩家操作ID
+  optional int32 remainingCurse = 8; //剩余诅咒次数
+  optional int32 rightNowTouchCard = 9; //立刻摸牌
+  required int32 remainingCard = 10; //剩余牌数
+}
+
+//游戏结算 <== 17
+message F3029117S2C {
+  repeated EnterPlayerInfo enterPlayerInfo = 1; //结算玩家信息
+}
+//玩家信息
+message EnterPlayerInfo {
+  required string icon = 1; //玩家头像
+  required string nick = 2; //玩家昵称
+  required int32 coin = 3; //玩家金币
+  required int32 expNum = 4; //玩家exp
+  required int32 sex = 5; //玩家性别
+  required int32 ranking = 6; //名次
+  optional int32 isDouble = 7;//默认是0  0.不加倍  1.加倍
+}

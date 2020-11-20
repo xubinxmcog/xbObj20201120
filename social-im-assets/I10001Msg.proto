@@ -1,0 +1,44 @@
+// 游戏缓存
+package Platform.ModelI10001;
+option java_package = "com.enuos.live.proto.i10001msg";
+option java_outer_classname = "I10001";
+
+// 玩家信息
+message PlayerInfo {
+  required int64 userId = 1; //玩家ID 
+  required string iconUrl = 2; //用户头像
+  required string nickName = 3; //用户昵称
+  required int32 sex = 4; //用户性别
+  required int32 level = 5; //用户等级
+}
+
+// 加入游戏
+message JoinGame {
+  required int64 gameId = 1; //游戏ID
+  required int64 roomId = 2; //房间ID 
+}
+
+// 房间记录
+message RoomRecord {
+  required int64 gameId = 1; //游戏ID
+  required int64 roomId = 2; //房间ID
+  optional int32 openWay = 3; //开放方式
+  // 0-公开 1-创建
+  optional int32 roomType = 4; //房间类型
+  // 0-[1卧底] 1-[2卧底] ==> 谁是卧底
+  optional int32 gameMode = 5; //游戏方式
+  // 0-血战到底 1-血流到底 ==> 7乐麻将
+  // 0-经典 1-癞子 ==> 7乐斗地主
+  optional int32 speakMode = 6; //交流方式
+  // 0-文字 1-语音 ==> 谁是卧底
+  optional int32 gameNumber = 7; //游戏人数
+  // 0-[2人] 1-[4人] ==> 飞行棋
+  // 0-[4-6人] 1-[7-8人] ==> 谁是卧底
+  // 0-[6人] 1-[9人] 2-[12人] ==> 狼人杀
+  optional int32 gameSession = 8; // 游戏场次
+  // 1-普通场 2-进阶场 ==>  狼人杀
+  // 1-雀士场 2-雀杰场 3-雀豪场 4-雀圣场 ==> 7乐麻将
+  // 1-初级场 2-中级场 3-高级场 4-王者场 ==> 7乐斗地主
+}
+
+

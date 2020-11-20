@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.enuos.live.mapper.LogoutMapper">
+
+    <!--保存账户注销信息-->
+    <insert id="save" parameterType="com.enuos.live.pojo.Logout" useGeneratedKeys="true">
+        insert into tb_user_logout
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            user_id,
+            cause_ids,
+            <if test="description != null and description != ''">
+                description
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{userId},
+            #{causeIds},
+            <if test="description != null and description != ''">
+                #{description}
+            </if>
+        </trim>
+    </insert>
+</mapper>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enuos.live.mapper.VersionAppMapper">
+  <resultMap id="BaseResultMap" type="com.enuos.live.pojo.VersionApp">
+    <id column="id"  property="id" />
+    <result column="version"  property="version" />
+    <result column="platform"  property="platform" />
+    <result column="introduction"  property="introduction" />
+    <result column="download_url"  property="downloadUrl" />
+    <result column="status"  property="status" />
+    <result column="is_must"  property="isMust" />
+    <result column="create_time"  property="createTime" />
+    <result column="update_time"  property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, version, platform, introduction, download_url, `status`, is_must, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from version_app
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByPlatform" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from version_app
+    where
+    platform = #{platform}
+    and `status` = 1
+    order by create_time desc
+    limit 1
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from version_app
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.enuos.live.pojo.VersionApp" useGeneratedKeys="true">
+    insert into version_app (
+      version, platform, introduction,
+      download_url, `status`,is_must,
+      create_time, update_time)
+    values (#{version}, #{platform}, #{introduction},
+      #{downloadUrl}, 1, #{isMust},
+      NOW(), #{updateTime})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.enuos.live.pojo.VersionApp">
+    update version_app
+    <set>
+      <if test="version != null">
+        version = #{version},
+      </if>
+      <if test="platform != null">
+        platform = #{platform},
+      </if>
+      <if test="introduction != null">
+        introduction = #{introduction},
+      </if>
+      <if test="downloadUrl != null">
+        download_url = #{downloadUrl},
+      </if>
+      <if test="status != null">
+        `status` = #{status},
+      </if>
+      <if test="isMust != null">
+        `is_must` = #{isMust},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime},
+      </if>
+        update_time = NOW()
+    </set>
+    where id = #{id}
+  </update>
+</mapper>
