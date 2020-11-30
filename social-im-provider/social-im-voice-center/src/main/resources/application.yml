@@ -22,19 +22,19 @@ pagehelper:
 # 阿里云音视频通信
 aliyun:
   gslb: https://rgslb.rtc.aliyuncs.com
-  appId: f2of5r2z
-  appKey: cdd54e45b8882494edc8ef376f42fe45
-  accessKeyId: LTAI4GHHGHDEkPYDNkEkC5mM
+  appId: 
+  appKey: 
+  accessKeyId: 
   #streamURL: rtmp://pili-publish.enuos.net/7lestore/ceshi_7le/
   # pullUrl: rtmp://pili-live-rtmp.enuos.net/7lestore/ceshi_7le/
   # 推流
   streamURL: rtmp://pili-publish.enuos.club/new7estore/
   # 拉流
   pullUrl: rtmp://pili-live-rtmp.enuos.club/new7estore/
-  accessSecret: VlFixZTRAlcZALIEXl9spEFVMwu7y9
+  accessSecret: 
 
 # 喜马拉雅
 ximalaya:
-  app_key: 08e0a3a3c971205a092a698d916479fb
-  app_secret: 88b96ad608ef97663bed18aab9e6f818
+  app_key: 
+  app_secret: 
   url_prefix: https://api.ximalaya.com/

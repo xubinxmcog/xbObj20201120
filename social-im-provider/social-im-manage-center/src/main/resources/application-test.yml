@@ -118,7 +118,7 @@ spring:
 
 uploadFile:
   path: pro
-  scanSeed: oseek@eEQYQk37FrL4agOc8C-1sDzur
+  scanSeed: 
 
 #参数加解密
 data:
